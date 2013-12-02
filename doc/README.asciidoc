@@ -1,0 +1,89 @@
+
+check_ups_health - Ein universelles Tape-Library-Plugin for Shinken / Nagios / Icinga
+===========================================================================
+
+Beschreibung
+------------
+Das Plugin check_ups_health wurde mit dem Ziel entwickelt, ein einziges Werkzeug für sämtliche Belange des Monitorings von unterbrechungsfreien Stromversorgungen zur Verfügung zu haben. 
+
+Motivation
+Anstatt eine Vielzahl von Plugins für das Monitoring von Interfaces, Hardware, Slots etc. zu installieren und das für jedes Fabrikat, soll mit check_ups_health nur noch ein einziges Plugin ausreichen.
+
+
+Dokumentation
+
+.An example table
+[options="header,footer"]
+|=======================
+|Col 1|Col 2      |Col 3
+|1    |Item 1     |a
+|2    |Item 2     |b
+|3    |Item 3     |c
+|6    |Three items|d
+|=======================
+
+.Modes
+[[tabmodes]]
+[options="header,footer"]
+|=============================
+|		|	|hardware-health|cpu-load|memory-usage|interface-usage
+|HP		|StorEver 1x8	|X|||X
+|=============================
+
+Kommandozeilenparameter
+
+
+Installation
+
+
+Beispiele
+
+
+Download
+
+
+Externe Links
+
+
+Changelog
+
+
+Copyright
+
+
+Autor
+
+
+<div style="float: left; 
+position: relative;
+-moz-transform: rotate(270deg);  /* FF3.5+ */        
+-o-transform: rotate(270deg);  /* Opera 10.5 */   
+-webkit-transform: rotate(270deg);  /* Saf3.1+, Chrome */              
+filter:  progid:DXImageTransform.Microsoft.BasicImage(rotation=3);  /* IE6,IE7 */          
+-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* IE8 */           
+"
+>Count & Value</div>;
+
+
+
+<style type="text/css">.r90 { 
+-webkit-transform: rotate(90deg); 
+-moz-transform: rotate(90deg); 
+-o-transform: rotate(90deg); 
+-ms-transform: rotate(90deg); 
+transform: rotate(90deg); 
+width: 1em; 
+line-height: 1ex;  
+}</style> 
+<div style="display: table-cell; vertical-align: middle;"> 
+<div class="r90">p</div> 
+<div class="r90">o</div> 
+<div class="r90">s</div> 
+</div><div style="display: table-cell; vertical-align: middle;"> 
+<div class="r90">(</div> 
+<div class="r90">A</div> 
+<div class="r90">b</div> 
+<div class="r90">s</div> 
+<div class="r90">)</div> 
+</div> 
+

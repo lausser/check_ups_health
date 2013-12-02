@@ -1,0 +1,100 @@
+check_ups_health Nagios Plugin README
+---------------------
+
+This plugin checks the hardware health and various interface metrics
+of uninterruptible power supplies
+
+Copyright (C) Gerhard Lausser, gerhard.lausser@consol.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+* For instructions on installing this plugin for use with Nagios,
+  see below. In addition, generic instructions for the GNU toolchain
+  can be found in the INSTALL file.
+
+* For major changes between releases, read the CHANGES file.
+
+* For information on detailed changes that have been made,
+  read the Changelog file.
+
+* This plugin is self-documenting.  All plugins that comply with
+  the basic guidelines for development will provide detailed help when
+  invoked with the '-h' or '--help' options.
+
+You can check for the latest plugin at:
+  http://labs.consol.de/nagios/check_ups_health
+
+Send mail to gerhard.lausser@consol.de for assistance.  
+Please include the OS type and version that you are using.
+Also, run the plugin with the '-vvv' option and provide the resulting 
+version information.  Of course, there may be additional diagnostic information
+required as well. Use good judgment.
+
+
+How to "compile" the check_ups_health script.
+--------------------------------------------------------
+
+1) Run the configure script to initialize variables and create a Makefile, etc.
+
+	./configure --prefix=BASEDIRECTORY --with-nagios-user=SOMEUSER --with-nagios-group=SOMEGROUP --with-perl=PATH_TO_PERL
+
+   a) Replace BASEDIRECTORY with the path of the directory under which Nagios
+      is installed (default is '/usr/local/nagios')
+   b) Replace SOMEUSER with the name of a user on your system that will be
+      assigned permissions to the installed plugins (default is 'nagios')
+   c) Replace SOMEGRP with the name of a group on your system that will be
+      assigned permissions to the installed plugins (default is 'nagios')
+   d) Replace PATH_TO_PERL with the path where a perl binary can be found.
+      Besides the system wide perl you might have installed a private perl
+      just for the nagios plugins (default is the perl in your path).
+
+
+2) "Compile" the plugin with the following command:
+
+	make
+
+    This will produce a "check_ups_health" script. You will also find
+    a "check_ups_health.pl" which you better ignore. It is the base for
+    the compilation filled with placeholders. These will be replaced during
+    the make process.
+
+
+3) Install the compiled plugin script with the following command:
+
+	make install
+
+   The installation procedure will attempt to place the plugin in a 
+   'libexec/' subdirectory in the base directory you specified with
+   the --prefix argument to the configure script.
+
+
+4) Verify that your configuration files for Nagios contains
+   the correct paths to the new plugin.
+
+
+
+Command line parameters
+-----------------------
+
+You'll find the command line parameters on the website mentioned above.
+If it does not exist or is not up to date, this means that i hadn't the
+time to write/update it yet. I am aware of it, so please don't send me
+mails. Just accept it.
+
+
+
+--
+Gerhard Lausser <gerhard.lausser@consol.de>
