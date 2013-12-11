@@ -244,10 +244,9 @@ sub check_snmp_and_model {
     if (eval "require Net::SNMP") {
       my %params = ();
       my $net_snmp_version = Net::SNMP->VERSION(); # 5.002000 or 6.000000
-      #$params{'-translate'} = [
-      #  -all => 0x0
-      #];
-      #lausser#$params{'-timeout'} = $self->opts->timeout;
+      $params{'-translate'} = [ # because we see "NULL" coming from socomec devices
+        -all => 0x0
+      ];
       $params{'-hostname'} = $self->opts->hostname;
       $params{'-version'} = $self->opts->protocol;
       if ($self->opts->port) {
