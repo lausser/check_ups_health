@@ -2,11 +2,6 @@
 # Changelog of the check_tl_health plugin #
 ############################################
 
-2013-10-07 1.1
-- added Quantum small tape library i40 and i 80
+2013-12-11 1.0
+- initial release (can Socomec RT 3000VA and generic UPS V4 devices)
 
-2013-10-01 1.01
-- Minor cosmetics. Production monitoring of HP StoreEver MSL4048 starts
-
-2013-09-26 1.00
-- Thanks to a loyal customer the development starts.
