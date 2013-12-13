@@ -42,13 +42,25 @@ sub new {
       if ($self->opts->verbose && $self->opts->verbose) {
         printf "I am a %s\n", $self->{productname};
       }
-      if ($self->get_snmp_object('MIB-II', 'sysObjectID', 0) eq $UPS::Device::mib_ids->{'UPSV4-MIB'}) {
+      if ($self->mode =~ /device::interfaces::/) {
+        bless $self, 'NWC::Generic';
+      } elsif ($self->get_snmp_object('MIB-II', 'sysObjectID', 0) eq $UPS::Device::mib_ids->{'UPSV4-MIB'}) {
         bless $self, 'UPS::V4';
         $self->debug('using UPS::V4');
       } else {
-        $self->add_message(CRITICAL,
-            sprintf('unknown device%s', $self->{productname} eq 'unknown' ?
-                '' : '('.$self->{productname}.')'));
+        my $sysobj = $self->get_snmp_object('MIB-II', 'sysObjectID', 0);
+        if ($sysobj && exists $UPS::Device::discover_ids->{$sysobj}) {
+          bless $self, $UPS::Device::discover_ids->{$sysobj};
+          $self->debug('using '.$UPS::Device::discover_ids->{$sysobj});
+        } elsif ($self->mode =~ /device::interfaces::/) { # it is snmp capable, so it should have interfaces
+          bless $self, 'NWC::Generic';
+        } elsif ($self->mode =~ /device::uptime/) {
+          bless $self, 'NWC::Generic';
+        } else {
+          $self->add_message(CRITICAL,
+              sprintf('unknown device%s', $self->{productname} eq 'unknown' ?
+                  '' : '('.$self->{productname}.')'));
+        }
       }
     }
   }
@@ -135,7 +147,8 @@ sub init {
     exit 0;
   } elsif ($self->mode =~ /device::uptime/) {
     $self->{uptime} /= 60;
-    my $info = sprintf 'device is up since %d minutes', $self->{uptime};
+    my $info = sprintf 'device is up since %s',
+        $self->human_timeticks($self->{uptime});
     $self->add_info($info);
     $self->set_thresholds(warning => '15:', critical => '5:');
     $self->add_message($self->check_thresholds($self->{uptime}), $info);
@@ -148,7 +161,7 @@ sub init {
     my ($code, $message) = $self->check_messages(join => ', ', join_all => ', ');
     $UPS::Device::plugin->nagios_exit($code, $message);
   } elsif ($self->mode =~ /device::interfaces::aggregation::availability/) {
-    my $aggregation = UPS::IFMIB::Component::LinkAggregation->new();
+    my $aggregation = NWC::IFMIB::Component::LinkAggregation->new();
     #$self->analyze_interface_subsystem();
     $aggregation->check();
   } elsif ($self->mode =~ /device::interfaces/) {
@@ -350,14 +363,14 @@ sub timeticks {
 sub human_timeticks {
   my $self = shift;
   my $timeticks = shift;
-  my $days = int($timeticks / 86400); 
-  $timeticks -= ($days * 86400); 
-  my $hours = int($timeticks / 3600); 
-  $timeticks -= ($hours * 3600); 
-  my $minutes = int($timeticks / 60); 
-  my $seconds = $timeticks % 60; 
-  $days = $days < 1 ? '' : $days .'d '; 
-  return $days . sprintf "%02d:%02d:%02d", $hours, $minutes, $seconds;
+  my $days = int($timeticks / 86400);
+  $timeticks -= ($days * 86400);
+  my $hours = int($timeticks / 3600);
+  $timeticks -= ($hours * 3600);
+  my $minutes = int($timeticks / 60);
+  my $seconds = $timeticks % 60;
+  $days = $days < 1 ? '' : $days .'d ';
+  return $days . sprintf "%2dh %2dm %2ds", $hours, $minutes, $seconds;
 }
 
 sub get_snmp_object {
@@ -1754,7 +1767,7 @@ sub write_pidfile {
 sub analyze_interface_subsystem {
   my $self = shift;
   $self->{components}->{interface_subsystem} =
-      UPS::IFMIB::Component::InterfaceSubsystem->new();
+      NWC::IFMIB::Component::InterfaceSubsystem->new();
 }
 
 sub shinken_interface_subsystem {
@@ -1819,3 +1832,13 @@ our @ISA = qw(UPS::Device);
 
 $NWC::Device::statefilesdir = $UPS::Device::statefilesdir;
 $NWC::Device::uptime = $UPS::Device::uptime;
+
+
+package NWC::Generic;
+
+use strict;
+
+use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
+
+our @ISA = qw(NWC::Device);
+

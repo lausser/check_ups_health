@@ -1,3 +1,5 @@
+$UPS::Device::discover_ids = {};
+
 $UPS::Device::mib_ids = {
   'UPSV4-MIB' => '1.3.6.1.4.1.2254.2.4',
 };
