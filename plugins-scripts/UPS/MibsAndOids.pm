@@ -301,6 +301,8 @@ $UPS::Device::mibs_and_oids = {
     dupsAlarmBatteryGroundFaultDefinition => 'DELTAUPS-MIB::dupsAlarm',
     dupsAlarmTestInProgressDefinition => 'DELTAUPS-MIB::dupsAlarm',
   },
+  'MG-SNMP-UPS-MIB' => {
+  },
 };
 
 $UPS::Device::definitions = {
