@@ -44,6 +44,9 @@ sub new {
       }
       if ($self->mode =~ /device::interfaces::/) {
         bless $self, 'NWC::Generic';
+      } elsif ($self->{productname} =~ /APC /) {
+        bless $self, 'UPS::APC';
+        $self->debug('using UPS::APC');
       } elsif ($self->get_snmp_object('MIB-II', 'sysObjectID', 0) eq $UPS::Device::mib_ids->{'UPSV4-MIB'}) {
         bless $self, 'UPS::V4';
         $self->debug('using UPS::V4');
@@ -370,7 +373,7 @@ sub human_timeticks {
   my $minutes = int($timeticks / 60);
   my $seconds = $timeticks % 60;
   $days = $days < 1 ? '' : $days .'d ';
-  return $days . sprintf "%2dh %2dm %2ds", $hours, $minutes, $seconds;
+  return $days . sprintf "%dh %dm %ds", $hours, $minutes, $seconds;
 }
 
 sub get_snmp_object {
