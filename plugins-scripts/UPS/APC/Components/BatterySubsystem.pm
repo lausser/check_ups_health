@@ -19,15 +19,17 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(upsBasicBatteryStatus upsBasicBatteryTimeOnBattery upsBasicBatteryLastReplaceDate
-      upsAdvBatteryCapacity upsAdvBatteryTemperature upsAdvBatteryRunTimeRemaining
-      upsAdvBatteryReplaceIndicator upsAdvBatteryNumOfBattPacks upsAdvBatteryNumOfBadBattPacks
-      upsAdvBatteryNominalVoltage upsAdvBatteryActualVoltage upsAdvBatteryCurrent
+  foreach (qw(upsBasicBatteryStatus upsBasicBatteryTimeOnBattery
+      upsBasicBatteryLastReplaceDate upsAdvBatteryCapacity
+      upsAdvBatteryTemperature upsAdvBatteryRunTimeRemaining
+      upsAdvBatteryReplaceIndicator upsAdvBatteryNumOfBattPacks
+      upsAdvBatteryNumOfBadBattPacks upsAdvBatteryNominalVoltage
+      upsAdvBatteryActualVoltage upsAdvBatteryCurrent
       upsAdvTotalDCCurrent upsAdvBatteryFullCapacity)) {
-    $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_, 0);
 printf "%s %s\n", $_, $self->{$_};
-sleep 1;
+    $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_, 0);
   }
+printf "%s\n", Data::Dumper::Dumper($self);
 }
 
 sub check {

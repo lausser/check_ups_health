@@ -390,10 +390,12 @@ sub get_snmp_object {
       if ($response->{$oid} eq 'noSuchInstance') {
         return undef;
       }
+printf "defresponse %s %s\n", Data::Dumper::Dumper($response), Data::Dumper::Dumper($index);
       if (my @symbols = $self->make_symbolic($mib, $response, [[$index]])) {
         $response->{$oid} = $symbols[0]->{$mo};
       }
     }
+printf "defresponxe %s \n", $response->{$oid};
     return $response->{$oid};
   }
   return undef;
