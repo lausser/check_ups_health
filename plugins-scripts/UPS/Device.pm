@@ -392,6 +392,7 @@ sub get_snmp_object {
       }
 printf "defresponse %s %s\n", Data::Dumper::Dumper($response), Data::Dumper::Dumper($index);
       if (my @symbols = $self->make_symbolic($mib, $response, [[$index]])) {
+printf "defsymsy %s\n", Data::Dumper::Dumper(\@symbols);
         $response->{$oid} = $symbols[0]->{$mo};
       }
     }
@@ -1008,14 +1009,19 @@ sub make_symbolic {
       }
     }
     push(@entries, $mo);
+printf "drin\n";
   }
+printf "dudu %s\n", Data::Dumper::Dumper($indices);
   if (@{$indices} and scalar(@{$indices}) == 1 and !defined $indices->[0]->[0]) {
     my $mo = {};
     foreach my $symoid
         (keys %{$UPS::Device::mibs_and_oids->{$mib}}) {
+printf "is we a %s %s\n", $mib, $symoid;
       my $oid = $UPS::Device::mibs_and_oids->{$mib}->{$symoid};
       if (ref($oid) ne 'HASH') {
         if (exists $result->{$oid}) {
+printf "oioioi %s\n", $oid;
+#die "dong";
           if (exists $UPS::Device::mibs_and_oids->{$mib}->{$symoid.'Definition'}) {
             if (ref($UPS::Device::mibs_and_oids->{$mib}->{$symoid.'Definition'}) eq 'HASH') {
               if (exists $UPS::Device::mibs_and_oids->{$mib}->{$symoid.'Definition'}->{$result->{$oid}}) {
@@ -1039,7 +1045,7 @@ sub make_symbolic {
         }
       }
     }
-    push(@entries, $mo);
+    push(@entries, $mo) if keys %{$mo};
   }
   return @entries;
 }
