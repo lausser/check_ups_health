@@ -1,4 +1,4 @@
-package UPS::APC::Components::BatterySubsystem;
+package UPS::APC::MGE::Components::BatterySubsystem;
 our @ISA = qw(UPS::APC);
 
 use strict;
@@ -27,7 +27,6 @@ sub init {
       upsAdvBatteryActualVoltage upsAdvBatteryCurrent
       upsAdvTotalDCCurrent upsAdvBatteryFullCapacity
       upsBasicOutputStatus)) {
-printf "%s %s\n", $_, $self->{$_};
     $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
   }
 printf "%s\n", Data::Dumper::Dumper($self);

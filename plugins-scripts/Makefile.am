@@ -13,8 +13,9 @@ libexec_SCRIPTS=check_ups_health
 MY_MODULES=
 EXTRA_MODULES=\
   Nagios/MiniPlugin.pm \
-  UPS/APC/Components/EnvironmentalSubsystem.pm \
-  UPS/APC/Components/BatterySubsystem.pm \
+  UPS/APC/MGE/Components/EnvironmentalSubsystem.pm \
+  UPS/APC/MGE/Components/BatterySubsystem.pm \
+  UPS/APC/MGE.pm \
   UPS/APC.pm \
   UPS/V4/Components/EnvironmentalSubsystem.pm \
   UPS/V4/Components/BatterySubsystem.pm \

@@ -1,4 +1,4 @@
-package UPS::APC::Components::EnvironmentalSubsystem;
+package UPS::APC::MGE::Components::EnvironmentalSubsystem;
 our @ISA = qw(UPS::APC);
 
 use strict;
