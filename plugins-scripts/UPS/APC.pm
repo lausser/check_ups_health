@@ -13,7 +13,7 @@ sub init {
     bless $self, 'UPS::APC::MGE';
     $self->debug('using UPS::APC::MGE');
   } else {
-    die;
+    $self->no_such_model();
   }
   $self->init(%params);
 }

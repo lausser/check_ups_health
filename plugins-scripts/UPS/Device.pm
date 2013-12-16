@@ -1395,7 +1395,13 @@ sub no_such_mode {
   my %params = @_;
   printf "Mode %s is not implemented for this type of device\n",
       $self->opts->mode;
-  exit 0;
+  exit 3;
+}
+
+sub no_such_model {
+  my $self = shift;
+  printf "Model %s is not implemented\n", $self->{productname};
+  exit 3;
 }
 
 # get_cached_table_entries
