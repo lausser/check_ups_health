@@ -19,56 +19,65 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(upsBasicBatteryStatus upsBasicBatteryTimeOnBattery
-      upsBasicBatteryLastReplaceDate upsAdvBatteryCapacity
-      upsAdvBatteryTemperature upsAdvBatteryRunTimeRemaining
-      upsAdvBatteryReplaceIndicator upsAdvBatteryNumOfBattPacks
-      upsAdvBatteryNumOfBadBattPacks upsAdvBatteryNominalVoltage
-      upsAdvBatteryActualVoltage upsAdvBatteryCurrent
-      upsAdvTotalDCCurrent upsAdvBatteryFullCapacity
+  foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvOutputVoltage upsAdvOutputLoad
+      upsAdvInputLineVoltage upsAdvBatteryRunTimeRemaining
       upsBasicOutputStatus)) {
     $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
   }
-printf "%s\n", Data::Dumper::Dumper($self);
-die;
+  $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 600;
 }
 
 sub check {
   my $self = shift;
   $self->add_info('checking battery');
-  my $info = sprintf 'output source is %s, battery condition is %s, %s', 
-      $self->{dupsOutputSource}, 
-      $self->{dupsBatteryCondiction}, $self->{dupsBatteryCharge};
+  my $info = sprintf 'battery status is %s, capacity is %.2f%%, output load %.2f%%, temperature is %.2fC',
+      $self->{upsBasicBatteryStatus}, 
+      $self->{upsAdvBatteryCapacity}, 
+      $self->{upsAdvOutputLoad}, 
+      $self->{upsAdvBatteryTemperature};
   $self->add_info($info);
-  if ($self->{dupsBatteryCondiction} eq 'weak') {
-    $self->add_message(WARNING, $info);
-  } elsif ($self->{dupsBatteryCondiction} eq 'replace') {
+  if ($self->{upsBasicBatteryStatus} ne 'batteryNormal') {
     $self->add_message(CRITICAL, $info);
-  } 
-  if ($self->{dupsOutputSource} eq 'battery') {
-    if ($self->{dupsBatteryStatus} ne 'ok') {
-      $self->add_message(CRITICAL, $info);
-    }
-  }
-  if (! $self->check_messages()) {
+  } else {
     $self->add_message(OK, $info);
+  } 
+  if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
+    $self->add_message(CRITICAL, 'battery needs replacing');
   }
+  $self->set_thresholds(warning => '60:', critical => '30:');
+  $self->add_message(
+      $self->check_thresholds($self->{upsAdvBatteryRunTimeRemaining}), 
+      sprintf 'remaining battery run time %.2fmin', 
+      $self->{upsAdvBatteryRunTimeRemaining});
   $self->add_perfdata(
       label => 'battery_charge',
-      value => $self->{dupsBatteryCapacity},
+      value => $self->{upsAdvBatteryCapacity},
       uom => '%',
+  );
+  $self->add_perfdata(
+      label => 'output_load',
+      value => $self->{upsAdvOutputLoad},
+      uom => '%',
+  );
+  $self->add_perfdata(
+      label => 'remaining_time',
+      value => $self->{upsAdvBatteryRunTimeRemaining},
+      warning => $self->{warning},
+      critical => $self->{critical},
   );
 }
 
 sub dump {
   my $self = shift;
   printf "[BATTERY]\n";
-  foreach (qw(upsBasicBatteryStatus upsBasicBatteryTimeOnBattery upsBasicBatteryLastReplaceDate
-      upsAdvBatteryCapacity upsAdvBatteryTemperature upsAdvBatteryRunTimeRemaining
-      upsAdvBatteryReplaceIndicator upsAdvBatteryNumOfBattPacks upsAdvBatteryNumOfBadBattPacks
-      upsAdvBatteryNominalVoltage upsAdvBatteryActualVoltage upsAdvBatteryCurrent
-      upsAdvTotalDCCurrent upsAdvBatteryFullCapacity)) {
-    printf "%s: %s\n", $_, $self->{$_};
+  foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvOutputVoltage upsAdvOutputLoad
+      upsAdvInputLineVoltage upsAdvBatteryRunTimeRemaining
+      upsBasicOutputStatus)) {
+    printf "%s: %s\n", $_, $self->{$_} if defined $self->{$_};
   }
   printf "info: %s\n", $self->{info};
   printf "\n";

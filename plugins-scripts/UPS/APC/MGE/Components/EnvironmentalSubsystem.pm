@@ -19,75 +19,65 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
-      dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
-      dupsEnvHumidity dupsEnvSetTemperatureLimit dupsEnvSetHumidityLimit 
-      dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
-      dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature
-      dupsTemperature)) {
-    $self->{$_} = $self->get_snmp_object('UPSAPC-MIB', $_, 0);
+  foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvOutputVoltage upsAdvOutputLoad
+      upsAdvInputLineVoltage upsAdvBatteryRunTimeRemaining
+      upsBasicOutputStatus)) {
+    $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
   }
-  $self->{dupsEnvTemperature} ||= $self->{dupsTemperature};
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    $self->{$_} = $self->get_snmp_object('UPSAPC-MIB', $_, 0);
-  }
+  $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 600;
 }
 
 sub check {
   my $self = shift;
-  $self->add_info('checking environment');
-  my $info = sprintf 'temperature %dC',
-      $self->{dupsEnvTemperature};
-  if ($self->{dupsEnvHumidity}) {
-    $info .= sprintf ', humidity %d%%', $self->{dupsEnvHumidity};
-  }
-  $self->add_message(OK, $info);
+  $self->add_info('checking battery');
+  my $info = sprintf 'battery status is %s, capacity is %.2f%%, output load %.2f%%, temperature is %.2fC',
+      $self->{upsBasicBatteryStatus}, 
+      $self->{upsAdvBatteryCapacity}, 
+      $self->{upsAdvOutputLoad}, 
+      $self->{upsAdvBatteryTemperature};
   $self->add_info($info);
-  my $alarms = 0;
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    if ($self->{$_} && $self->{$_} eq 'on') {
-      $self->add_message(CRITICAL, sprintf 'alarm %s is on', $_);
-      $alarms++;
-    }
+  if ($self->{upsBasicBatteryStatus} ne 'batteryNormal') {
+    $self->add_message(CRITICAL, $info);
+  } else {
+    $self->add_message(OK, $info);
+  } 
+  if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
+    $self->add_message(CRITICAL, 'battery needs replacing');
   }
-  if ($self->{dupsAlarmOverEnvTemperature} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'temperature too high, %d max',
-        $self->{dupsEnvSetTemperatureLimit});
-    $alarms++;
-  }
-  if ($self->{dupsAlarmOverEnvHumidity} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'humidity too high, %d max',
-        $self->{dupsEnvSetHumidityLimit});
-    $alarms++;
-  }
-  if (! $alarms) {
-    $self->add_message(OK, 'no alarms');
-  }
+  $self->set_thresholds(warning => '60:', critical => '30:');
+  $self->add_message(
+      $self->check_thresholds($self->{upsAdvBatteryRunTimeRemaining}), 
+      sprintf 'remaining battery run time %.2fmin', 
+      $self->{upsAdvBatteryRunTimeRemaining});
   $self->add_perfdata(
-      label => 'temperature',
-      value => $self->{dupsEnvTemperature},
+      label => 'battery_charge',
+      value => $self->{upsAdvBatteryCapacity},
+      uom => '%',
   );
-  if ($self->{dupsEnvHumidity}) {
-    $self->add_perfdata(
-        label => 'humidity',
-        value => $self->{dupsEnvHumidity},
-        uom => '%',
-    );
-  }
+  $self->add_perfdata(
+      label => 'output_load',
+      value => $self->{upsAdvOutputLoad},
+      uom => '%',
+  );
+  $self->add_perfdata(
+      label => 'remaining_time',
+      value => $self->{upsAdvBatteryRunTimeRemaining},
+      warning => $self->{warning},
+      critical => $self->{critical},
+  );
 }
 
 sub dump {
   my $self = shift;
-  printf "[HARDWARE]\n";
-  foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
-      dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
-      dupsEnvHumidity dupsEnvSetTemperatureLimit dupsEnvSetHumidityLimit 
-      dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
-      dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature)) {
-    printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
-  }
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
+  printf "[BATTERY]\n";
+  foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvOutputVoltage upsAdvOutputLoad
+      upsAdvInputLineVoltage upsAdvBatteryRunTimeRemaining
+      upsBasicOutputStatus)) {
+    printf "%s: %s\n", $_, $self->{$_} if defined $self->{$_};
   }
   printf "info: %s\n", $self->{info};
   printf "\n";

@@ -1737,6 +1737,10 @@ $UPS::Device::mibs_and_oids = {
     upsAdvBatteryTemperature => '1.3.6.1.4.1.318.1.1.1.2.2.2.0',
     upsAdvBatteryRunTimeRemaining => '1.3.6.1.4.1.318.1.1.1.2.2.3.0',
     upsAdvBatteryReplaceIndicator => '1.3.6.1.4.1.318.1.1.1.2.2.4.0',
+    upsAdvBatteryReplaceIndicatorDefinition => {
+        1 => 'noBatteryNeedsReplacing',
+        2 => 'batteryNeedsReplacing',
+    },
     upsAdvBatteryNumOfBattPacks => '1.3.6.1.4.1.318.1.1.1.2.2.5.0',
     upsAdvBatteryNumOfBadBattPacks => '1.3.6.1.4.1.318.1.1.1.2.2.6.0',
     upsAdvBatteryNominalVoltage => '1.3.6.1.4.1.318.1.1.1.2.2.7.0',
