@@ -8,15 +8,11 @@ sub init {
   my $self = shift;
   my %params = @_;
   if (! $self->check_messages()) {
-    if ($self->mode =~ /device::hardware::health/) {
-      $self->analyze_environmental_subsystem();
-      $self->check_environmental_subsystem();
-    } elsif ($self->mode =~ /device::battery/) {
+    if ($self->mode =~ /device::battery/) {
       $self->analyze_battery_subsystem();
       $self->check_battery_subsystem();
-    } elsif ($self->mode =~ /device::power/) {
-      $self->analyze_power_subsystem();
-      $self->check_power_subsystem();
+    } else {
+      $self->no_such_mode();
     }
   }
 }

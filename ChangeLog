@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2013-12-16 1.1
+- add apc mge galaxy
+
 2013-12-11 1.0
 - initial release (can Socomec RT 3000VA and generic UPS V4 devices)
 

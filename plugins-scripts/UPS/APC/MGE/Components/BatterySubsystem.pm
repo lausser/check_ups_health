@@ -26,7 +26,7 @@ sub init {
       upsBasicOutputStatus)) {
     $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
   }
-  $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 600;
+  $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
 }
 
 sub check {
@@ -46,7 +46,7 @@ sub check {
   if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
     $self->add_message(CRITICAL, 'battery needs replacing');
   }
-  $self->set_thresholds(warning => '60:', critical => '30:');
+  $self->set_thresholds(warning => '15:', critical => '10:');
   $self->add_message(
       $self->check_thresholds($self->{upsAdvBatteryRunTimeRemaining}), 
       sprintf 'remaining battery run time %.2fmin', 

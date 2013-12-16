@@ -15,9 +15,8 @@ sub init {
     } elsif ($self->mode =~ /device::battery/) {
       $self->analyze_battery_subsystem();
       $self->check_battery_subsystem();
-    } elsif ($self->mode =~ /device::power/) {
-      $self->analyze_power_subsystem();
-      $self->check_power_subsystem();
+    } else {
+      $self->no_such_mode();
     }
   }
 }
