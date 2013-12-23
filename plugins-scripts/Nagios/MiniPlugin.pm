@@ -208,20 +208,49 @@ sub nagios_exit {
 sub set_thresholds {
   my $self = shift;
   my %params = @_;
-  $self->{mywarning} = $self->opts->warning || $params{warning} || 0;
-  $self->{mycritical} = $self->opts->critical || $params{critical} || 0;
+  if (exists $params{metric}) {
+    my $metric = $params{metric};
+    $self->{thresholds}->{$metric}->{warning} = $params{warning};
+    $self->{thresholds}->{$metric}->{critical} = $params{critical};
+    if ($self->opts->warningx) {
+      foreach my $key (keys %{$self->opts->warningx}) {
+        next if $key ne $metric;
+        $self->{thresholds}->{$metric}->{warning} = $self->opts->warningx->{$key};
+      }
+    }
+    if ($self->opts->criticalx) {
+      foreach my $key (keys %{$self->opts->criticalx}) {
+        next if $key ne $metric;
+        $self->{thresholds}->{$metric}->{critical} = $self->opts->criticalx->{$key};
+      }
+    }
+  } else {
+    $self->{thresholds}->{default}->{warning} = 
+        $self->opts->warning || $params{warning} || 0;
+    $self->{thresholds}->{default}->{critical} = 
+        $self->opts->critical || $params{critical} || 0;
+  }
 }
 
 sub force_thresholds {
   my $self = shift;
   my %params = @_;
-  $self->{mywarning} = $params{warning} || 0;
-  $self->{mycritical} = $params{critical} || 0;
+  $self->{thresholds}->{default}->{warning} = $params{warning} || 0;
+  $self->{thresholds}->{default}->{critical} = $params{critical} || 0;
 }
 
 sub get_thresholds {
   my $self = shift;
-  return ($self->{mywarning}, $self->{mycritical});
+  my @params = @_;
+  if (scalar(@params) > 1) {
+    my %params = @params;
+    my $metric = $params{metric};
+    return ($self->{thresholds}->{$metric}->{warning},
+        $self->{thresholds}->{$metric}->{critical});
+  } else {
+    return ($self->{thresholds}->{default}->{warning},
+        $self->{thresholds}->{default}->{critical});
+  }
 }
 
 sub check_thresholds {
@@ -233,15 +262,21 @@ sub check_thresholds {
   my $value;
   if (scalar(@params) > 1) {
     my %params = @params;
-    $value = $params{check};
-    $warningrange = (defined $params{warning}) ?
-        $params{warning} : $self->{mywarning};
-    $criticalrange = (defined $params{critical}) ?
-        $params{critical} : $self->{mycritical};
+    $value = $params{value};
+    my $metric = $params{metric};
+    if ($metric ne 'default') {
+      $warningrange = $self->{thresholds}->{$metric}->{warning};
+      $criticalrange = $self->{thresholds}->{$metric}->{critical};
+    } else {
+      $warningrange = (defined $params{warning}) ?
+          $params{warning} : $self->{thresholds}->{default}->{warning};
+      $criticalrange = (defined $params{critical}) ?
+          $params{critical} : $self->{thresholds}->{default}->{critical};
+    }
   } else {
     $value = $params[0];
-    $warningrange = $self->{mywarning};
-    $criticalrange = $self->{mycritical};
+    $warningrange = $self->{thresholds}->{default}->{warning};
+    $criticalrange = $self->{thresholds}->{default}->{critical};
   }
   if ($warningrange =~ /^(\d+)$/) {
     # warning = 10, warn if > 10 or < 0

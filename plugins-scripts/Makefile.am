@@ -13,16 +13,19 @@ libexec_SCRIPTS=check_ups_health
 MY_MODULES=
 EXTRA_MODULES=\
   Nagios/MiniPlugin.pm \
-  UPS/APC/MGE/Components/BatterySubsystem.pm \
-  UPS/APC/MGE.pm \
+  GLPlugin.pm \
+  UPS/MibsAndOids.pm \
+  UPS/APC/Powermib/Components/EnvironmentalSubsystem.pm \
+  UPS/APC/Powermib/Components/BatterySubsystem.pm \
+  UPS/APC/Powermib.pm \
   UPS/APC.pm \
+  UPS/Socomec/Netvision/Components/EnvironmentalSubsystem.pm \
+  UPS/Socomec/Netvision/Components/BatterySubsystem.pm \
+  UPS/Socomec/Netvision.pm \
+  UPS/Socomec.pm \
   UPS/V4/Components/EnvironmentalSubsystem.pm \
   UPS/V4/Components/BatterySubsystem.pm \
   UPS/V4.pm \
-  UPS/IFMIB/Component/LinkAggregation.pm \
-  UPS/IFMIB/Component/InterfaceSubsystem.pm \
-  UPS/IFMIB.pm \
-  UPS/MibsAndOids.pm \
   UPS/Device.pm
 EXTRA_DIST=check_ups_health.pl $(EXTRA_MODULES)
 

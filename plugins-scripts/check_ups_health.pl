@@ -161,6 +161,30 @@ $plugin->add_arg(
     required => 0,
 );
 $plugin->add_arg(
+    spec => 'critical=s',
+    help => '--critical
+   The critical threshold',
+    required => 0,
+);
+$plugin->add_arg(
+    spec => 'warningx=s%',
+    help => '--warningx
+   The extended warning thresholds',
+    required => 0,
+);
+$plugin->add_arg(
+    spec => 'criticalx=s%',
+    help => '--criticalx
+   The extended critical thresholds',
+    required => 0,
+);
+$plugin->add_arg(
+    spec => 'mitigation=s',
+    help => "--mitigation
+   The parameter allows you to change a critical error to a warning.",
+    required => 0,
+);
+$plugin->add_arg(
     spec => 'mode=s',
     help => "--mode
    A keyword which tells the plugin what to do
@@ -174,45 +198,15 @@ $plugin->add_arg(
     required => 0,
 );
 $plugin->add_arg(
-    spec => 'alias=s',
-    help => "--alias
-   The alias name of a 64bit-interface (ifAlias)",
-    required => 0,
-);
-$plugin->add_arg(
     spec => 'regexp',
     help => "--regexp
    A flag indicating that --name is a regular expression",
     required => 0,
 );
 $plugin->add_arg(
-    spec => 'ifspeedin=i',
-    help => "--ifspeedin
-   Override the ifspeed oid of an interface (only inbound)",
-    required => 0,
-);
-$plugin->add_arg(
-    spec => 'ifspeedout=i',
-    help => "--ifspeedout
-   Override the ifspeed oid of an interface (only outbound)",
-    required => 0,
-);
-$plugin->add_arg(
-    spec => 'ifspeed=i',
-    help => "--ifspeed
-   Override the ifspeed oid of an interface",
-    required => 0,
-);
-$plugin->add_arg(
     spec => 'units=s',
     help => "--units
    One of %, B, KB, MB, GB, Bit, KBi, MBi, GBi. (used for e.g. mode interface-usage)",
-    required => 0,
-);
-$plugin->add_arg(
-    spec => 'role=s',
-    help => "--role
-   The role of this device in a hsrp group (active/standby/listen)",
     required => 0,
 );
 $plugin->add_arg(
@@ -230,18 +224,6 @@ $plugin->add_arg(
    the time between two runs of check_ups_health is the base for calculations.
    If you want your checkresult to be based for example on the past hour,
    use --lookback 3600. ",
-    required => 0,
-);
-$plugin->add_arg(
-    spec => 'critical=s',
-    help => '--critical
-   The critical threshold',
-    required => 0,
-);
-$plugin->add_arg(
-    spec => 'mitigation=s',
-    help => "--mitigation
-   The parameter allows you to change a critical error to a warning.",
     required => 0,
 );
 $plugin->add_arg(
@@ -382,42 +364,34 @@ $SIG{'ALRM'} = sub {
 };
 alarm($plugin->opts->timeout);
 
-$UPS::Device::plugin = $plugin;
-$UPS::Device::mode = (
+$GLPlugin::plugin = $plugin;
+$GLPlugin::statefilesdir = $plugin->opts->statefilesdir;
+$GLPlugin::mode = (
     map { $_->[0] }
     grep {
        ($plugin->opts->mode eq $_->[1]) ||
        ( defined $_->[2] && grep { $plugin->opts->mode eq $_ } @{$_->[2]})
     } @modes
 )[0];
-my $server = UPS::Device->new( runtime => {
-
-    plugin => $plugin,
-    options => {
-        servertype => $plugin->opts->servertype,
-        verbose => $plugin->opts->verbose,
-        customthresholds => $plugin->opts->get('customthresholds'),
-        blacklist => $plugin->opts->blacklist,
-    },
-},);
-#$server->dumper();
+my $device = UPS::Device->new();
+#$device->dumper();
 if (! $plugin->check_messages()) {
-  $server->init();
+  $device->init();
   if (! $plugin->check_messages()) {
-    $plugin->add_message(OK, $server->get_summary()) 
-        if $server->get_summary();
-    $plugin->add_message(OK, $server->get_extendedinfo()) 
-        if $server->get_extendedinfo();
-  } 
+    $plugin->add_message(OK, $device->get_summary())
+        if $device->get_summary();
+    $plugin->add_message(OK, $device->get_extendedinfo(" "))
+        if $device->get_extendedinfo();
+  }
 } elsif ($plugin->opts->snmpwalk && $plugin->opts->offline) {
   ;
 } else {
   $plugin->add_message(CRITICAL, 'wrong device');
 }
-my ($code, $message) = $plugin->opts->multiline ? 
+my ($code, $message) = $plugin->opts->multiline ?
     $plugin->check_messages(join => "\n", join_all => ', ') :
     $plugin->check_messages(join => ', ', join_all => ', ');
-$message .= sprintf "\n%s\n", join("\n", @{$UPS::Device::info})
+$message .= sprintf "\n%s\n", $device->get_info("\n")
     if $plugin->opts->verbose >= 1;
 #printf "%s\n", Data::Dumper::Dumper($plugin->{info});
 $plugin->nagios_exit($code, $message);
