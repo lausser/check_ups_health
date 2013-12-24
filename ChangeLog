@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2013-12-24 1.2
+- add socomec netys and netvision
+
 2013-12-16 1.1
 - add apc mge galaxy
 
