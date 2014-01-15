@@ -19,76 +19,56 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
-      dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
-      dupsEnvHumidity dupsEnvSetTemperatureLimit dupsEnvSetHumidityLimit 
-      dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
-      dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature
-      dupsTemperature)) {
-    $self->{$_} = $self->get_snmp_object('UPSXUPS-MIB', $_, 0);
-  }
-  $self->{dupsEnvTemperature} ||= $self->{dupsTemperature};
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    $self->{$_} = $self->get_snmp_object('UPSXUPS-MIB', $_, 0);
-  }
+  $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarmNumEvents));
+  $self->get_snmp_tables("XUPS-MIB", [
+      ["alarms", "xupsAlarmTable", "UPS::XUPS::Components::EnvironmentalSubsystem::Alarm"],
+  ]);
 }
 
 sub check {
   my $self = shift;
-  $self->add_info('checking environment');
-  my $info = sprintf 'temperature %dC',
-      $self->{dupsEnvTemperature};
-  if ($self->{dupsEnvHumidity}) {
-    $info .= sprintf ', humidity %d%%', $self->{dupsEnvHumidity};
+  $self->add_info('checking alarms');
+  foreach (@{$self->{alarms}}) {
+    $_->check();
   }
-  $self->add_message(OK, $info);
-  $self->add_info($info);
-  my $alarms = 0;
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    if ($self->{$_} && $self->{$_} eq 'on') {
-      $self->add_message(CRITICAL, sprintf 'alarm %s is on', $_);
-      $alarms++;
-    }
-  }
-  if ($self->{dupsAlarmOverEnvTemperature} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'temperature too high, %d max',
-        $self->{dupsEnvSetTemperatureLimit});
-    $alarms++;
-  }
-  if ($self->{dupsAlarmOverEnvHumidity} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'humidity too high, %d max',
-        $self->{dupsEnvSetHumidityLimit});
-    $alarms++;
-  }
-  if (! $alarms) {
-    $self->add_message(OK, 'no alarms');
-  }
-  $self->add_perfdata(
-      label => 'temperature',
-      value => $self->{dupsEnvTemperature},
-  );
-  if ($self->{dupsEnvHumidity}) {
-    $self->add_perfdata(
-        label => 'humidity',
-        value => $self->{dupsEnvHumidity},
-        uom => '%',
-    );
+  if (! $self->check_messages()) {
+    $self->add_message(OK, "hardware working fine. no alarms");
   }
 }
 
 sub dump {
   my $self = shift;
-  printf "[HARDWARE]\n";
-  foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
-      dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
-      dupsEnvHumidity dupsEnvSetTemperatureLimit dupsEnvSetHumidityLimit 
-      dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
-      dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature)) {
-    printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
-  }
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
+  printf "[ALARMS]\n";
+  foreach (grep /^xups/, keys %{$self}) {
+    printf "%s: %s\n", $_, $self->{$_};
   }
   printf "info: %s\n", $self->{info};
   printf "\n";
+  foreach (@{$self->{alarms}}) {
+    $_->dump();
+  }
+}
+
+
+package UPS::XUPS::Components::EnvironmentalSubsystem::Alarm;
+our @ISA = qw(GLPlugin::TableItem);
+
+use strict;
+use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
+
+sub check {
+  my $self = shift;
+  foreach (qw(xupsOnBattery xupsLowBattery xupsUtilityPowerRestored xupsReturnFromLowBattery 
+      xupsOutputOverload xupsInternalFailure xupsBatteryDischarged xupsInverterFailure 
+      xupsOnBypass xupsBypassNotAvailable xupsOutputOff xupsInputFailure 
+      xupsBuildingAlarm xupsShutdownImminent xupsOnInverter)) {
+    if ($self->{xupsAlarmDescr} eq  $GLPlugin::SNMP::mibs_and_oids->{"XUPS-MIB"}->{$_}) {
+      $self->{xupsAlarmDescr} = $_;
+    }
+  }
+  my $age = $GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
+  if ($age < 3600) {
+    $self->add_message(CRITICAL, sprintf "alarm: %s (%d min ago)",
+        $self->{xupsAlarmDescr}, $age / 60);
+  }
 }

@@ -4,6 +4,7 @@
 
 2014-01-15 1.2.1
 - bugfix for apc powernet outputload undef values
+- add XUPS MIB for Eaton 
 
 2013-12-24 1.2
 - add socomec netys and netvision

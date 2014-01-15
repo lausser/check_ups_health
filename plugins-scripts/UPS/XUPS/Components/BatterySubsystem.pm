@@ -19,10 +19,14 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity)) {
-    $self->{$_} = $self->get_snmp_object('XUPS-MIB', $_);
-  }
+  $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad));
+  $self->get_snmp_tables("XUPS-MIB", [
+      ["inputs", "xupsInputTable", "UPS::XUPS::Components::BatterySubsystem::Input"],
+      ["outputs", "xupsOutputTable", "UPS::XUPS::Components::BatterySubsystem::Output"],
+  ]);
   $self->{xupsBatTimeRemaining} /= 60;
+  $self->{xupsInputFrequency} /= 10;
+  $self->{xupsOutputFrequency} /= 10;
 }
 
 sub check {
@@ -44,21 +48,37 @@ sub check {
       critical => ($self->get_thresholds(metric => 'capacity'))[1],
   );
 
-  foreach (1..$self->{dupsOutputNumLines}) {
-    $self->set_thresholds(
-        metric => 'output_load'.$_, warning => '75', critical => '85');
-    $info = sprintf 'output load%d %.2f%%', $_, $self->{'dupsOutputLoad'.$_};
-    $self->add_info($info);
-    $self->add_message(
-        $self->check_thresholds(
-            value => $self->{'dupsOutputLoad'.$_},
-            metric => 'output_load'.$_), $info);
+  $self->set_thresholds(
+      metric => 'output_load', warning => '75', critical => '85');
+  $info = sprintf 'output load %.2f%%', $self->{xupsOutputLoad};
+  $self->add_info($info);
+  $self->add_message(
+      $self->check_thresholds(
+          value => $self->{xupsOutputLoad},
+          metric => 'output_load'), $info);
+  $self->add_perfdata(
+      label => 'output_load',
+      value => $self->{xupsOutputLoad},
+      uom => '%',
+      warning => ($self->get_thresholds(metric => 'output_load'))[0],
+      critical => ($self->get_thresholds(metric => 'output_load'))[1],
+  );
+  $self->add_perfdata(
+      label => 'output_frequency',
+      value => $self->{xupsOutputFrequency});
+  foreach (@{$self->{outputs}}) {
     $self->add_perfdata(
-        label => 'output_load'.$_,
-        value => $self->{'dupsOutputLoad'.$_},
-        uom => '%',
-        warning => ($self->get_thresholds(metric => 'output_load'.$_))[0],
-        critical => ($self->get_thresholds(metric => 'output_load'.$_))[1],
+        label => 'output_voltage_'.$_->{flat_indices},
+        value => $_->{xupsOutputVoltage},
+    );
+  }
+  $self->add_perfdata(
+      label => 'input_frequency',
+      value => $self->{xupsInputFrequency});
+  foreach (@{$self->{inputs}}) {
+    $self->add_perfdata(
+        label => 'input_voltage_'.$_->{flat_indices},
+        value => $_->{xupsInputVoltage},
     );
   }
 
@@ -76,27 +96,6 @@ sub check {
       warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
       critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
-
-  foreach (1..$self->{dupsInputNumLines}) {
-    $self->add_perfdata(
-        label => 'input_voltage'.$_,
-        value => $self->{'dupsInputVoltage'.$_},
-    );
-    $self->add_perfdata(
-        label => 'input_frequency'.$_,
-        value => $self->{'dupsInputFrequency'.$_},
-    );
-  }
-  foreach (1..$self->{dupsOutputNumLines}) {
-    $self->add_perfdata(
-        label => 'output_voltage'.$_,
-        value => $self->{'dupsOutputVoltage'.$_},
-    );
-  }
-  $self->add_perfdata(
-      label => 'output_frequency',
-      value => $self->{dupsOutputFrequency},
-  );
 }
 
 sub dump {
@@ -108,3 +107,11 @@ sub dump {
   printf "info: %s\n", $self->{info};
   printf "\n";
 }
+
+
+package UPS::XUPS::Components::BatterySubsystem::Input;
+our @ISA = qw(GLPlugin::TableItem);
+
+package UPS::XUPS::Components::BatterySubsystem::Output;
+our @ISA = qw(GLPlugin::TableItem);
+
