@@ -33,8 +33,9 @@ sub init {
   $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
   # beobachtet bei Smart-UPS RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
-  $self->{upsAdvOutputLoad} = defined $self->{upsAdvOutputLoad} ?
-      $self->{upsAdvOutputLoad} : $self->{upsHighPrecOutputLoad} / 10;
+  $self->{upsAdvOutputLoad} = 
+      ! defined $self->{upsAdvOutputLoad} || $self->{upsAdvOutputLoad} eq '' ?
+      $self->{upsHighPrecOutputLoad} / 10 : $self->{upsAdvOutputLoad};
 }
 
 sub check {

@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-01-15 1.1.1
+- bugfix for apc powernet outputload undef values
+
 2013-12-16 1.1
 - add apc mge galaxy
 
