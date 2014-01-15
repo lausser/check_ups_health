@@ -23,6 +23,9 @@ EXTRA_MODULES=\
   UPS/Socomec/Netvision/Components/BatterySubsystem.pm \
   UPS/Socomec/Netvision.pm \
   UPS/Socomec.pm \
+  UPS/XUPS/Components/EnvironmentalSubsystem.pm \
+  UPS/XUPS/Components/BatterySubsystem.pm \
+  UPS/XUPS.pm \
   UPS/V4/Components/EnvironmentalSubsystem.pm \
   UPS/V4/Components/BatterySubsystem.pm \
   UPS/V4.pm \

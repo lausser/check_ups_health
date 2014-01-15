@@ -49,6 +49,9 @@ sub new {
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'UPS::V4';
         $self->debug('using UPS::V4');
+      } elsif ($self->implements_mib('XUPS-MIB')) {
+        bless $self, 'UPS::XUPS';
+        $self->debug('using UPS::XUPS');
       } else {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;

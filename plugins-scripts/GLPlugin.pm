@@ -716,7 +716,7 @@ sub check_snmp_and_model {
     }
     map { $response->{$_} =~ s/^\s+//; $response->{$_} =~ s/\s+$//; }
         keys %$response;
-    $self->whoami();
+    $self->set_rawdata($response);
   } else {
     if (eval "require Net::SNMP") {
       my %params = ();
@@ -758,44 +758,30 @@ sub check_snmp_and_model {
         my $max_msg_size = $session->max_msg_size();
         $session->max_msg_size(4 * $max_msg_size);
         $GLPlugin::SNMP::session = $session;
-        my $sysUpTime = '1.3.6.1.2.1.1.3.0';
-        if (my $uptime = $self->get_snmp_object('MIB-II', 'sysUpTime', 0)) {
-          $self->{uptime} = $self->timeticks($uptime);
-          $self->debug(sprintf 'snmp agent answered: %s', $uptime);
-          $self->whoami();
-        } else {
-          $self->add_message(CRITICAL,
-              'could not contact snmp agent');
-          $session->close;
-        }
       }
     } else {
       $self->add_message(CRITICAL,
           'could not find Net::SNMP module');
     }
   }
-}
-
-sub whoami {
-  my $self = shift;
-  my $sysDescr = '1.3.6.1.2.1.1.1.0';
-  my $sysUpTime = '1.3.6.1.2.1.1.3.0';
-  my $dummy = '1.3.6.1.2.1.1.5.0';
-  if (my $productname = $self->get_snmp_object('MIB-II', 'sysDescr', 0)) {
-    $self->{productname} = $productname;
-    $self->{sysobjectid} = $self->get_snmp_object('MIB-II', 'sysObjectID', 0);
-    $self->debug(sprintf 'uptime: %s', $self->{uptime});
-    $self->debug(sprintf 'up since: %s',
-        scalar localtime (time - $self->{uptime}));
-    $GLPlugin::SNMP::uptime = $self->{uptime};
-  } else {
-    $self->add_message(CRITICAL,
-        'snmpwalk returns no product name (sysDescr)');
-    if (! $self->opts->snmpwalk) {
-      $GLPlugin::SNMP::session->close;
+  if (! $self->check_messages()) {
+    my $sysUptime = $self->get_snmp_object('MIB-II', 'sysUpTime', 0);
+    my $sysDescr = $self->get_snmp_object('MIB-II', 'sysDescr', 0);
+    if (defined $sysUptime && defined $sysDescr) {
+      $self->{uptime} = $self->timeticks($sysUptime);
+      $self->{productname} = $sysDescr;
+      $self->{sysobjectid} = $self->get_snmp_object('MIB-II', 'sysObjectID', 0);
+      $self->debug(sprintf 'uptime: %s', $self->{uptime});
+      $self->debug(sprintf 'up since: %s',
+          scalar localtime (time - $self->{uptime}));
+      $GLPlugin::SNMP::uptime = $self->{uptime};
+      $self->debug('whoami: '.$self->{productname});
+    } else {
+      $self->add_message(CRITICAL,
+          'could not contact snmp agent, got neither sysUptime nor sysDescr');
+      $GLPlugin::SNMP::session->close if $GLPlugin::SNMP::session;
     }
   }
-  $self->debug('whoami: '.$self->{productname});
 }
 
 sub discover_suitable_class {
@@ -809,6 +795,7 @@ sub implements_mib {
   my $self = shift;
   my $mib = shift;
   my $sysobj = $self->get_snmp_object('MIB-II', 'sysObjectID', 0);
+  $sysobj =~ s/^\.// if $sysobj;
   if ($sysobj && $sysobj eq $GLPlugin::SNMP::mib_ids->{$mib}) {
     return 1;
   }
@@ -873,6 +860,23 @@ sub get_snmp_object {
     return $response->{$oid};
   }
   return undef;
+}
+
+sub get_snmp_objects {
+  my $self = shift;
+  my $mib = shift;
+  my @mos = @_;
+  foreach (@mos) {
+    my $value = $self->get_snmp_object($mib, $_, 0);
+    if (defined $value) {
+      $self->{$_} = $value;
+    } else {
+      my $value = $self->get_snmp_object($mib, $_);
+      if (defined $value) {
+        $self->{$_} = $value;
+      }
+    }
+  }
 }
 
 sub get_single_request_iq {
@@ -1197,6 +1201,19 @@ sub get_snmp_table_objects {
   }
   @entries = map { $_->{flat_indices} = join(".", @{$_->{indices}}); $_ } @entries;
   return @entries;
+}
+
+sub get_snmp_tables {
+  my $self = shift;
+  my $mib = shift;
+  my $infos = shift;
+  foreach my $info (@{$infos}) {
+    $self->{$info->[0]} = [] if ! exists $self->{$info->[0]};
+    foreach ($self->get_snmp_table_objects($mib, $info->[1])) {
+      my $class = $info->[2];
+      push(@{$self->{$info->[0]}}, $class->new(%{$_}));
+    }
+  }
 }
 
 # make_symbolic
@@ -1754,6 +1771,56 @@ sub AUTOLOAD {
     $self->{components}->{$subsystem}->dump()
         if $self->opts->verbose >= 2;
   }
+}
+
+
+package GLPlugin::Item;
+our @ISA = qw(GLPlugin::SNMP);
+
+use strict;
+
+sub new {
+  my $class = shift;
+  my %params = @_;
+  my $self = {
+    blacklisted => 0,
+    info => undef,
+    extendedinfo => undef,
+  };
+  bless $self, $class;
+  $self->init(%params);
+  return $self;
+}
+
+sub dump {
+  my $self = shift;
+  my $class = ref($self);
+  $class =~ s/^.*:://;
+  printf "[%s_%s]\n", uc $class, $self->{flat_indices};
+  foreach (grep !/^(blacklisted|extendedinfo|flat_indices|indices)/, keys %{$self}) {
+    printf "%s %s\n", $_, $self->{$_} if defined $self->{$_} && ref($self->{$_}) ne "ARRAY";
+  }
+  printf "\n";
+}
+
+package GLPlugin::TableItem;
+our @ISA = qw(GLPlugin::Item);
+
+use strict;
+
+sub new {
+  my $class = shift;
+  my %params = @_;
+  my $self = {
+    blacklisted => 0,
+    info => undef,
+    extendedinfo => undef,
+  };
+  bless $self, $class;
+  foreach (keys %params) {
+    $self->{$_} = $params{$_};
+  }
+  return $self;
 }
 
 
