@@ -92,7 +92,7 @@ sub check {
   );
 
   $self->set_thresholds(
-      metric => 'battery_temperature', warning => '31', critical => '35');
+      metric => 'battery_temperature', warning => '70', critical => '80');
   $info = sprintf 'temperature is %.2fC', $self->{upsAdvBatteryTemperature};
   $self->add_info($info);
   $self->add_message(

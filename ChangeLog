@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014
+- raise apc battery temperature threshold
+
 2014-01-15 1.2.1
 - bugfix for apc powernet outputload undef values
 - add XUPS MIB for Eaton 
