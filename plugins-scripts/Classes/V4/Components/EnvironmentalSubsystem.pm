@@ -1,5 +1,5 @@
-package UPS::V4::Components::EnvironmentalSubsystem;
-our @ISA = qw(UPS::V4);
+package Classes::V4::Components::EnvironmentalSubsystem;
+our @ISA = qw(Classes::V4);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -25,11 +25,11 @@ sub init {
       dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
       dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature
       dupsTemperature)) {
-    $self->{$_} = $self->get_snmp_object('UPSV4-MIB', $_, 0);
+    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
   }
   $self->{dupsEnvTemperature} ||= $self->{dupsTemperature};
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    $self->{$_} = $self->get_snmp_object('UPSV4-MIB', $_, 0);
+  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
+    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
   }
 }
 
@@ -44,7 +44,7 @@ sub check {
   $self->add_message(OK, $info);
   $self->add_info($info);
   my $alarms = 0;
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
+  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
     if ($self->{$_} && $self->{$_} eq 'on') {
       $self->add_message(CRITICAL, sprintf 'alarm %s is on', $_);
       $alarms++;
@@ -86,7 +86,7 @@ sub dump {
       dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature)) {
     printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
   }
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmUPSOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmUPSFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
+  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
     printf "%s: %s\n", $_, defined $self->{$_} ? $self->{$_} : 'undefined';
   }
   printf "info: %s\n", $self->{info};

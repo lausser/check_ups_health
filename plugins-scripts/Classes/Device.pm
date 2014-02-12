@@ -1,4 +1,4 @@
-package UPS::Device;
+package Classes::Device;
 our @ISA = qw(GLPlugin::SNMP);
 
 use strict;
@@ -41,17 +41,20 @@ sub new {
         printf "I am a %s\n", $self->{productname};
       }
       if ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel')) {
-        bless $self, 'UPS::APC::Powermib';
-        $self->debug('using UPS::APC::Powermib');
+        bless $self, 'Classes::APC::Powermib';
+        $self->debug('using Classes::APC::Powermib');
       } elsif ($self->{productname} =~ /APC /) {
-        bless $self, 'UPS::APC';
-        $self->debug('using UPS::APC');
+        bless $self, 'Classes::APC';
+        $self->debug('using Classes::APC');
       } elsif ($self->implements_mib('UPSV4-MIB')) {
-        bless $self, 'UPS::V4';
-        $self->debug('using UPS::V4');
+        bless $self, 'Classes::V4';
+        $self->debug('using Classes::V4');
       } elsif ($self->implements_mib('XUPS-MIB')) {
-        bless $self, 'UPS::XUPS';
-        $self->debug('using UPS::XUPS');
+        bless $self, 'Classes::XUPS';
+        $self->debug('using Classes::XUPS');
+      } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
+        bless $self, 'Classes::MerlinGerin';
+        $self->debug('using Classes::MerlinGerin');
       } else {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;

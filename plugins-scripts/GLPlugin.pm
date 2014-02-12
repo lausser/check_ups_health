@@ -520,7 +520,33 @@ sub write_pidfile {
   }
 }
 
-
+sub accentfree {
+  my $self = shift;
+  my $text = shift;
+  # thanks mycoyne who posted this accent-remove-algorithm
+  # http://www.experts-exchange.com/Programming/Languages/Scripting/Perl/Q_23275533.html#a21234612
+  my @transformed;
+  my %replace = (
+    '9a' => 's', '9c' => 'oe', '9e' => 'z', '9f' => 'Y', 'c0' => 'A', 'c1' => 'A',
+    'c2' => 'A', 'c3' => 'A', 'c4' => 'A', 'c5' => 'A', 'c6' => 'AE', 'c7' => 'C',
+    'c8' => 'E', 'c9' => 'E', 'ca' => 'E', 'cb' => 'E', 'cc' => 'I', 'cd' => 'I',
+    'ce' => 'I', 'cf' => 'I', 'd0' => 'D', 'd1' => 'N', 'd2' => 'O', 'd3' => 'O',
+    'd4' => 'O', 'd5' => 'O', 'd6' => 'O', 'd8' => 'O', 'd9' => 'U', 'da' => 'U',
+    'db' => 'U', 'dc' => 'U', 'dd' => 'Y', 'e0' => 'a', 'e1' => 'a', 'e2' => 'a',
+    'e3' => 'a', 'e4' => 'a', 'e5' => 'a', 'e6' => 'ae', 'e7' => 'c', 'e8' => 'e',
+    'e9' => 'e', 'ea' => 'e', 'eb' => 'e', 'ec' => 'i', 'ed' => 'i', 'ee' => 'i',
+    'ef' => 'i', 'f0' => 'o', 'f1' => 'n', 'f2' => 'o', 'f3' => 'o', 'f4' => 'o',
+    'f5' => 'o', 'f6' => 'o', 'f8' => 'o', 'f9' => 'u', 'fa' => 'u', 'fb' => 'u',
+    'fc' => 'u', 'fd' => 'y', 'ff' => 'y',
+  );
+  my @letters = split //, $text;;
+  for (my $i = 0; $i <= $#letters; $i++) {
+    my $hex = sprintf "%x", ord($letters[$i]);
+    $letters[$i] = $replace{$hex} if (exists $replace{$hex});
+  }
+  push @transformed, @letters;
+  return join '', @transformed;
+}
 
 
 package GLPlugin::SNMP;
@@ -541,7 +567,7 @@ use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
   our $info = [];
   our $extendedinfo = [];
   our $summary = [];
-  our $statefilesdir = '/var/tmp/check_fujitsu_health';
+  our $statefilesdir = '/var/tmp/check_'.basename($0).'_health';
   our $oidtrace = [];
   our $uptime = 0;
 }
@@ -576,7 +602,8 @@ sub init {
       my $snmpwalkpid = 0;
       $SIG{'ALRM'} = sub {
         $timedout = 1;
-        printf "UNKNOWN - check_fujitsu_health timed out after %d seconds\n",
+        printf "UNKNOWN - %s timed out after %d seconds\n",
+            basename($0),
             $self->opts->timeout;
         kill 9, $snmpwalkpid;
       };

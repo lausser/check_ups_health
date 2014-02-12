@@ -1,5 +1,5 @@
-package UPS::APC::Powermib::Components::EnvironmentalSubsystem;
-our @ISA = qw(UPS::APC::Powermib);
+package Classes::APC::Powermib::Components::EnvironmentalSubsystem;
+our @ISA = qw(Classes::APC::Powermib);
 
 use strict;
 use POSIX qw(mktime);

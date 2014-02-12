@@ -1,5 +1,5 @@
-package UPS::Socomec::Netvision::Components::BatterySubsystem;
-our @ISA = qw(UPS::Socomec::Netvision);
+package Classes::Socomec::Netvision::Components::BatterySubsystem;
+our @ISA = qw(Classes::Socomec::Netvision);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -34,13 +34,13 @@ sub init {
   $self->{upsInputFrequency} /= 10;
   $self->{upsOutputFrequency} /= 10;
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsInputTable')) {
-    push(@{$self->{inputs}}, UPS::Socomec::Netvision::Components::BatterySubsystem::Input->new(%{$_}));
+    push(@{$self->{inputs}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Input->new(%{$_}));
   }
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsOutputTable')) {
-    push(@{$self->{outputs}}, UPS::Socomec::Netvision::Components::BatterySubsystem::Output->new(%{$_}));
+    push(@{$self->{outputs}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Output->new(%{$_}));
   }
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsBypassTable')) {
-    push(@{$self->{bypasses}}, UPS::Socomec::Netvision::Components::BatterySubsystem::Bypass->new(%{$_}));
+    push(@{$self->{bypasses}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass->new(%{$_}));
   }
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsAlarmTable')) {
 #printf "%s\n", Data::Dumper::Dumper($_);
@@ -151,8 +151,8 @@ sub dump {
 }
 
 
-package UPS::Socomec::Netvision::Components::BatterySubsystem::Input;
-our @ISA = qw(UPS::Socomec::Netvision::Components::BatterySubsystem);
+package Classes::Socomec::Netvision::Components::BatterySubsystem::Input;
+our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -193,8 +193,8 @@ sub dump {
 }
 
 
-package UPS::Socomec::Netvision::Components::BatterySubsystem::Output;
-our @ISA = qw(UPS::Socomec::Netvision::Components::BatterySubsystem);
+package Classes::Socomec::Netvision::Components::BatterySubsystem::Output;
+our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -252,8 +252,8 @@ sub dump {
 }
 
 
-package UPS::Socomec::Netvision::Components::BatterySubsystem::Bypass;
-our @ISA = qw(UPS::Socomec::Netvision::Components::BatterySubsystem);
+package Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass;
+our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };

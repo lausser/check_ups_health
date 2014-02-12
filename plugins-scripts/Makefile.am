@@ -14,22 +14,25 @@ MY_MODULES=
 EXTRA_MODULES=\
   Nagios/MiniPlugin.pm \
   GLPlugin.pm \
-  UPS/MibsAndOids.pm \
-  UPS/APC/Powermib/Components/EnvironmentalSubsystem.pm \
-  UPS/APC/Powermib/Components/BatterySubsystem.pm \
-  UPS/APC/Powermib.pm \
-  UPS/APC.pm \
-  UPS/Socomec/Netvision/Components/EnvironmentalSubsystem.pm \
-  UPS/Socomec/Netvision/Components/BatterySubsystem.pm \
-  UPS/Socomec/Netvision.pm \
-  UPS/Socomec.pm \
-  UPS/XUPS/Components/EnvironmentalSubsystem.pm \
-  UPS/XUPS/Components/BatterySubsystem.pm \
-  UPS/XUPS.pm \
-  UPS/V4/Components/EnvironmentalSubsystem.pm \
-  UPS/V4/Components/BatterySubsystem.pm \
-  UPS/V4.pm \
-  UPS/Device.pm
+  Classes/MibsAndOids.pm \
+  Classes/APC/Powermib/Components/EnvironmentalSubsystem.pm \
+  Classes/APC/Powermib/Components/BatterySubsystem.pm \
+  Classes/APC/Powermib.pm \
+  Classes/APC.pm \
+  Classes/Socomec/Netvision/Components/EnvironmentalSubsystem.pm \
+  Classes/Socomec/Netvision/Components/BatterySubsystem.pm \
+  Classes/Socomec/Netvision.pm \
+  Classes/Socomec.pm \
+  Classes/XUPS/Components/EnvironmentalSubsystem.pm \
+  Classes/XUPS/Components/BatterySubsystem.pm \
+  Classes/XUPS.pm \
+  Classes/V4/Components/EnvironmentalSubsystem.pm \
+  Classes/V4/Components/BatterySubsystem.pm \
+  Classes/V4.pm \
+  Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
+  Classes/MerlinGerin/Components/BatterySubsystem.pm \
+  Classes/MerlinGerin.pm \
+  Classes/Device.pm
 EXTRA_DIST=check_ups_health.pl $(EXTRA_MODULES)
 
 CLEANFILES=$(libexec_SCRIPTS)

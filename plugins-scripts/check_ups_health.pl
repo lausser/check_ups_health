@@ -27,24 +27,6 @@ my @modes = (
   ['device::battery::health',
       'battery-health', undef,
       'Check the status of environmental equipment (fans, temperatures, power)' ],
-  ['device::interfaces::usage',
-      'interface-usage', undef,
-      'Check the utilization of interfaces' ],
-  ['device::interfaces::errors',
-      'interface-errors', undef,
-      'Check the error-rate of interfaces (errors+discards per sec)' ],
-  ['device::interfaces::operstatus',
-      'interface-status', undef,
-      'Check the status of interfaces' ],
-  ['device::interfaces::list',
-      'list-interfaces', undef,
-      'Show the interfaces of the device and update the name cache' ],
-  ['device::interfaces::listdetail',
-      'list-interfaces-detail', undef,
-      'Show the interfaces of the device and some details' ],
-  ['device::interfaces::availability',
-      'interface-availability', undef,
-      'Show the availability (oper != up) of interfaces' ],
 );
 my $modestring = "";
 my $longest = length ((reverse sort {length $a <=> length $b} map { $_->[1] } @modes)[0]);
@@ -373,7 +355,7 @@ $GLPlugin::mode = (
        ( defined $_->[2] && grep { $plugin->opts->mode eq $_ } @{$_->[2]})
     } @modes
 )[0];
-my $device = UPS::Device->new();
+my $device = Classes::Device->new();
 #$device->dumper();
 if (! $plugin->check_messages()) {
   $device->init();

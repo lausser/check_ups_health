@@ -1,5 +1,5 @@
-package UPS::Socomec::Netvision;
-our @ISA = qw(UPS::Socomec);
+package Classes::Socomec::Netvision;
+our @ISA = qw(Classes::Socomec);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -23,12 +23,12 @@ sub init {
 sub analyze_environmental_subsystem {
   my $self = shift;
   $self->{components}->{environmental_subsystem} =
-      UPS::Socomec::Netvision::Components::EnvironmentalSubsystem->new();
+      Classes::Socomec::Netvision::Components::EnvironmentalSubsystem->new();
 }
 
 sub analyze_battery_subsystem {
   my $self = shift;
   $self->{components}->{battery_subsystem} =
-      UPS::Socomec::Netvision::Components::BatterySubsystem->new();
+      Classes::Socomec::Netvision::Components::BatterySubsystem->new();
 }
 

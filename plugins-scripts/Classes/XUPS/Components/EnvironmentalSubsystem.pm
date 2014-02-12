@@ -1,5 +1,5 @@
-package UPS::XUPS::Components::EnvironmentalSubsystem;
-our @ISA = qw(UPS::XUPS);
+package Classes::XUPS::Components::EnvironmentalSubsystem;
+our @ISA = qw(Classes::XUPS);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -21,7 +21,7 @@ sub init {
   my $self = shift;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarmNumEvents));
   $self->get_snmp_tables("XUPS-MIB", [
-      ["alarms", "xupsAlarmTable", "UPS::XUPS::Components::EnvironmentalSubsystem::Alarm"],
+      ["alarms", "xupsAlarmTable", "Classes::XUPS::Components::EnvironmentalSubsystem::Alarm"],
   ]);
 }
 
@@ -50,7 +50,7 @@ sub dump {
 }
 
 
-package UPS::XUPS::Components::EnvironmentalSubsystem::Alarm;
+package Classes::XUPS::Components::EnvironmentalSubsystem::Alarm;
 our @ISA = qw(GLPlugin::TableItem);
 
 use strict;

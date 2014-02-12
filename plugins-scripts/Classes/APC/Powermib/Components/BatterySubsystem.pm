@@ -1,5 +1,5 @@
-package UPS::APC::Powermib::Components::BatterySubsystem;
-our @ISA = qw(UPS::APC::Powermib);
+package Classes::APC::Powermib::Components::BatterySubsystem;
+our @ISA = qw(Classes::APC::Powermib);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -31,7 +31,7 @@ sub init {
     $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
   }
   $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
-  # beobachtet bei Smart-UPS RT 1000 RM XL, da gab's nur
+  # beobachtet bei Smart-Classes RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
   $self->{upsAdvOutputLoad} = 
       ! defined $self->{upsAdvOutputLoad} || $self->{upsAdvOutputLoad} eq '' ?

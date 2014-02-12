@@ -1,5 +1,5 @@
-package UPS::Socomec::Netvision::Components::EnvironmentalSubsystem;
-our @ISA = qw(UPS::Socomec::Netvision);
+package Classes::Socomec::Netvision::Components::EnvironmentalSubsystem;
+our @ISA = qw(Classes::Socomec::Netvision);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -22,13 +22,13 @@ sub new {
 
 sub init {
   my $self = shift;
-  foreach (qw(upsIdentModel upsIdentUPSFirmwareVersion upsIdentUpsSerialNumber
+  foreach (qw(upsIdentModel upsIdentClassesFirmwareVersion upsIdentUpsSerialNumber
       upsAlarmsPresent
 )) {
     $self->{$_} = $self->get_snmp_object('Netvision-v6-MIB', $_, 0);
   }
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsAlarmTable')) {
-    push(@{$self->{alarms}}, UPS::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm->new(%{$_}));
+    push(@{$self->{alarms}}, Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm->new(%{$_}));
   }
 }
 
@@ -59,8 +59,8 @@ sub dump {
 }
 
 
-package UPS::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm;
-our @ISA = qw(UPS::Socomec::Netvision::Components::EnvironmentalSubsystem);
+package Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm;
+our @ISA = qw(Classes::Socomec::Netvision::Components::EnvironmentalSubsystem);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };

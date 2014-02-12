@@ -1,5 +1,5 @@
-package UPS::XUPS::Components::BatterySubsystem;
-our @ISA = qw(UPS::XUPS);
+package Classes::XUPS::Components::BatterySubsystem;
+our @ISA = qw(Classes::XUPS);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -21,8 +21,8 @@ sub init {
   my $self = shift;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad));
   $self->get_snmp_tables("XUPS-MIB", [
-      ["inputs", "xupsInputTable", "UPS::XUPS::Components::BatterySubsystem::Input"],
-      ["outputs", "xupsOutputTable", "UPS::XUPS::Components::BatterySubsystem::Output"],
+      ["inputs", "xupsInputTable", "Classes::XUPS::Components::BatterySubsystem::Input"],
+      ["outputs", "xupsOutputTable", "Classes::XUPS::Components::BatterySubsystem::Output"],
   ]);
   $self->{xupsBatTimeRemaining} /= 60;
   $self->{xupsInputFrequency} /= 10;
@@ -109,9 +109,9 @@ sub dump {
 }
 
 
-package UPS::XUPS::Components::BatterySubsystem::Input;
+package Classes::XUPS::Components::BatterySubsystem::Input;
 our @ISA = qw(GLPlugin::TableItem);
 
-package UPS::XUPS::Components::BatterySubsystem::Output;
+package Classes::XUPS::Components::BatterySubsystem::Output;
 our @ISA = qw(GLPlugin::TableItem);
 

@@ -1,5 +1,5 @@
-package UPS::V4::Components::BatterySubsystem;
-our @ISA = qw(UPS::V4);
+package Classes::V4::Components::BatterySubsystem;
+our @ISA = qw(Classes::V4);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -26,7 +26,7 @@ sub init {
       dupsInputNumLines
       dupsOutputNumLines dupsOutputFrequency
 )) {
-    $self->{$_} = $self->get_snmp_object('UPSV4-MIB', $_, 0);
+    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
   }
   $self->{dupsLastReplaceDate} ||= 0;
   $self->{dupsNextReplaceDate} ||= 0;
@@ -34,12 +34,12 @@ sub init {
   $self->{dupsLowBattTime} ||= 0;
   $self->{dupsOutputFrequency} /= 10;
   foreach (1..$self->{dupsInputNumLines}) {
-    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsInputVoltage'.$_, 0) / 10;
-    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsInputFrequency'.$_, 0) / 10;
+    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsInputVoltage'.$_, 0) / 10;
+    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsInputFrequency'.$_, 0) / 10;
   }
   foreach (1..$self->{dupsOutputNumLines}) {
-    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsOutputLoad'.$_, 0);
-    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
+    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsOutputLoad'.$_, 0);
+    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
   }
 }
 

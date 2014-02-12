@@ -1,5 +1,5 @@
-package UPS::XUPS;
-our @ISA = qw(UPS::Device);
+package Classes::XUPS;
+our @ISA = qw(Classes::Device);
 
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -24,12 +24,12 @@ sub init {
 sub analyze_environmental_subsystem {
   my $self = shift;
   $self->{components}->{environmental_subsystem} =
-      UPS::XUPS::Components::EnvironmentalSubsystem->new();
+      Classes::XUPS::Components::EnvironmentalSubsystem->new();
 }
 
 sub analyze_battery_subsystem {
   my $self = shift;
   $self->{components}->{battery_subsystem} =
-      UPS::XUPS::Components::BatterySubsystem->new();
+      Classes::XUPS::Components::BatterySubsystem->new();
 }
 
