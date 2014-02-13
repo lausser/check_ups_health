@@ -26,7 +26,7 @@ sub init {
       dupsInputNumLines
       dupsOutputNumLines dupsOutputFrequency
 )) {
-    $self->{$_} = $self->get_snmp_object('ClassesMerlinGerin-MIB', $_, 0);
+    $self->{$_} = $self->get_snmp_object('MG-SNMP-UPS-MIB', $_, 0);
   }
   $self->{dupsLastReplaceDate} ||= 0;
   $self->{dupsNextReplaceDate} ||= 0;
@@ -34,12 +34,12 @@ sub init {
   $self->{dupsLowBattTime} ||= 0;
   $self->{dupsOutputFrequency} /= 10;
   foreach (1..$self->{dupsInputNumLines}) {
-    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('ClassesMerlinGerin-MIB', 'dupsInputVoltage'.$_, 0) / 10;
-    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('ClassesMerlinGerin-MIB', 'dupsInputFrequency'.$_, 0) / 10;
+    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('MG-SNMP-UPS-MIB', 'dupsInputVoltage'.$_, 0) / 10;
+    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('MG-SNMP-UPS-MIB', 'dupsInputFrequency'.$_, 0) / 10;
   }
   foreach (1..$self->{dupsOutputNumLines}) {
-    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('ClassesMerlinGerin-MIB', 'dupsOutputLoad'.$_, 0);
-    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('ClassesMerlinGerin-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
+    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('MG-SNMP-UPS-MIB', 'dupsOutputLoad'.$_, 0);
+    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('MG-SNMP-UPS-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
   }
 }
 

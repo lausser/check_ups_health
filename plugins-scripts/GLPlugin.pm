@@ -458,7 +458,6 @@ sub dumper {
 
 sub no_such_mode {
   my $self = shift;
-  my %params = @_;
   printf "Mode %s is not implemented for this type of device\n",
       $self->opts->mode;
   exit 3;
@@ -553,6 +552,7 @@ package GLPlugin::SNMP;
 our @ISA = qw(GLPlugin);
 
 use strict;
+use File::Basename;
 use AutoLoader;
 our $AUTOLOAD;
 
@@ -1788,16 +1788,52 @@ sub load_cache {
   }
 }
 
+sub no_such_mode {
+  my $self = shift;
+  if (ref($self) eq "Classes::Generic") {
+    $self->init();
+  } elsif (ref($self) eq "Classes::Device") {
+    $self->add_message(UNKNOWN, 'the device did not implement the mibs this plugin is asking for');
+    $self->add_message(UNKNOWN,
+        sprintf('unknown device%s', $self->{productname} eq 'unknown' ?
+            '' : '('.$self->{productname}.')'));
+  } elsif (ref($self) eq "GLPlugin::SNMP") {
+    # uptime, offline
+    $self->init();
+  } else {
+    eval {
+      bless $self, "Classes::Generic";
+      $self->init();
+    };
+    if ($@) {
+      bless $self, "GLPlugin::SNMP";
+      $self->init();
+    }
+  }
+  printf "Mode %s is not implemented for this type of device\n",
+      $self->opts->mode;
+  exit 3;
+}
+
 sub AUTOLOAD {
   my $self = shift;
   return if ($AUTOLOAD =~ /DESTROY/);    
-  if ($AUTOLOAD =~ /^(.*)::check_(.*)_subsystem$/) {
+  if ($AUTOLOAD =~ /^(.*)::analyze_and_check_(.*)_subsystem$/) {
+    my $class = $1;
+    my $analyze = sprintf "analyze_%s_subsystem", $2;
+    my $check = sprintf "check_%s_subsystem", $2;
+    $self->$analyze();
+    $self->$check();
+  } elsif ($AUTOLOAD =~ /^(.*)::check_(.*)_subsystem$/) {
     my $class = $1;
     my $subsystem = sprintf "%s_subsystem", $2;
     $self->{components}->{$subsystem}->check();
     $self->{components}->{$subsystem}->dump()
         if $self->opts->verbose >= 2;
   }
+else {
+printf "auto %s\n", $AUTOLOAD;
+}
 }
 
 

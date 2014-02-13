@@ -59,17 +59,31 @@ sub new {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;
           $self->debug('using '.$class);
-        } elsif ($self->mode =~ /device::uptime/) {
-          bless $self, 'GLPlugin::SNMP';
         } else {
-          $self->add_message(UNKNOWN, 'the device did not implement the mibs this plugin is asking for');
-          $self->add_message(UNKNOWN,
-              sprintf('unknown device%s', $self->{productname} eq 'unknown' ?
-                  '' : '('.$self->{productname}.')'));
+          bless $self, 'Classes::Generic';
+          $self->debug('using Classes::Generic');
         }
       }
     }
   }
   return $self;
+}
+
+
+package Classes::Generic;
+
+use strict;
+
+use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
+
+our @ISA = qw(Classes::Device);
+
+
+sub init {
+  my $self = shift;
+  if ($self->mode =~ /.*/) {
+    bless $self, 'GLPlugin::SNMP';
+    $self->no_such_mode();
+  }
 }
 
