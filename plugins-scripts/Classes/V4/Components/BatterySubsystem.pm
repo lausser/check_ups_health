@@ -1,45 +1,37 @@
 package Classes::V4::Components::BatterySubsystem;
 our @ISA = qw(Classes::V4);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
+  my $self = {};
   bless $self, $class;
-  $self->init(%params);
+  $self->init();
   return $self;
 }
 
 sub init {
   my $self = shift;
-  foreach (qw(dupsBatteryCondiction dupsLastReplaceDate dupsNextReplaceDate
+  $self->get_snmp_objects('UPSV4-MIB', (qw(
+      dupsBatteryCondiction dupsLastReplaceDate dupsNextReplaceDate
       dupsBatteryStatus dupsBatteryCharge dupsSecondsOnBattery
       dupsBatteryEstimatedTime dupsBatteryVoltage
       dupsBatteryCapacity dupsTemperature dupsLowBattTime dupsOutputSource
       dupsInputNumLines
-      dupsOutputNumLines dupsOutputFrequency
-)) {
-    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
-  }
+      dupsOutputNumLines dupsOutputFrequency)));
   $self->{dupsLastReplaceDate} ||= 0;
   $self->{dupsNextReplaceDate} ||= 0;
   $self->{dupsBatteryCurrent} ||= 0;
   $self->{dupsLowBattTime} ||= 0;
   $self->{dupsOutputFrequency} /= 10;
   foreach (1..$self->{dupsInputNumLines}) {
-    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsInputVoltage'.$_, 0) / 10;
-    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsInputFrequency'.$_, 0) / 10;
+    $self->{'dupsInputVoltage'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsInputVoltage'.$_, 0) / 10;
+    $self->{'dupsInputFrequency'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsInputFrequency'.$_, 0) / 10;
   }
   foreach (1..$self->{dupsOutputNumLines}) {
-    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsOutputLoad'.$_, 0);
-    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('ClassesV4-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
+    $self->{'dupsOutputLoad'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsOutputLoad'.$_, 0);
+    $self->{'dupsOutputVoltage'.$_} = $self->get_snmp_object('UPSV4-MIB', 'dupsOutputVoltage'.$_, 0) / 10;
   }
 }
 

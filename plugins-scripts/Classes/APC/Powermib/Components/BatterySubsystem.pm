@@ -1,25 +1,20 @@
 package Classes::APC::Powermib::Components::BatterySubsystem;
 our @ISA = qw(Classes::APC::Powermib);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
+  my $self = {};
   bless $self, $class;
-  $self->init(%params);
+  $self->init();
   return $self;
 }
 
 sub init {
   my $self = shift;
-  foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity 
+  $self->get_snmp_objects('PowerNet-MIB', (qw(
+      upsBasicBatteryStatus upsAdvBatteryCapacity 
       upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature 
       upsAdvBatteryRunTimeRemaining 
       upsAdvInputLineVoltage upsAdvInputFrequency 
@@ -27,9 +22,7 @@ sub init {
       upsAdvOutputVoltage upsAdvOutputFrequency 
       upsBasicOutputStatus upsAdvOutputLoad upsAdvOutputCurrent
       upsHighPrecOutputLoad  
-      upsAdvInputLineFailCause)) { 
-    $self->{$_} = $self->get_snmp_object('PowerNet-MIB', $_);
-  }
+      upsAdvInputLineFailCause)));
   $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
   # beobachtet bei Smart-Classes RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
@@ -41,7 +34,8 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking battery');
-  my $info = sprintf 'battery status is %s',
+  my $info = undef;
+  $info = sprintf 'battery status is %s',
       $self->{upsBasicBatteryStatus};
   $self->add_info($info);
   if ($self->{upsBasicBatteryStatus} ne 'batteryNormal') {
@@ -52,7 +46,8 @@ sub check {
   if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
     $self->add_message(CRITICAL, 'battery needs replacing');
   }
-  if ($self->{upsBasicOutputStatus} ne 'onLine') {
+  if ($self->{upsBasicOutputStatus} && # kann auch undef sein (10kv z.b.)
+      $self->{upsBasicOutputStatus} ne 'onLine') {
     $self->add_message(WARNING, sprintf 'output status is %s',
         $self->{upsBasicOutputStatus});
     $self->add_message(WARNING, sprintf 'caused by %s',
@@ -124,19 +119,19 @@ sub check {
   $self->add_perfdata(
       label => 'input_voltage',
       value => $self->{upsAdvInputLineVoltage},
-  );
+  ) if defined $self->{upsAdvInputLineVoltage};
   $self->add_perfdata(
       label => 'input_frequency',
       value => $self->{upsAdvInputFrequency},
-  );
+  ) if defined $self->{upsAdvInputFrequency};
   $self->add_perfdata(
       label => 'output_voltage',
       value => $self->{upsAdvOutputVoltage},
-  );
+  ) if defined $self->{upsAdvOutputVoltage};;
   $self->add_perfdata(
       label => 'output_frequency',
       value => $self->{upsAdvOutputFrequency},
-  );
+  ) if defined $self->{upsAdvOutputFrequency};
 }
 
 sub dump {

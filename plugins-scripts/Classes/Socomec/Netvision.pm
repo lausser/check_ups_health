@@ -1,5 +1,6 @@
 package Classes::Socomec::Netvision;
 our @ISA = qw(Classes::Socomec);
+use strict;
 
 sub init {
   my $self = shift;

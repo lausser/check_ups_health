@@ -1,5 +1,6 @@
 package Classes::XUPS;
 our @ISA = qw(Classes::Device);
+use strict;
 
 sub init {
   my $self = shift;

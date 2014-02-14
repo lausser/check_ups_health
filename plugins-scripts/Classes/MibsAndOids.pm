@@ -1,5 +1,5 @@
 $GLPlugin::SNMP::discover_ids = {
-  '1.3.6.1.4.1.4555.1.1.1' => 'UPS::Socomec::Netvision',
+  '1.3.6.1.4.1.4555.1.1.1' => 'Classes::Socomec::Netvision',
   '1.3.6.1.4.1.318.1.3.17.1' => 'Classes::APC::Powermib',
 };
 

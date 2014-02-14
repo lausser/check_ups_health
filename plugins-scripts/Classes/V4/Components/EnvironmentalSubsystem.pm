@@ -1,36 +1,28 @@
 package Classes::V4::Components::EnvironmentalSubsystem;
 our @ISA = qw(Classes::V4);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
+  my $self = {};
   bless $self, $class;
-  $self->init(%params);
+  $self->init();
   return $self;
 }
 
 sub init {
   my $self = shift;
-  foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
+  $self->get_snmp_objects('UPSV4-MIB', (qw(
+      dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
       dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
       dupsEnvHumidity dupsEnvSetTemperatureLimit dupsEnvSetHumidityLimit 
       dupsEnvSetEnvRelay1 dupsEnvSetEnvRelay2 dupsEnvSetEnvRelay3
       dupsEnvSetEnvRelay4 dupsAlarmOverEnvTemperature
-      dupsTemperature)) {
-    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
-  }
+      dupsTemperature)));
   $self->{dupsEnvTemperature} ||= $self->{dupsTemperature};
-  foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
-    $self->{$_} = $self->get_snmp_object('ClassesV4-MIB', $_, 0);
-  }
+  $self->get_snmp_objects('UPSV4-MIB', (qw(
+      dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)));
 }
 
 sub check {

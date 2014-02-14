@@ -1,19 +1,13 @@
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem;
 our @ISA = qw(Classes::MerlinGerin);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
+  my $self = {};
   bless $self, $class;
-  $self->init(%params);
+  $self->init();
   return $self;
 }
 
@@ -22,6 +16,19 @@ sub init {
   $self->get_snmp_objects("MG-SNMP-UPS-MIB", qw(
       upsmgConfigEmergencyTestFail upsmgConfigEmergencyOnByPass
       upsmgConfigEmergencyOverload
+  ));
+  $self->get_snmp_objects("MG-SNMP-UPS-MIB", qw(
+   upsmgTestBatterySchedule
+   upsmgTestDiagnostics
+   upsmgTestDiagResult
+   upsmgTestBatteryCalibration
+   upsmgTestLastCalibration
+   upsmgTestIndicators
+   upsmgTestCommandLine
+   upsmgTestCommandReady
+   upsmgTestResponseLine
+   upsmgTestResponseReady
+   upsmgTestBatteryResult 
   ));
   $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
       ["environsensors", "upsmgEnvironSensorTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor"],
@@ -46,6 +53,9 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking environment');
+  if ($self->{upsmgTestDiagResult} eq "failed") {
+    $self->add_message(CRITICAL, "automatic test diagnostic failed");
+  }
   if (! $self->check_messages()) {
     $self->add_message(OK, "hardware working fine");
   }
@@ -64,30 +74,37 @@ sub dump {
     $_->dump();
   }
   #printf "info: %s\n", $self->{info};
+  foreach (qw(upsmgConfigEmergencyTestFail upsmgConfigEmergencyOnByPass
+      upsmgConfigEmergencyOverload upsmgTestBatterySchedule
+      upsmgTestDiagnostics upsmgTestDiagResult
+      upsmgTestBatteryCalibration upsmgTestLastCalibration
+      upsmgTestIndicators upsmgTestCommandLine
+      upsmgTestCommandReady upsmgTestResponseLine
+      upsmgTestResponseReady upsmgTestBatteryResult 
+  )){
+    printf "%s: %s\n", $_, $self->{$_};
+  }
   printf "\n";
 }
 
 
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor;
 our @ISA = qw(GLPlugin::TableItem);
-
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub check {
   my $self = shift;
   return;
 }
 
+
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::SensorConfig;
 our @ISA = qw(GLPlugin::TableItem);
-
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
+
 
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironmentSensor;
 our @ISA = qw(GLPlugin::TableItem);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 

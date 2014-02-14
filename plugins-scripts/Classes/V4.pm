@@ -1,5 +1,6 @@
 package Classes::V4;
 our @ISA = qw(Classes::Device);
+use strict;
 
 sub init {
   my $self = shift;

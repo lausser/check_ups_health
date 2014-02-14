@@ -1,5 +1,6 @@
 package Classes::APC::Powermib;
 our @ISA = qw(Classes::APC);
+use strict;
 
 sub init {
   my $self = shift;

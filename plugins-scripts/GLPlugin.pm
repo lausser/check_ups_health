@@ -884,6 +884,7 @@ sub get_snmp_object {
         $response->{$oid} = $symbols[0]->{$mo};
       }
     }
+    $self->debug(sprintf "GET: %s::%s (%s) : %s", $mib, $mo, $oid, defined $response->{$oid} ? $response->{$oid} : "<undef>");
     return $response->{$oid};
   }
   return undef;
@@ -1874,11 +1875,7 @@ use strict;
 sub new {
   my $class = shift;
   my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
+  my $self = {};
   bless $self, $class;
   foreach (keys %params) {
     $self->{$_} = $params{$_};

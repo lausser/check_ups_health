@@ -1,47 +1,33 @@
 package Classes::Socomec::Netvision::Components::BatterySubsystem;
 our @ISA = qw(Classes::Socomec::Netvision);
-
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-    inputs => [],
-    outputs => [],
-    bypasses => [],
-  };
+  my $self = {};
   bless $self, $class;
-  $self->init(%params);
+  $self->init();
   return $self;
 }
 
 sub init {
   my $self = shift;
-  foreach (qw(upsBatteryStatus upsSecondsonBattery upsEstimatedMinutesRemaining
+  $self->get_snmp_objects('Netvision-v6-MIB', (qw(
+      upsBatteryStatus upsSecondsonBattery upsEstimatedMinutesRemaining
       upsEstimatedChargeRemaining upsBatteryVoltage upsBatteryTemperature
       upsInputFrequency upsOutputFrequency
       upsOutputSource upsTestResultsSummary upsTestResultsDetail
-      upsControlStatusControl)) {
-    $self->{$_} = $self->get_snmp_object('Netvision-v6-MIB', $_, 0);
-  }
+      upsControlStatusControl)));
   $self->{upsSecondsonBattery} ||= 0;
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsInputFrequency} /= 10;
   $self->{upsOutputFrequency} /= 10;
-  foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsInputTable')) {
-    push(@{$self->{inputs}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Input->new(%{$_}));
-  }
-  foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsOutputTable')) {
-    push(@{$self->{outputs}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Output->new(%{$_}));
-  }
-  foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsBypassTable')) {
-    push(@{$self->{bypasses}}, Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass->new(%{$_}));
-  }
+  $self->get_snmp_tables('Netvision-v6-MIB', [
+      ['inputs', 'upsInputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Input'],
+      ['outputs', 'upsOutputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Output'],
+      ['bypasses', 'upsBypassTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass'],
+  ]);
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsAlarmTable')) {
 #printf "%s\n", Data::Dumper::Dumper($_);
 ##!!!!
@@ -152,32 +138,16 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Input;
-our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
-
+our @ISA = qw(GLPlugin::TableItem);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
-  bless $self, $class;
-  foreach (keys %params) {
-    $self->{$_} = $params{$_};
-  }
+
+sub check {
+  my $self = shift;
   $self->{upsInputVoltage} /= 10;
   $self->{upsInputVoltageMin} /= 10;
   $self->{upsInputVoltageMax} /= 10;
   $self->{upsInputCurrent} /= 10;
-  return $self;
-}
-
-sub check {
-  my $self = shift;
   my $info = sprintf 'input%d voltage is %dV', $self->{upsInputLineIndex}, $self->{upsInputVoltage};
   $self->add_info($info);
 }
@@ -194,30 +164,14 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Output;
-our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
-
+our @ISA = qw(GLPlugin::TableItem);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
-  bless $self, $class;
-  foreach (keys %params) {
-    $self->{$_} = $params{$_};
-  }
-  $self->{upsOutputVoltage} /= 10;
-  $self->{upsOutputCurrent} /= 10;
-  return $self;
-}
 
 sub check {
   my $self = shift;
+  $self->{upsOutputVoltage} /= 10;
+  $self->{upsOutputCurrent} /= 10;
   $self->set_thresholds(
       metric => 'output_load'.$self->{upsOutputLineIndex}, warning => '75', critical => '85');
   my $info = sprintf 'output load%d %.2f%%', $self->{upsOutputLineIndex}, $self->{upsOutputPercentLoad};
@@ -253,29 +207,13 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass;
-our @ISA = qw(Classes::Socomec::Netvision::Components::BatterySubsystem);
-
+our @ISA = qw(GLPlugin::TableItem);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
-  bless $self, $class;
-  foreach (keys %params) {
-    $self->{$_} = $params{$_};
-  }
-  $self->{upsBypassVoltage} /= 10;
-  return $self;
-}
 
 sub check {
   my $self = shift;
+  $self->{upsBypassVoltage} /= 10;
   my $info = sprintf 'bypass%d voltage is %dV', $self->{upsBypassLineIndex}, $self->{upsBypassVoltage};
   $self->add_info($info);
 }
