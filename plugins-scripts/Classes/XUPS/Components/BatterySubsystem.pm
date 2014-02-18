@@ -13,7 +13,7 @@ sub new {
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad));
+  $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad xupsTestBatteryStatus));
   $self->get_snmp_tables("XUPS-MIB", [
       ["inputs", "xupsInputTable", "Classes::XUPS::Components::BatterySubsystem::Input"],
       ["outputs", "xupsOutputTable", "Classes::XUPS::Components::BatterySubsystem::Output"],
@@ -90,6 +90,10 @@ sub check {
       warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
       critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
+
+  if ($self->{xupsTestBatteryStatus} eq "failed") {
+    $self->add_message(CRITICAL, "battery has status: failed");
+  }
 }
 
 sub dump {

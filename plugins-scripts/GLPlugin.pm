@@ -826,6 +826,10 @@ sub implements_mib {
   if ($sysobj && $sysobj eq $GLPlugin::SNMP::mib_ids->{$mib}) {
     return 1;
   }
+  if ($GLPlugin::SNMP::mib_ids->{$mib} eq
+      substr $sysobj, 0, length $GLPlugin::SNMP::mib_ids->{$mib}) {
+    return 1;
+  }
 }
 
 sub timeticks {

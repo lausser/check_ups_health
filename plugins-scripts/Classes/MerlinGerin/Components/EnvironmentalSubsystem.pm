@@ -53,7 +53,9 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking environment');
-  if ($self->{upsmgTestDiagResult} eq "failed") {
+  if (defined $self->{upsmgTestDiagResult} &&
+      $self->{upsmgTestDiagResult} eq "failed") {
+    # manche haben kein 1.3.6.1.4.1.705.1.10
     $self->add_message(CRITICAL, "automatic test diagnostic failed");
   }
   if (! $self->check_messages()) {

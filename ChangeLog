@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-02-18 2.0.1
+- some bugfixes (unimplemented oids and perl undefs)
+
 2014-02-14 2.0
 - rewrite using GLPlugin
 - raise apc battery temperature threshold

@@ -28,28 +28,31 @@ sub init {
       ['inputs', 'upsmgInputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Input'],
       ['outputs', 'upsmgOutputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Output'],
   ]);
+  @{$self->{inputs}} = grep {
+      defined $_->{mginputFrequency} && defined $_->{mginputVoltage}
+  } @{$self->{inputs}};
 }
 
 sub check {
   my $self = shift;
   $self->add_info('checking battery');
   my $info = undef;
-  if ($self->{upsmgBatteryNoBattery} eq "yes") {
+  if ($self->{upsmgBatteryNoBattery} && $self->{upsmgBatteryNoBattery} eq "yes") {
     $self->add_message(CRITICAL, "NO battery");
   }
-  if ($self->{upsmgBatteryReplacement} eq "yes") {
+  if ($self->{upsmgBatteryReplacement} && $self->{upsmgBatteryReplacement} eq "yes") {
     $self->add_message(CRITICAL, "battery needs to be replaced");
   }
-  if ($self->{upsmgBatteryChargerFault} eq "yes") {
+  if ($self->{upsmgBatteryChargerFault} && $self->{upsmgBatteryChargerFault} eq "yes") {
     $self->add_message(CRITICAL, "charger fault");
   }
-  if ($self->{upsmgBatteryLowRecharge} eq "yes") {
+  if ($self->{upsmgBatteryLowRecharge} && $self->{upsmgBatteryLowRecharge} eq "yes") {
     $self->add_message(CRITICAL, "low recharge");
   }
-  if ($self->{upsmgBatteryLowRecharge} eq "yes") {
+  if ($self->{upsmgBatteryLowRecharge} && $self->{upsmgBatteryLowRecharge} eq "yes") {
     $self->add_message(CRITICAL, "low recharge");
   }
-  if ($self->{upsmgBatteryFaultBattery} eq "yes") {
+  if ($self->{upsmgBatteryFaultBattery} && $self->{upsmgBatteryFaultBattery} eq "yes") {
     $self->add_message(CRITICAL, "battery fault");
   }
   if (! $self->check_messages()) {
