@@ -43,17 +43,17 @@ sub check {
       $self->{dupsBatteryCondiction}, $self->{dupsBatteryCharge};
   $self->add_info($info);
   if ($self->{dupsBatteryCondiction} eq 'weak') {
-    $self->add_message(WARNING, $info);
+    $self->add_warning($info);
   } elsif ($self->{dupsBatteryCondiction} eq 'replace') {
-    $self->add_message(CRITICAL, $info);
+    $self->add_critical($info);
   } 
   if ($self->{dupsOutputSource} eq 'battery') {
     if ($self->{dupsBatteryStatus} ne 'ok') {
-      $self->add_message(CRITICAL, $info);
+      $self->add_critical($info);
     }
   }
   if (! $self->check_messages()) {
-    $self->add_message(OK, $info);
+    $self->add_ok($info);
   }
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');

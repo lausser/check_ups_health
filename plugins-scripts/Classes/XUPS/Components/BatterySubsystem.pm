@@ -92,7 +92,7 @@ sub check {
   );
 
   if ($self->{xupsTestBatteryStatus} eq "failed") {
-    $self->add_message(CRITICAL, "battery has status: failed");
+    $self->add_critical("battery has status: failed");
   }
 }
 

@@ -105,6 +105,12 @@ sub add_perfdata {
   push @{$self->{perfdata}}, $str;
 }
 
+sub add_html {
+  my $self = shift;
+  my $line = shift;
+  push @{$self->{html}}, $line;
+}
+
 sub suppress_messages {
   my $self = shift;
   $self->{suppress_messages} = 1;
@@ -182,6 +188,24 @@ sub status_code {
   return "$STATUS_TEXT{$code}";
 }
 
+sub perfdata_string {
+  my $self = shift;
+  if (scalar (@{$self->{perfdata}})) {
+    return join(" ", @{$self->{perfdata}});
+  } else {
+    return "";
+  }
+}
+
+sub html_string {
+  my $self = shift;
+  if (scalar (@{$self->{html}})) {
+    return join(" ", @{$self->{html}});
+  } else {
+    return "";
+  }
+}
+
 sub nagios_exit {
   my $self = shift;
   my ($code, $message, $arg) = @_;
@@ -196,7 +220,7 @@ sub nagios_exit {
   my $output = "$STATUS_TEXT{$code}";
   $output .= " - $message" if defined $message && $message ne '';
   if (scalar (@{$self->{perfdata}})) {
-    $output .= " | ".join(" ", @{$self->{perfdata}});
+    $output .= " | ".$self->perfdata_string();
   }
   $output .= "\n";
   if (! exists $self->{suppress_messages}) {
@@ -278,44 +302,44 @@ sub check_thresholds {
     $warningrange = $self->{thresholds}->{default}->{warning};
     $criticalrange = $self->{thresholds}->{default}->{critical};
   }
-  if ($warningrange =~ /^(\d+)$/) {
+  if ($warningrange =~ /^(-*\d+)$/) {
     # warning = 10, warn if > 10 or < 0
     $level = $ERRORS{WARNING}
         if ($value > $1 || $value < 0);
-  } elsif ($warningrange =~ /^(\d+):$/) {
+  } elsif ($warningrange =~ /^(-*\d+):$/) {
     # warning = 10:, warn if < 10
     $level = $ERRORS{WARNING}
         if ($value < $1);
-  } elsif ($warningrange =~ /^~:(\d+)$/) {
+  } elsif ($warningrange =~ /^~:(-*\d+)$/) {
     # warning = ~:10, warn if > 10
     $level = $ERRORS{WARNING}
         if ($value > $1);
-  } elsif ($warningrange =~ /^(\d+):(\d+)$/) {
+  } elsif ($warningrange =~ /^(-*\d+):(-*\d+)$/) {
     # warning = 10:20, warn if < 10 or > 20
     $level = $ERRORS{WARNING}
         if ($value < $1 || $value > $2);
-  } elsif ($warningrange =~ /^@(\d+):(\d+)$/) {
+  } elsif ($warningrange =~ /^@(-*\d+):(-*\d+)$/) {
     # warning = @10:20, warn if >= 10 and <= 20
     $level = $ERRORS{WARNING}
         if ($value >= $1 && $value <= $2);
   }
-  if ($criticalrange =~ /^(\d+)$/) {
+  if ($criticalrange =~ /^(-*\d+)$/) {
     # critical = 10, crit if > 10 or < 0
     $level = $ERRORS{CRITICAL}
         if ($value > $1 || $value < 0);
-  } elsif ($criticalrange =~ /^(\d+):$/) {
+  } elsif ($criticalrange =~ /^(-*\d+):$/) {
     # critical = 10:, crit if < 10
     $level = $ERRORS{CRITICAL}
         if ($value < $1);
-  } elsif ($criticalrange =~ /^~:(\d+)$/) {
+  } elsif ($criticalrange =~ /^~:(-*\d+)$/) {
     # critical = ~:10, crit if > 10
     $level = $ERRORS{CRITICAL}
         if ($value > $1);
-  } elsif ($criticalrange =~ /^(\d+):(\d+)$/) {
+  } elsif ($criticalrange =~ /^(-*\d+):(-*\d+)$/) {
     # critical = 10:20, crit if < 10 or > 20
     $level = $ERRORS{CRITICAL}
         if ($value < $1 || $value > $2);
-  } elsif ($criticalrange =~ /^@(\d+):(\d+)$/) {
+  } elsif ($criticalrange =~ /^@(-*\d+):(-*\d+)$/) {
     # critical = @10:20, crit if >= 10 and <= 20
     $level = $ERRORS{CRITICAL}
         if ($value >= $1 && $value <= $2);

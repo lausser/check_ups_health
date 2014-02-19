@@ -39,18 +39,18 @@ sub check {
       $self->{upsBasicBatteryStatus};
   $self->add_info($info);
   if ($self->{upsBasicBatteryStatus} ne 'batteryNormal') {
-    $self->add_message(CRITICAL, $info);
+    $self->add_critical($info);
   } else {
-    $self->add_message(OK, $info);
+    $self->add_ok($info);
   } 
   if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
-    $self->add_message(CRITICAL, 'battery needs replacing');
+    $self->add_critical('battery needs replacing');
   }
   if ($self->{upsBasicOutputStatus} && # kann auch undef sein (10kv z.b.)
       $self->{upsBasicOutputStatus} ne 'onLine') {
-    $self->add_message(WARNING, sprintf 'output status is %s',
+    $self->add_warning(sprintf 'output status is %s',
         $self->{upsBasicOutputStatus});
-    $self->add_message(WARNING, sprintf 'caused by %s',
+    $self->add_warning(sprintf 'caused by %s',
         $self->{upsAdvInputLineFailCause});
   }
 

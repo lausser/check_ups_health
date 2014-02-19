@@ -26,7 +26,7 @@ sub check {
     $_->check();
   }
   if (! $self->check_messages()) {
-    $self->add_message(OK, "hardware working fine. no alarms");
+    $self->add_ok("hardware working fine. no alarms");
   }
 }
 
@@ -61,7 +61,7 @@ sub check {
   }
   my $age = $GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
   if ($age < 3600) {
-    $self->add_message(CRITICAL, sprintf "alarm: %s (%d min ago)",
+    $self->add_critical(sprintf "alarm: %s (%d min ago)",
         $self->{xupsAlarmDescr}, $age / 60);
   }
 }

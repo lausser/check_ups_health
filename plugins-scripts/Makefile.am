@@ -23,9 +23,15 @@ EXTRA_MODULES=\
   Classes/Socomec/Netvision/Components/BatterySubsystem.pm \
   Classes/Socomec/Netvision.pm \
   Classes/Socomec.pm \
+  Classes/UPS/Components/EnvironmentalSubsystem.pm \
+  Classes/UPS/Components/BatterySubsystem.pm \
+  Classes/UPS.pm \
   Classes/XUPS/Components/EnvironmentalSubsystem.pm \
   Classes/XUPS/Components/BatterySubsystem.pm \
   Classes/XUPS.pm \
+  Classes/XPPC/Components/EnvironmentalSubsystem.pm \
+  Classes/XPPC/Components/BatterySubsystem.pm \
+  Classes/XPPC.pm \
   Classes/V4/Components/EnvironmentalSubsystem.pm \
   Classes/V4/Components/BatterySubsystem.pm \
   Classes/V4.pm \

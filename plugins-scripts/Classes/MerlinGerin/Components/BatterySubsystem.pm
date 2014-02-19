@@ -38,25 +38,25 @@ sub check {
   $self->add_info('checking battery');
   my $info = undef;
   if ($self->{upsmgBatteryNoBattery} && $self->{upsmgBatteryNoBattery} eq "yes") {
-    $self->add_message(CRITICAL, "NO battery");
+    $self->add_critical("NO battery");
   }
   if ($self->{upsmgBatteryReplacement} && $self->{upsmgBatteryReplacement} eq "yes") {
-    $self->add_message(CRITICAL, "battery needs to be replaced");
+    $self->add_critical("battery needs to be replaced");
   }
   if ($self->{upsmgBatteryChargerFault} && $self->{upsmgBatteryChargerFault} eq "yes") {
-    $self->add_message(CRITICAL, "charger fault");
+    $self->add_critical("charger fault");
   }
   if ($self->{upsmgBatteryLowRecharge} && $self->{upsmgBatteryLowRecharge} eq "yes") {
-    $self->add_message(CRITICAL, "low recharge");
+    $self->add_critical("low recharge");
   }
   if ($self->{upsmgBatteryLowRecharge} && $self->{upsmgBatteryLowRecharge} eq "yes") {
-    $self->add_message(CRITICAL, "low recharge");
+    $self->add_critical("low recharge");
   }
   if ($self->{upsmgBatteryFaultBattery} && $self->{upsmgBatteryFaultBattery} eq "yes") {
-    $self->add_message(CRITICAL, "battery fault");
+    $self->add_critical("battery fault");
   }
   if (! $self->check_messages()) {
-    $self->add_message(OK, "battery ok");
+    $self->add_ok("battery ok");
   }
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');

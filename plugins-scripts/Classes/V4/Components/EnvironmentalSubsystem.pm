@@ -33,27 +33,27 @@ sub check {
   if ($self->{dupsEnvHumidity}) {
     $info .= sprintf ', humidity %d%%', $self->{dupsEnvHumidity};
   }
-  $self->add_message(OK, $info);
+  $self->add_ok($info);
   $self->add_info($info);
   my $alarms = 0;
   foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent dupsAlarmInverterAbnormal dupsAlarmRectifierAbnormal dupsAlarmReserveAbnormal dupsAlarmLoadOnReserve dupsAlarmOverTemperature dupsAlarmOutputBad dupsAlarmPowerFail dupsAlarmBypassBad dupsAlarmClassesOff dupsAlarmChargerFail dupsAlarmFanFail dupsAlarmEconomicMode dupsAlarmOutputOff dupsAlarmSmartShutdown dupsAlarmEmergencyPowerOff dupsAlarmBatteryLow dupsAlarmLoadWarning dupsAlarmLoadSeverity dupsAlarmLoadOnBypass dupsAlarmClassesFault dupsAlarmBatteryGroundFault dupsAlarmTestInProgress)) {
     if ($self->{$_} && $self->{$_} eq 'on') {
-      $self->add_message(CRITICAL, sprintf 'alarm %s is on', $_);
+      $self->add_critical(sprintf 'alarm %s is on', $_);
       $alarms++;
     }
   }
   if ($self->{dupsAlarmOverEnvTemperature} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'temperature too high, %d max',
+    $self->add_critical(sprintf 'temperature too high, %d max',
         $self->{dupsEnvSetTemperatureLimit});
     $alarms++;
   }
   if ($self->{dupsAlarmOverEnvHumidity} eq 'on') {
-    $self->add_message(CRITICAL, sprintf 'humidity too high, %d max',
+    $self->add_critical(sprintf 'humidity too high, %d max',
         $self->{dupsEnvSetHumidityLimit});
     $alarms++;
   }
   if (! $alarms) {
-    $self->add_message(OK, 'no alarms');
+    $self->add_ok('no alarms');
   }
   $self->add_perfdata(
       label => 'temperature',
