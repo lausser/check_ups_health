@@ -27,9 +27,9 @@ sub check {
   my $info = sprintf 'found %d alarms', $self->{upsAlarmsPresent};
   $self->add_info($info);
   if ($self->{upsAlarmsPresent}) {
-    $self->add_message(CRITICAL, $info);
+    $self->add_critical($info);
   } else {
-    $self->add_message(OK, $info);
+    $self->add_ok($info);
   } 
 
 }
@@ -57,7 +57,7 @@ sub check {
   my $self = shift;
   my $info = sprintf '%s', $self->{upsAlarmDescr};
   $self->add_info($info);
-  $self->add_message(CRITICAL, $info);
+  $self->add_critical($info);
 }
 
 sub dump {

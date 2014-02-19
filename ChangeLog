@@ -2,6 +2,10 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-02-19 2.1
+- add UPS-MIB
+- add XPCC-MIB
+
 2014-02-18 2.0.1
 - some bugfixes (unimplemented oids and perl undefs)
 

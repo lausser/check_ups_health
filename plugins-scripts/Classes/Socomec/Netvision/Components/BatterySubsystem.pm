@@ -41,9 +41,9 @@ sub check {
       $self->{upsBatteryStatus};
   $self->add_info($info);
   if ($self->{upsBatteryStatus} ne 'batteryNormal') {
-    $self->add_message(CRITICAL, $info);
+    $self->add_critical($info);
   } else {
-    $self->add_message(OK, $info);
+    $self->add_ok($info);
   } 
 
   $self->set_thresholds(

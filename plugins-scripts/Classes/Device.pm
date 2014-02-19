@@ -31,7 +31,7 @@ sub new {
   };
   bless $self, $class;
   if (! ($self->opts->hostname || $self->opts->snmpwalk)) {
-    $self->add_message(UNKNOWN, 'either specify a hostname or a snmpwalk file');
+    $self->add_unknown('either specify a hostname or a snmpwalk file');
   } else {
     $self->check_snmp_and_model();
     if (! $self->check_messages()) {
@@ -50,9 +50,15 @@ sub new {
       } elsif ($self->implements_mib('XUPS-MIB')) {
         bless $self, 'Classes::XUPS';
         $self->debug('using Classes::XUPS');
+      } elsif ($self->implements_mib('UPS-MIB')) {
+        bless $self, 'Classes::UPS';
+        $self->debug('using Classes::UPS');
       } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
         bless $self, 'Classes::MerlinGerin';
         $self->debug('using Classes::MerlinGerin');
+      } elsif ($self->implements_mib('XPPC-MIB')) {
+        bless $self, 'Classes::XPPC';
+        $self->debug('using Classes::XPPC');
       } else {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;

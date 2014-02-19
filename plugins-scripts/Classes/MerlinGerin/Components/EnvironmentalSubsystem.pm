@@ -56,10 +56,10 @@ sub check {
   if (defined $self->{upsmgTestDiagResult} &&
       $self->{upsmgTestDiagResult} eq "failed") {
     # manche haben kein 1.3.6.1.4.1.705.1.10
-    $self->add_message(CRITICAL, "automatic test diagnostic failed");
+    $self->add_critical("automatic test diagnostic failed");
   }
   if (! $self->check_messages()) {
-    $self->add_message(OK, "hardware working fine");
+    $self->add_ok("hardware working fine");
   }
 }
 
@@ -122,7 +122,7 @@ sub check {
       }
       foreach my $thres (qw(High Low)) {
         if ($self->{'upsmgEnvironment'.$cat.$thres} eq "yes") {
-          $self->add_message(CRITICAL, sprintf "%s (%.2f) is too %s",
+          $self->add_critical(sprintf "%s (%.2f) is too %s",
               lc $cat, $self->{'upsmgEnvironment'.$cat}, lc $thres);
         }
       }

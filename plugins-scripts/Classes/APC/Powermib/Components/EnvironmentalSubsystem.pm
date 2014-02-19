@@ -39,9 +39,9 @@ sub check {
         $self->{upsAdvTestDiagnosticsResults};
     $self->add_info($info);
     if ($self->{upsAdvTestDiagnosticsResults} ne 'ok') {
-      $self->add_message(WARNING, $info);
+      $self->add_warning($info);
     } else {
-      $self->add_message(OK, $info);
+      $self->add_ok($info);
     } 
     my $maxage = undef;
     if ($self->{upsAdvTestDiagnosticSchedule} eq 'never') {
@@ -80,7 +80,7 @@ sub check {
         critical => ($self->get_thresholds(metric => 'selftest_age'))[1],
     );
   } else {
-    $self->add_message(OK, "hardware working fine, at least i hope so, because self-tests were never run");
+    $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run");
   }
 }
 
