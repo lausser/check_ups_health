@@ -1,13 +1,6 @@
 package Classes::Device;
 our @ISA = qw(GLPlugin::SNMP);
 use strict;
-use IO::File;
-use File::Basename;
-use Digest::MD5  qw(md5_hex);
-use Errno;
-use AutoLoader;
-our $AUTOLOAD;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 {
   our $mode = undef;

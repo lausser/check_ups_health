@@ -1,7 +1,6 @@
 package Classes::V4::Components::BatterySubsystem;
 our @ISA = qw(Classes::V4);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;

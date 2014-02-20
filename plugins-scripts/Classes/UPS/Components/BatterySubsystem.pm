@@ -1,7 +1,6 @@
 package Classes::UPS::Components::BatterySubsystem;
 our @ISA = qw(Classes::UPS);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
@@ -120,6 +119,7 @@ use strict;
 
 sub check {
   my $self = shift;
+  $self->{upsOutputCurrent} /= 10;
   my $metric = 'output_load'.$self->{flat_indices};
   $self->set_thresholds(
       metric => $metric, warning => '75', critical => '85');

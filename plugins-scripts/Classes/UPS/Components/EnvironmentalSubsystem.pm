@@ -1,7 +1,6 @@
 package Classes::UPS::Components::EnvironmentalSubsystem;
 our @ISA = qw(Classes::UPS);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
@@ -74,7 +73,6 @@ sub dump {
 package Classes::UPS::Components::EnvironmentalSubsystem::Alarm;
 our @ISA = qw(GLPlugin::TableItem);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub check {
   my $self = shift;

@@ -1,7 +1,6 @@
 package Classes::Socomec::Netvision::Components::BatterySubsystem;
 our @ISA = qw(Classes::Socomec::Netvision);
 use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub new {
   my $class = shift;
