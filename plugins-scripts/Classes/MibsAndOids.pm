@@ -6,7 +6,7 @@ $GLPlugin::SNMP::discover_ids = {
 $GLPlugin::SNMP::mib_ids = {
   'UPSV4-MIB' => '1.3.6.1.4.1.2254.2.4',
   'XUPS-MIB' => '1.3.6.1.4.1.534.1',
-  'MG-SNMP-UPS-MIB' => '1.3.6.1.4.1.705.1.2',
+  'MG-SNMP-UPS-MIB' => '1.3.6.1.4.1.705.1',
   'UPS-MIB' => '1.3.6.1.2.1.33',
   'XPPC-MIB' => '1.3.6.1.4.1.935',
 };
