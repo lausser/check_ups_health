@@ -20,7 +20,7 @@ sub init {
       upsAdvTestDiagnosticsResults upsAdvTestLastDiagnosticsDate)));
   eval {
     die if ! $self->{upsAdvTestLastDiagnosticsDate};
-    $self->{upsAdvTestLastDiagnosticsDate} =~ /(\d+)\/(\d+)\/(\d+)/;
+    $self->{upsAdvTestLastDiagnosticsDate} =~ /(\d+)\/(\d+)\/(\d+)/ || die;
     $self->{upsAdvTestLastDiagnosticsDate} = mktime(0, 0, 0, $2, $1 - 1, $3 - 1900);
     $self->{upsAdvTestLastDiagnosticsAge} = (time - $self->{upsAdvTestLastDiagnosticsDate}) / (3600 * 24);
   };
