@@ -101,7 +101,7 @@ sub check {
   );
 
   $self->set_thresholds(
-      metric => 'remaining_time', warning => '15:', critical => '10:');
+      metric => 'remaining_time', warning => '10:', critical => '8:');
   $info = sprintf 'remaining battery run time is %.2fmin', $self->{upsAdvBatteryRunTimeRemaining};
   $self->add_info($info);
   $self->add_message(
