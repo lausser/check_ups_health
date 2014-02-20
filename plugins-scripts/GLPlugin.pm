@@ -1846,12 +1846,20 @@ sub no_such_mode {
 
 sub AUTOLOAD {
   my $self = shift;
-  return if ($AUTOLOAD =~ /DESTROY/);    
+  return if ($AUTOLOAD =~ /DESTROY/);
   if ($AUTOLOAD =~ /^(.*)::analyze_and_check_(.*)_subsystem$/) {
     my $class = $1;
-    my $analyze = sprintf "analyze_%s_subsystem", $2;
-    my $check = sprintf "check_%s_subsystem", $2;
-    $self->$analyze();
+    my $subsystem = $2;
+    my $analyze = sprintf "analyze_%s_subsystem", $subsystem;
+    my $check = sprintf "check_%s_subsystem", $subsystem;
+    my @params = @_;
+    if (@params) {
+      # analyzer class
+      my $subsystem_class = shift @params;
+      $self->{components}->{$subsystem.'_subsystem'} = $subsystem_class->new();
+    } else {
+      $self->$analyze();
+    }
     $self->$check();
   } elsif ($AUTOLOAD =~ /^(.*)::check_(.*)_subsystem$/) {
     my $class = $1;
@@ -1860,9 +1868,6 @@ sub AUTOLOAD {
     $self->{components}->{$subsystem}->dump()
         if $self->opts->verbose >= 2;
   }
-else {
-printf "auto %s\n", $AUTOLOAD;
-}
 }
 
 
