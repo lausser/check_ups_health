@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-02-20 2.2
+- code cleanup
+
 2014-02-19 2.1
 - add UPS-MIB
 - add XPCC-MIB
