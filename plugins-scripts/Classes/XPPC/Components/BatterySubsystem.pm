@@ -22,6 +22,10 @@ sub init {
       upsSmartOutputLoad)));
   $self->{upsSmartBatteryTemperature} /= 10;
   $self->{upsSmartBatteryVoltage} *= 10;
+  $self->{upsSmartInputLineVoltage} /= 10 if defined $self->{upsSmartInputLineVoltage};
+  $self->{upsSmartInputFrequency} /= 10 if defined $self->{upsSmartInputFrequency};
+  $self->{upsSmartOutputVoltage} /= 10 if defined $self->{upsSmartOutputVoltage};
+  $self->{upsSmartOutputFrequency} /= 10 if defined $self->{upsSmartOutputFrequency};
 }
 
 sub check {
@@ -112,21 +116,24 @@ sub check {
       critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
+  if (defined $self->{upsSmartInputLineVoltage} && $self->{upsSmartInputLineVoltage} < 1) {
+    $self->add_critical(sprintf 'input power outage');
+  }
   $self->add_perfdata(
       label => 'input_voltage',
-      value => $self->{upsSmartInputLineVoltage} / 10,
+      value => $self->{upsSmartInputLineVoltage},
   ) if defined $self->{upsSmartInputLineVoltage};
   $self->add_perfdata(
       label => 'input_frequency',
-      value => $self->{upsSmartInputFrequency} / 10,
+      value => $self->{upsSmartInputFrequency},
   ) if defined $self->{upsSmartInputFrequency};
   $self->add_perfdata(
       label => 'output_voltage',
-      value => $self->{upsSmartOutputVoltage} / 10,
+      value => $self->{upsSmartOutputVoltage},
   ) if defined $self->{upsSmartOutputVoltage};
   $self->add_perfdata(
       label => 'output_frequency',
-      value => $self->{upsSmartOutputFrequency} / 10,
+      value => $self->{upsSmartOutputFrequency},
   ) if defined $self->{upsSmartOutputFrequency};
 }
 

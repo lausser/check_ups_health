@@ -119,6 +119,9 @@ sub check {
   );
 
   foreach (1..$self->{dupsInputNumLines}) {
+    if ($self->{'dupsInputVoltage'.$_} < 1) {
+      $self->add_critical(sprintf 'input power%s outage', $_);
+    }
     $self->add_perfdata(
         label => 'input_voltage'.$_,
         value => $self->{'dupsInputVoltage'.$_},

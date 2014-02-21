@@ -60,19 +60,13 @@ sub check {
       label => 'output_frequency',
       value => $self->{xupsOutputFrequency});
   foreach (@{$self->{outputs}}) {
-    $self->add_perfdata(
-        label => 'output_voltage_'.$_->{flat_indices},
-        value => $_->{xupsOutputVoltage},
-    );
+    $_->check();
   }
   $self->add_perfdata(
       label => 'input_frequency',
       value => $self->{xupsInputFrequency});
   foreach (@{$self->{inputs}}) {
-    $self->add_perfdata(
-        label => 'input_voltage_'.$_->{flat_indices},
-        value => $_->{xupsInputVoltage},
-    );
+    $_->check();
   }
 
   $self->set_thresholds(
@@ -108,7 +102,35 @@ sub dump {
 
 package Classes::XUPS::Components::BatterySubsystem::Input;
 our @ISA = qw(GLPlugin::TableItem);
+use strict;
+
+sub check {
+  my $self = shift;
+  if ($self->{xupsInputVoltage} < 1) {
+    $self->add_critical(sprintf 'input power%s outage', $self->{flat_indices});
+  }
+  $self->add_perfdata(
+      label => 'input_voltage'.$self->{flat_indices},
+      value => $self->{xupsInputVoltage},
+  );
+  $self->add_perfdata(
+      label => 'input_current'.$self->{flat_indices},
+      value => $self->{xupsInputCurrent},
+  );
+}
 
 package Classes::XUPS::Components::BatterySubsystem::Output;
 our @ISA = qw(GLPlugin::TableItem);
+use strict;
 
+sub check {
+  my $self = shift;
+  $self->add_perfdata(
+      label => 'output_voltage_'.$self->{flat_indices},
+      value => $self->{xupsOutputVoltage},
+  );
+  $self->add_perfdata(
+      label => 'output_current'.$self->{flat_indices},
+      value => $self->{xupsOutputCurrent},
+  );
+}

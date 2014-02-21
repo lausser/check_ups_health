@@ -149,6 +149,13 @@ sub check {
   $self->{upsInputCurrent} /= 10;
   my $info = sprintf 'input%d voltage is %dV', $self->{upsInputLineIndex}, $self->{upsInputVoltage};
   $self->add_info($info);
+  if ($self->{upsInputVoltage} < 1) {
+    $self->add_critical(sprintf 'input power%s outage', $self->{upsInputLineIndex});
+  }
+  $self->add_perfdata(
+      label => 'input_voltage'.$self->{upsInputLineIndex},
+      value => $self->{upsInputVoltage},
+  );
 }
 
 sub dump {

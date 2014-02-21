@@ -22,7 +22,8 @@ sub init {
       upsmgBatteryNotHighCharge upsmgBatteryLowBattery
       upsmgBatteryChargerFault upsmgBatteryLowCondition
       upsmgBatteryLowRecharge
-      upsmgInputPhaseNum upsmgOutputPhaseNum)));
+      upsmgInputPhaseNum upsmgOutputPhaseNum
+      upsmgInputLineFailCause)));
   $self->get_snmp_tables('MG-SNMP-UPS-MIB', [
       ['inputs', 'upsmgInputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Input'],
       ['outputs', 'upsmgOutputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Output'],
@@ -109,6 +110,10 @@ sub check {
   foreach (@{$self->{outputs}}) {
     $_->check();
   }
+  if ($self->check_messages()) {
+    $self->add_critical(sprintf 'input line fail cause: %s',
+        $self->{upsmgInputLineFailCause});
+  }
 }
 
 sub dump {
@@ -136,6 +141,9 @@ sub check {
   $self->{mginputVoltage} /= 10;
   $self->{mginputFrequency} /= 10;
   $self->{mginputCurrent} /= 10;
+  if ($self->{mginputVoltage} < 1) {
+    $self->add_critical(sprintf 'input power%s outage', $self->{flat_indices});
+  }
   $self->add_perfdata(
       label => 'input_voltage'.$self->{flat_indices},
       value => $self->{mginputVoltage},

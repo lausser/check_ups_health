@@ -99,6 +99,9 @@ sub check {
   my $self = shift;
   $self->{upsInputFrequency} /= 10;
   $self->{upsInputCurrent} /= 10;
+  if ($self->{upsInputVoltage} < 1) {
+    $self->add_critical(sprintf 'input power%s outage', $self->{flat_indices});
+  }
   $self->add_perfdata(
       label => 'input_voltage'.$self->{flat_indices},
       value => $self->{upsInputVoltage},
