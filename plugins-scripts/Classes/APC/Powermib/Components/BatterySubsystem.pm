@@ -115,7 +115,7 @@ sub check {
       critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
-  if ($self->{upsAdvInputLineVoltage} < 1) {
+  if (defined $self->{upsAdvInputLineVoltage} && $self->{upsAdvInputLineVoltage} < 1) {
     $self->add_critical('input power outage');
     if ($self->{upsAdvInputLineFailCause}) {
       $self->add_critical($self->{upsAdvInputLineFailCause});

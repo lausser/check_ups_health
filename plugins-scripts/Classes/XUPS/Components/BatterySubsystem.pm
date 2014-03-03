@@ -115,7 +115,7 @@ sub check {
   );
   $self->add_perfdata(
       label => 'input_current'.$self->{flat_indices},
-      value => $self->{xupsInputCurrent},
+      value => $self->{xupsInputCurrent} || 0,
   );
 }
 
