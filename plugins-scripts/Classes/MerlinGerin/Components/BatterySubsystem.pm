@@ -31,6 +31,8 @@ sub init {
   @{$self->{inputs}} = grep {
       defined $_->{mginputFrequency} && defined $_->{mginputVoltage}
   } @{$self->{inputs}};
+  @{$self->{inputs}} = splice(@{$self->{inputs}}, 0, $self->{upsmgInputPhaseNum});
+  @{$self->{outputs}} = splice(@{$self->{outputs}}, 0, $self->{upsmgOutputPhaseNum});
 }
 
 sub check {

@@ -4,6 +4,7 @@
 
 2014-03-03 2.3.1
 - bugfix in XUPS input current
+- bugfix in Merlin Gerin input/output numbers
 
 2014-02-21 2.3
 - add a check for input voltage = 0
