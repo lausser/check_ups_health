@@ -2,6 +2,10 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-05-22 2.4
+- finished GLPlugin migration
+- rearranged the classification checks
+
 2014-03-03 2.3.1
 - bugfix in XUPS input current
 - bugfix in Merlin Gerin input/output numbers

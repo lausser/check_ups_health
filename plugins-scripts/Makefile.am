@@ -12,9 +12,8 @@ VPATH=$(top_srcdir) $(top_srcdir)/plugins-scripts $(top_srcdir)/plugins-scripts/
 libexec_SCRIPTS=check_ups_health
 MY_MODULES=
 EXTRA_MODULES=\
-  Nagios/MiniPlugin.pm \
   GLPlugin.pm \
-  Classes/MibsAndOids.pm \
+  GLPluginSNMP.pm \
   Classes/APC/Powermib/Components/EnvironmentalSubsystem.pm \
   Classes/APC/Powermib/Components/BatterySubsystem.pm \
   Classes/APC/Powermib.pm \
@@ -38,6 +37,7 @@ EXTRA_MODULES=\
   Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
   Classes/MerlinGerin/Components/BatterySubsystem.pm \
   Classes/MerlinGerin.pm \
+  Classes/MibsAndOids.pm \
   Classes/Device.pm
 EXTRA_DIST=check_ups_health.pl $(EXTRA_MODULES)
 
@@ -61,7 +61,7 @@ $(libexec_SCRIPTS) : $(EXTRA_DIST)
 	$(ECHO) "#! #PERL# -w" | $(AWK) -f ./subst > $@
 	$(ECHO) >> $@
 	for m in ${EXTRA_MODULES}; do \
-		$(SED) -e 's/^1;//g' < $$m | $(AWK) -f ./subst | $(GREP) -v "use Nagios::Plugin" >> $@; \
+		$(SED) -e 's/^1;//g' < $$m | $(SED) -e '/^__END__/,$$d' | $(AWK) -f ./subst | $(GREP) -v "use Nagios::Plugin" >> $@; \
 	done
 	$(ECHO) "package main;" >> $@
 	$(CAT) check_ups_health.pl | $(AWK) -f ./subst >> $@

@@ -2,27 +2,8 @@ package Classes::Device;
 our @ISA = qw(GLPlugin::SNMP);
 use strict;
 
-{
-  our $mode = undef;
-  our $plugin = undef;
-  our $blacklist = undef;
-  our $session = undef;
-  our $rawdata = {};
-  our $info = [];
-  our $extendedinfo = [];
-  our $summary = [];
-  our $statefilesdir = '/var/tmp/check_ups_health';
-  our $oidtrace = [];
-  our $uptime = 0;
-}
-
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-    productname => 'unknown',
-  };
-  bless $self, $class;
+sub classify {
+  my $self = shift;
   if (! ($self->opts->hostname || $self->opts->snmpwalk)) {
     $self->add_unknown('either specify a hostname or a snmpwalk file');
   } else {
@@ -40,18 +21,21 @@ sub new {
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'Classes::V4';
         $self->debug('using Classes::V4');
+      } elsif ($self->implements_mib('XPPC-MIB')) {
+        # before UPS-MIB because i found a Intelligent MSII6000 which implemented
+        # both XPPC and UPS, but the latter only partial
+        bless $self, 'Classes::XPPC';
+        $self->debug('using Classes::XPPC');
       } elsif ($self->implements_mib('XUPS-MIB')) {
         bless $self, 'Classes::XUPS';
         $self->debug('using Classes::XUPS');
+      } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
+        # like XPPC, that's wha UPS is now last
+        bless $self, 'Classes::MerlinGerin';
+        $self->debug('using Classes::MerlinGerin');
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');
-      } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
-        bless $self, 'Classes::MerlinGerin';
-        $self->debug('using Classes::MerlinGerin');
-      } elsif ($self->implements_mib('XPPC-MIB')) {
-        bless $self, 'Classes::XPPC';
-        $self->debug('using Classes::XPPC');
       } else {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;
