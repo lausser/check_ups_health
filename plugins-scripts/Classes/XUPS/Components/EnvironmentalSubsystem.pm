@@ -44,7 +44,7 @@ sub dump {
 
 
 package Classes::XUPS::Components::EnvironmentalSubsystem::Alarm;
-our @ISA = qw(GLPlugin::TableItem);
+our @ISA = qw(GLPlugin::SNMP::TableItem);
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 

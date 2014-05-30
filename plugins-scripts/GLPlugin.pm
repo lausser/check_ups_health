@@ -97,27 +97,35 @@ sub check_messages {
 
 sub clear_ok {
   my $self = shift;
-  return $self->clear_messages(OK);
+  $self->clear_messages(OK);
 }
 
 sub clear_warning {
   my $self = shift;
-  return $self->clear_messages(WARNING);
+  $self->clear_messages(WARNING);
 }
 
 sub clear_critical {
   my $self = shift;
-  return $self->clear_messages(CRITICAL);
+  $self->clear_messages(CRITICAL);
 }
 
 sub clear_unknown {
   my $self = shift;
-  return $self->clear_messages(UNKNOWN);
+  $self->clear_messages(UNKNOWN);
+}
+
+sub clear_all {
+  my $self = shift;
+  $self->clear_ok();
+  $self->clear_warning();
+  $self->clear_critical();
+  $self->clear_unknown();
 }
 
 sub clear_messages {
   my $self = shift;
-  return $GLPlugin::plugin->clear_messages(@_);
+  $GLPlugin::plugin->clear_messages(@_);
 }
 
 sub suppress_messages {
@@ -1138,16 +1146,20 @@ sub set_thresholds {
   my %params = @_;
   if (exists $params{metric}) {
     my $metric = $params{metric};
-    $self->{thresholds}->{$metric}->{warning} = 
-        $params{warning} if $params{warning};
-    $self->{thresholds}->{$metric}->{warning} = 
-        $self->{thresholds}->{$metric}->{warning} 
-        if $self->{thresholds}->{$metric}->{warning};
-    $self->{thresholds}->{$metric}->{critical} = 
-        $params{critical} if $params{critical};
-    $self->{thresholds}->{$metric}->{critical} = 
-        $self->{thresholds}->{$metric}->{critical}
-        if $self->{thresholds}->{$metric}->{critical};
+    $self->{thresholds}->{$metric}->{warning} = $params{warning};
+    $self->{thresholds}->{$metric}->{critical} = $params{critical};
+    if ($self->opts->warningx) {
+      foreach my $key (keys %{$self->opts->warningx}) {
+        next if $key ne $metric;
+        $self->{thresholds}->{$metric}->{warning} = $self->opts->warningx->{$key};
+      }
+    }
+    if ($self->opts->criticalx) {
+      foreach my $key (keys %{$self->opts->criticalx}) {
+        next if $key ne $metric;
+        $self->{thresholds}->{$metric}->{critical} = $self->opts->criticalx->{$key};
+      }
+    }
   } else {
     $self->{thresholds}->{default}->{warning} =
         $self->opts->warning || $params{warning} || 0;
@@ -1155,6 +1167,7 @@ sub set_thresholds {
         $self->opts->critical || $params{critical} || 0;
   }
 }
+
 
 sub force_thresholds {
   my $self = shift;

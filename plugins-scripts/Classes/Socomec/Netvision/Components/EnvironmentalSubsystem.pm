@@ -48,7 +48,7 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm;
-our @ISA = qw(GLPlugin::TableItem);
+our @ISA = qw(GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
