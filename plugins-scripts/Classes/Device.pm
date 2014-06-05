@@ -18,6 +18,10 @@ sub classify {
       } elsif ($self->{productname} =~ /APC /) {
         bless $self, 'Classes::APC';
         $self->debug('using Classes::APC');
+      } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
+        # like XPPC, that's why UPS is now last
+        bless $self, 'Classes::MerlinGerin';
+        $self->debug('using Classes::MerlinGerin');
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'Classes::V4';
         $self->debug('using Classes::V4');
@@ -29,10 +33,6 @@ sub classify {
       } elsif ($self->implements_mib('XUPS-MIB')) {
         bless $self, 'Classes::XUPS';
         $self->debug('using Classes::XUPS');
-      } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
-        # like XPPC, that's wha UPS is now last
-        bless $self, 'Classes::MerlinGerin';
-        $self->debug('using Classes::MerlinGerin');
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');

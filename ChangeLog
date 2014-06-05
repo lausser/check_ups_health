@@ -2,6 +2,10 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-06-04 2.4.0.1
+- bugfix in xups alert age
+- detect merlingerin before xups
+
 2014-05-22 2.4
 - finished GLPlugin migration
 - rearranged the classification checks

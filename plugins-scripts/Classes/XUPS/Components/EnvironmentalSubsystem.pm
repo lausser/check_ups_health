@@ -59,7 +59,10 @@ sub check {
     }
   }
   my $age = $GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
-  if ($age < 3600) {
+  # xupsAlarmDescr: xupsUtilityPowerRestored
+  # xupsAlarmTime: 723852361
+  # CRITICAL - alarm: xupsUtilityPowerRestored (-11941630 min ago)
+  if ($age < 3600 && $age >= 0) {
     $self->add_critical(sprintf "alarm: %s (%d min ago)",
         $self->{xupsAlarmDescr}, $age / 60);
   }

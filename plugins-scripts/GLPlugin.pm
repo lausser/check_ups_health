@@ -832,6 +832,79 @@ sub dump {
   }
 }
 
+sub table_ascii {
+  my $self = shift;
+  my $table = shift;
+  my $titles = shift;
+  my $text = "";
+  my $column_length = {};
+  my $column = 0;
+  foreach (@{$titles}) {
+    $column_length->{$column++} = length($_);
+  }
+  foreach my $tr (@{$table}) {
+    @{$tr} = map { ref($_) eq "ARRAY" ? $_->[0] : $_; } @{$tr};
+    $column = 0;
+    foreach my $td (@{$tr}) {
+      if (length($td) > $column_length->{$column}) {
+        $column_length->{$column} = length($td);
+      }
+      $column++;
+    }
+  }
+  $column = 0;
+  foreach (@{$titles}) {
+    $column_length->{$column} = "%".($column_length->{$column} + 3)."s";
+    $column++;
+  }
+  $column = 0;
+  foreach (@{$titles}) {
+    $text .= sprintf $column_length->{$column++}, $_;
+  }
+  $text .= "\n";
+  foreach my $tr (@{$table}) {
+    $column = 0;
+    foreach my $td (@{$tr}) {
+      $text .= sprintf $column_length->{$column++}, $td;
+    }
+    $text .= "\n";
+  }
+  return $text;
+}
+
+sub table_html {
+  my $self = shift;
+  my $table = shift;
+  my $titles = shift;
+  my $text = "";
+  $text .= "<table style=\"border-collapse:collapse; border: 1px solid black;\">";
+  $text .= "<tr>";
+  foreach (@{$titles}) {
+    $text .= sprintf "<th style=\"text-align: left; padding-left: 4px; padding-right: 6px;\">%s</th>", $_;
+  }
+  $text .= "</tr>";
+  foreach my $tr (@{$table}) {
+    $text .= "<tr>";
+    foreach my $td (@{$tr}) {
+      my $class = "statusOK";
+      if (ref($td) eq "ARRAY") {
+        $class = {
+          0 => "statusOK",
+          1 => "statusWARNING",
+          2 => "statusCRITICAL",
+          3 => "statusUNKNOWN",
+        }->{$td->[1]};
+        $td = $td->[0];
+      }
+      $text .= sprintf "<td style=\"text-align: left; padding-left: 4px; padding-right: 6px;\" class=\"%s\">%s</td>", $class, $td;
+    }
+    $text .= "</tr>";
+  }
+  $text .= "</table>";
+  return $text;
+}
+
+
 sub AUTOLOAD {
   my $self = shift;
   return if ($AUTOLOAD =~ /DESTROY/);
