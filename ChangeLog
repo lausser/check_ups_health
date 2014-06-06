@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-06-06 2.4.0.2
+- remove deprecated threshold code in add_perfdata
+
 2014-06-04 2.4.0.1
 - bugfix in xups alert age
 - detect merlingerin before xups

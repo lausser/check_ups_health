@@ -34,24 +34,20 @@ sub init {
 
 sub check {
   my $self = shift;
-  my $info = undef;
   $self->add_info('checking hardware and self-tests');
   if ($self->{upsEnvTemperature}) {
     my $over = $self->{upsEnvOverTemperature} || 30;
     my $under = $self->{upsEnvUnderTemperature} || 10;
     $self->set_thresholds(
         metric => 'temperature', warning => $under.':'.$over, critical => $under.':'.$over);
-    $info = sprintf 'temperature is %.2fC', $self->{upsEnvTemperature};
-    $self->add_info($info);
+    $self->add_info(sprintf 'temperature is %.2fC', $self->{upsEnvTemperature});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsEnvTemperature},
-            metric => 'temperature'), $info);
+            metric => 'temperature'));
     $self->add_perfdata(
         label => 'temperature',
         value => $self->{upsEnvTemperature},
-        warning => ($self->get_thresholds(metric => 'temperature'))[0],
-        critical => ($self->get_thresholds(metric => 'temperature'))[1],
     );
   }
   if ($self->{upsEnvHumidity}) {
@@ -59,27 +55,22 @@ sub check {
     my $under = $self->{upsEnvUnderHumidity} || 12;
     $self->set_thresholds(
         metric => 'humidity', warning => $under.':'.$over, critical => $under.':'.$over);
-    $info = sprintf 'humidity is %.2f%%', $self->{upsEnvHumidity};
-    $self->add_info($info);
+    $self->add_info(sprintf 'humidity is %.2f%%', $self->{upsEnvHumidity});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsEnvHumidity},
-            metric => 'humidity'), $info);
+            metric => 'humidity'));
     $self->add_perfdata(
         label => 'humidity',
         value => $self->{upsEnvHumidity},
-        warning => ($self->get_thresholds(metric => 'humidity'))[0],
-        critical => ($self->get_thresholds(metric => 'humidity'))[1],
     );
   }
   if ($self->{upsSmartTestLastDiagnosticsDate}) {
-    $info = sprintf 'selftest result was %s',
-        $self->{upsSmartTestDiagnosticsResults};
-    $self->add_info($info);
+    $self->add_info(sprintf 'selftest result was %s', $self->{upsSmartTestDiagnosticsResults});
     if ($self->{upsSmartTestDiagnosticsResults} eq 'failed') {
-      $self->add_warning($info);
+      $self->add_warning();
     } else {
-      $self->add_ok($info);
+      $self->add_ok();
     } 
     my $maxage = undef;
     if ($self->{upsSmartTestDiagnosticSchedule} eq 'never') {
@@ -97,17 +88,14 @@ sub check {
       $self->set_thresholds(
           metric => 'selftest_age', warning => $maxage, critical => $maxage);
     }
-    $info = sprintf 'last selftest was %d days ago (%s)', $self->{upsSmartTestLastDiagnosticsAge}, scalar localtime $self->{upsSmartTestLastDiagnosticsDate};
-    $self->add_info($info);
+    $self->add_info(sprintf 'last selftest was %d days ago (%s)', $self->{upsSmartTestLastDiagnosticsAge}, scalar localtime $self->{upsSmartTestLastDiagnosticsDate});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsSmartTestLastDiagnosticsAge},
-            metric => 'selftest_age'), $info);
+            metric => 'selftest_age'));
     $self->add_perfdata(
         label => 'selftest_age',
         value => $self->{upsSmartTestLastDiagnosticsAge},
-        warning => ($self->get_thresholds(metric => 'selftest_age'))[0],
-        critical => ($self->get_thresholds(metric => 'selftest_age'))[1],
     );
   } else {
     $self->add_warning("please run diagnostics");

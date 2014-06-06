@@ -34,13 +34,12 @@ sub check {
   my $info = undef;
   $self->add_info('checking hardware and self-tests');
   if ($self->{upsAdvTestLastDiagnosticsDate}) {
-    $info = sprintf 'selftest result was %s',
-        $self->{upsAdvTestDiagnosticsResults};
-    $self->add_info($info);
+    $self->add_info(sprintf 'selftest result was %s',
+        $self->{upsAdvTestDiagnosticsResults});
     if ($self->{upsAdvTestDiagnosticsResults} ne 'ok') {
-      $self->add_warning($info);
+      $self->add_warning();
     } else {
-      $self->add_ok($info);
+      $self->add_ok();
     } 
     my $maxage = undef;
     if ($self->{upsAdvTestDiagnosticSchedule} eq 'never') {
@@ -66,17 +65,14 @@ sub check {
       $self->set_thresholds(
           metric => 'selftest_age', warning => $maxage, critical => $maxage);
     }
-    $info = sprintf 'last selftest was %d days ago (%s)', $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate};
-    $self->add_info($info);
+    $self->add_info(sprintf 'last selftest was %d days ago (%s)', $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsAdvTestLastDiagnosticsAge},
-            metric => 'selftest_age'), $info);
+            metric => 'selftest_age'));
     $self->add_perfdata(
         label => 'selftest_age',
         value => $self->{upsAdvTestLastDiagnosticsAge},
-        warning => ($self->get_thresholds(metric => 'selftest_age'))[0],
-        critical => ($self->get_thresholds(metric => 'selftest_age'))[1],
     );
   } else {
     $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run");

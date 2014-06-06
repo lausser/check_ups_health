@@ -30,31 +30,26 @@ sub check {
 
   $self->set_thresholds(
       metric => 'battery_temperature', warning => '35', critical => '38');
-  my $info = sprintf 'temperature is %.2fC', $self->{upsBatteryTemperature};
-  $self->add_info($info);
+  $self->add_info(sprintf 'temperature is %.2fC', $self->{upsBatteryTemperature});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsBatteryTemperature},
-          metric => 'battery_temperature'), $info);
+          metric => 'battery_temperature'));
   $self->add_perfdata(
       label => 'battery_temperature',
       value => $self->{upsBatteryTemperature},
-      warning => ($self->get_thresholds(metric => 'battery_temperature'))[0],
-      critical => ($self->get_thresholds(metric => 'battery_temperature'))[1],
   );
 
   $self->set_thresholds(
       metric => 'remaining_time', warning => '15:', critical => '10:');
-  $info = sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining};
+  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsEstimatedMinutesRemaining},
-          metric => 'remaining_time'), $info);
+          metric => 'remaining_time'));
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{upsEstimatedMinutesRemaining},
-      warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
-      critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
   $self->add_perfdata(
@@ -126,20 +121,15 @@ sub check {
   my $metric = 'output_load'.$self->{flat_indices};
   $self->set_thresholds(
       metric => $metric, warning => '75', critical => '85');
-  my $info = sprintf 'output load%d %.2f%%', $self->{flat_indices}, $self->{upsOutputPercentLoad};
-  $self->add_info($info);
+  $self->add_info(sprintf 'output load%d %.2f%%', $self->{flat_indices}, $self->{upsOutputPercentLoad});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsOutputPercentLoad},
-          metric => $metric),
-      $info,
-  );
+          metric => $metric));
   $self->add_perfdata(
       label => $metric,
       value => $self->{upsOutputPercentLoad},
       uom => '%',
-      warning => ($self->get_thresholds(metric => $metric))[0],
-      critical => ($self->get_thresholds(metric => $metric))[1],
   );
   $self->add_perfdata(
       label => 'output_voltage'.$self->{flat_indices},

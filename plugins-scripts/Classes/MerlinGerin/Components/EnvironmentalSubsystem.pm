@@ -74,7 +74,6 @@ sub dump {
   foreach (@{$self->{sensorconfigs}}) {
     $_->dump();
   }
-  #printf "info: %s\n", $self->{info};
   foreach (qw(upsmgConfigEmergencyTestFail upsmgConfigEmergencyOnByPass
       upsmgConfigEmergencyOverload upsmgTestBatterySchedule
       upsmgTestDiagnostics upsmgTestDiagResult

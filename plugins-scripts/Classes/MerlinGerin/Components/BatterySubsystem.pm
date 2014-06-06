@@ -38,7 +38,6 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking battery');
-  my $info = undef;
   if ($self->{upsmgBatteryNoBattery} && $self->{upsmgBatteryNoBattery} eq "yes") {
     $self->add_critical("NO battery");
   }
@@ -62,48 +61,42 @@ sub check {
   }
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');
-  $info = sprintf "capacity is %.2f%%", $self->{upsmgBatteryLevel};
+  $self->add_info(sprintf "capacity is %.2f%%", $self->{upsmgBatteryLevel});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsmgBatteryLevel},
-          metric => 'capacity'), $info);
+          metric => 'capacity'));
   $self->add_perfdata(
       label => 'capacity',
       value => $self->{upsmgBatteryLevel},
       uom => '%',
-      warning => ($self->get_thresholds(metric => 'capacity'))[0],
-      critical => ($self->get_thresholds(metric => 'capacity'))[1],
   );
 
   if ($self->{upsmgBatteryTemperature}) {
     $self->set_thresholds(
         metric => 'battery_temperature', warning => '35', critical => '38');
-    $info = sprintf 'temperature is %.2fC', $self->{upsmgBatteryTemperature};
+    $self->add_info(sprintf 'temperature is %.2fC', $self->{upsmgBatteryTemperature});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsmgBatteryTemperature},
-            metric => 'battery_temperature'), $info);
+            metric => 'battery_temperature'));
     $self->add_perfdata(
         label => 'battery_temperature',
         value => $self->{upsmgBatteryTemperature},
-      warning => ($self->get_thresholds(metric => 'battery_temperature'))[0],
-      critical => ($self->get_thresholds(metric => 'battery_temperature'))[1],
     );
   }
 
   $self->{upsmgBatteryRemainingTime} /= 60;
   $self->set_thresholds(
       metric => 'remaining_time', warning => '15:', critical => '10:');
-  $info = sprintf 'remaining battery run time is %.2fmin', $self->{upsmgBatteryRemainingTime};
+  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsmgBatteryRemainingTime});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsmgBatteryRemainingTime},
-          metric => 'remaining_time'), $info);
+          metric => 'remaining_time'));
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{upsmgBatteryRemainingTime},
-      warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
-      critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
   foreach (@{$self->{inputs}}) {
@@ -169,20 +162,16 @@ sub check {
   my $metric = 'output_load'.$self->{flat_indices};
   $self->set_thresholds(
       metric => $metric, warning => '75', critical => '85');
-  my $info = sprintf 'output load%d %.2f%%', $self->{flat_indices}, $self->{mgoutputLoadPerPhase};
-  $self->add_info($info);
+  $self->add_info(sprintf 'output load%d %.2f%%', $self->{flat_indices}, $self->{mgoutputLoadPerPhase});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{mgoutputLoadPerPhase},
-          metric => $metric),
-      $info,
+          metric => $metric)
   );
   $self->add_perfdata(
       label => $metric,
       value => $self->{mgoutputLoadPerPhase},
       uom => '%',
-      warning => ($self->get_thresholds(metric => $metric))[0],
-      critical => ($self->get_thresholds(metric => $metric))[1],
   );
   $self->{mgoutputVoltage} /= 10;
   $self->{mgoutputFrequency} /= 10;

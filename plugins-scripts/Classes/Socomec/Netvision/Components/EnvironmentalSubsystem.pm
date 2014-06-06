@@ -23,12 +23,11 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking alarms');
-  my $info = sprintf 'found %d alarms', $self->{upsAlarmsPresent};
-  $self->add_info($info);
+  $self->add_info(sprintf 'found %d alarms', $self->{upsAlarmsPresent});
   if ($self->{upsAlarmsPresent}) {
-    $self->add_critical($info);
+    $self->add_critical();
   } else {
-    $self->add_ok($info);
+    $self->add_ok();
   } 
 
 }
@@ -53,9 +52,8 @@ use strict;
 
 sub check {
   my $self = shift;
-  my $info = sprintf '%s', $self->{upsAlarmDescr};
-  $self->add_info($info);
-  $self->add_critical($info);
+  $self->add_info(sprintf '%s', $self->{upsAlarmDescr});
+  $self->add_critical();
 }
 
 sub dump {

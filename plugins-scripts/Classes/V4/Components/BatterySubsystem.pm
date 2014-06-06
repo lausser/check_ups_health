@@ -37,85 +37,72 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking battery');
-  my $info = sprintf 'output source is %s, battery condition is %s, %s', 
+  $self->add_info(sprintf 'output source is %s, battery condition is %s, %s', 
       $self->{dupsOutputSource}, 
-      $self->{dupsBatteryCondiction}, $self->{dupsBatteryCharge};
-  $self->add_info($info);
+      $self->{dupsBatteryCondiction}, $self->{dupsBatteryCharge});
   if ($self->{dupsBatteryCondiction} eq 'weak') {
-    $self->add_warning($info);
+    $self->add_warning();
   } elsif ($self->{dupsBatteryCondiction} eq 'replace') {
-    $self->add_critical($info);
+    $self->add_critical();
   } 
   if ($self->{dupsOutputSource} eq 'battery') {
     if ($self->{dupsBatteryStatus} ne 'ok') {
-      $self->add_critical($info);
+      $self->add_critical();
     }
   }
   if (! $self->check_messages()) {
-    $self->add_ok($info);
+    $self->add_ok();
   }
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');
-  $info = sprintf 'capacity is %.2f%%', $self->{dupsBatteryCapacity};
-  $self->add_info($info);
+  $self->add_info(sprintf 'capacity is %.2f%%', $self->{dupsBatteryCapacity});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{dupsBatteryCapacity},
-          metric => 'capacity'), $info);
+          metric => 'capacity'));
   $self->add_perfdata(
       label => 'capacity',
       value => $self->{dupsBatteryCapacity},
       uom => '%',
-      warning => ($self->get_thresholds(metric => 'capacity'))[0],
-      critical => ($self->get_thresholds(metric => 'capacity'))[1],
   );
 
   foreach (1..$self->{dupsOutputNumLines}) {
     $self->set_thresholds(
         metric => 'output_load'.$_, warning => '75', critical => '85');
-    $info = sprintf 'output load%d %.2f%%', $_, $self->{'dupsOutputLoad'.$_};
-    $self->add_info($info);
+    $self->add_info(sprintf 'output load%d %.2f%%', $_, $self->{'dupsOutputLoad'.$_});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{'dupsOutputLoad'.$_},
-            metric => 'output_load'.$_), $info);
+            metric => 'output_load'.$_));
     $self->add_perfdata(
         label => 'output_load'.$_,
         value => $self->{'dupsOutputLoad'.$_},
         uom => '%',
-        warning => ($self->get_thresholds(metric => 'output_load'.$_))[0],
-        critical => ($self->get_thresholds(metric => 'output_load'.$_))[1],
     );
   }
 
   $self->set_thresholds(
       metric => 'battery_temperature', warning => '35', critical => '38');
-  $info = sprintf 'temperature is %.2fC', $self->{dupsTemperature};
-  $self->add_info($info);
+  $self->add_info(sprintf 'temperature is %.2fC', $self->{dupsTemperature});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{dupsTemperature},
-          metric => 'battery_temperature'), $info);
+          metric => 'battery_temperature'));
   $self->add_perfdata(
       label => 'battery_temperature',
       value => $self->{dupsTemperature},
-      warning => ($self->get_thresholds(metric => 'battery_temperature'))[0],
-      critical => ($self->get_thresholds(metric => 'battery_temperature'))[1],
   );
 
   $self->set_thresholds(
       metric => 'remaining_time', warning => '15:', critical => '10:');
-  $info = sprintf 'remaining battery run time is %.2fmin', $self->{dupsBatteryEstimatedTime};
-  $self->add_info($info);
+  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{dupsBatteryEstimatedTime});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{dupsBatteryEstimatedTime},
-          metric => 'remaining_time'), $info);
+          metric => 'remaining_time'));
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{dupsBatteryEstimatedTime},
-      warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
-      critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
   foreach (1..$self->{dupsInputNumLines}) {

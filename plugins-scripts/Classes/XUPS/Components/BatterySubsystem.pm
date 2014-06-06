@@ -27,34 +27,28 @@ sub check {
   $self->add_info('checking battery');
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');
-  my $info = sprintf 'capacity is %.2f%%', $self->{xupsBatCapacity};
-  $self->add_info($info);
+  $self->add_info(sprintf 'capacity is %.2f%%', $self->{xupsBatCapacity});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{xupsBatCapacity},
-          metric => 'capacity'), $info);
+          metric => 'capacity'));
   $self->add_perfdata(
       label => 'capacity',
       value => $self->{xupsBatCapacity},
       uom => '%',
-      warning => ($self->get_thresholds(metric => 'capacity'))[0],
-      critical => ($self->get_thresholds(metric => 'capacity'))[1],
   );
 
   $self->set_thresholds(
       metric => 'output_load', warning => '75', critical => '85');
-  $info = sprintf 'output load %.2f%%', $self->{xupsOutputLoad};
-  $self->add_info($info);
+  $self->add_info(sprintf 'output load %.2f%%', $self->{xupsOutputLoad});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{xupsOutputLoad},
-          metric => 'output_load'), $info);
+          metric => 'output_load'));
   $self->add_perfdata(
       label => 'output_load',
       value => $self->{xupsOutputLoad},
       uom => '%',
-      warning => ($self->get_thresholds(metric => 'output_load'))[0],
-      critical => ($self->get_thresholds(metric => 'output_load'))[1],
   );
   $self->add_perfdata(
       label => 'output_frequency',
@@ -71,17 +65,14 @@ sub check {
 
   $self->set_thresholds(
       metric => 'remaining_time', warning => '15:', critical => '10:');
-  $info = sprintf 'remaining battery run time is %.2fmin', $self->{xupsBatTimeRemaining};
-  $self->add_info($info);
+  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{xupsBatTimeRemaining});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{xupsBatTimeRemaining},
-          metric => 'remaining_time'), $info);
+          metric => 'remaining_time'));
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{xupsBatTimeRemaining},
-      warning => ($self->get_thresholds(metric => 'remaining_time'))[0],
-      critical => ($self->get_thresholds(metric => 'remaining_time'))[1],
   );
 
   if ($self->{xupsTestBatteryStatus} eq "failed") {

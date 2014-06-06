@@ -37,13 +37,12 @@ sub init {
 sub check {
   my $self = shift;
   $self->add_info('checking environment');
-  my $info = sprintf 'temperature %dC',
-      $self->{dupsEnvTemperature};
+  $self->add_info(sprintf 'temperature %dC', $self->{dupsEnvTemperature});
+  $self->add_ok();
   if ($self->{dupsEnvHumidity}) {
-    $info .= sprintf ', humidity %d%%', $self->{dupsEnvHumidity};
+    $self->add_info(sprintf ', humidity %d%%', $self->{dupsEnvHumidity});
+    $self->add_ok();
   }
-  $self->add_ok($info);
-  $self->add_info($info);
   my $alarms = 0;
   foreach (qw(dupsAlarmDisconnect dupsAlarmBatteryTestFail
       dupsAlarmFuseFailure dupsAlarmOutputOverload dupsAlarmOutputOverCurrent

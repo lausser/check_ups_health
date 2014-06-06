@@ -36,18 +36,15 @@ sub check {
     }
     my $last_test = $GLPlugin::SNMP::uptime - $self->{upsTestStartTime};
     my $days_ago = (time - $last_test) / (3600 * 24);
-    my $info = sprintf 'last selftest was %d days ago (%s)',
-        $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate};
-    $self->add_info($info);
+    $self->add_info(sprintf 'last selftest was %d days ago (%s)',
+        $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
     $self->add_message(
         $self->check_thresholds(
             value => $self->{upsAdvTestLastDiagnosticsAge},
-            metric => 'selftest_age'), $info);
+            metric => 'selftest_age'));
     $self->add_perfdata(
         label => 'selftest_age',
         value => $self->{upsAdvTestLastDiagnosticsAge},
-        warning => ($self->get_thresholds(metric => 'selftest_age'))[0],
-        critical => ($self->get_thresholds(metric => 'selftest_age'))[1],
     );
   }
 
