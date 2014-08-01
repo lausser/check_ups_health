@@ -2,6 +2,19 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-08-01 2.4.0.6
+- GLPluginSNMP update
+- MerlinGerin also asks XUPS alarm table 
+
+2014-07-28 2.4.0.5
+- GLPlugin update
+
+2014-07-28 2.4.0.4
+- added more xups alarm descriptions
+
+2014-07-03 2.4.0.3
+- update GLPlugin
+
 2014-06-06 2.4.0.2
 - remove deprecated threshold code in add_perfdata
 
