@@ -246,16 +246,22 @@ sub init {
     my ($code, $message) = $self->check_messages(join => ', ', join_all => ', ');
     $GLPlugin::plugin->nagios_exit($code, $message);
   } elsif ($self->mode =~ /device::supportedmibs/) {
-    if (grep /mibdepot/, keys %GLPlugin::SNMP::) {
-      foreach my $mibinfo (@{$GLPlugin::SNMP::mibdepot}) {
+    our $mibdepot = [];
+    if ($self->opts->name && -f $self->opts->name) {
+      eval { require $self->opts->name };
+      $self->add_critical($@) if $@;
+      foreach my $mibinfo (@{$mibdepot}) {
         if (! exists $GLPlugin::SNMP::mib_ids->{$mibinfo->[3]}) {
           $GLPlugin::SNMP::mib_ids->{$mibinfo->[3]} = $mibinfo->[0];
         }
         if ($self->implements_mib($mibinfo->[3])) {
-          printf "%s\n", $mibinfo->[3];
+          printf "%s %s\n", $mibinfo->[2], $mibinfo->[3];
         }
       }
+    } else {
+      $GLPlugin::plugin->add_unknown("where is --name mibdepotfile?");
     }
+    $GLPlugin::plugin->nagios_exit(OK, "have fun");
   }
 }
 
@@ -583,33 +589,6 @@ sub internal_name {
 ################################################################
 # file-related functions
 #
-sub create_statefile {
-  my $self = shift;
-  my %params = @_;
-  my $extension = "";
-  $extension .= $params{name} ? '_'.$params{name} : '';
-  if ($self->opts->community) {
-    $extension .= md5_hex($self->opts->community);
-  }
-  $extension =~ s/\//_/g;
-  $extension =~ s/\(/_/g;
-  $extension =~ s/\)/_/g;
-  $extension =~ s/\*/_/g;
-  $extension =~ s/\s/_/g;
-  if ($self->opts->snmpwalk && ! $self->opts->hostname) {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
-        $self->opts->mode, lc $extension;
-  } elsif ($self->opts->snmpwalk && $self->opts->hostname eq "walkhost") {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
-        $self->opts->mode, lc $extension;
-  } else {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        $self->opts->hostname, $self->opts->mode, lc $extension;
-  }
-}
-
 sub create_interface_cache_file {
   my $self = shift;
   my $extension = "";
@@ -1545,13 +1524,46 @@ sub get_cache_indices {
 }
 
 
+package GLPlugin::SNMP::CSF;
+#our @ISA = qw(GLPlugin::SNMP);
+use Digest::MD5 qw(md5_hex);
+use strict;
+
+sub create_statefile {
+  my $self = shift;
+  my %params = @_;
+  my $extension = "";
+  $extension .= $params{name} ? '_'.$params{name} : '';
+  if ($self->opts->community) {
+    $extension .= md5_hex($self->opts->community);
+  }
+  $extension =~ s/\//_/g;
+  $extension =~ s/\(/_/g;
+  $extension =~ s/\)/_/g;
+  $extension =~ s/\*/_/g;
+  $extension =~ s/\s/_/g;
+  if ($self->opts->snmpwalk && ! $self->opts->hostname) {
+    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
+        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
+        $self->opts->mode, lc $extension;
+  } elsif ($self->opts->snmpwalk && $self->opts->hostname eq "walkhost") {
+    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
+        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
+        $self->opts->mode, lc $extension;
+  } else {
+    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
+        $self->opts->hostname, $self->opts->mode, lc $extension;
+  }
+}
+
 package GLPlugin::SNMP::Item;
-our @ISA = qw(GLPlugin::Item GLPlugin::SNMP);
+our @ISA = qw(GLPlugin::SNMP::CSF GLPlugin::Item GLPlugin::SNMP);
 use strict;
 
 
 package GLPlugin::SNMP::TableItem;
-our @ISA = qw(GLPlugin::TableItem GLPlugin::SNMP);
+our @ISA = qw(GLPlugin::SNMP::CSF GLPlugin::TableItem GLPlugin::SNMP);
+use strict;
 
 sub ensure_index {
   my $self = shift;

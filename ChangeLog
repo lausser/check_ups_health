@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-08-14 2.4.0.7
+- GLPluginSNMP update
+
 2014-08-01 2.4.0.6
 - GLPluginSNMP update
 - MerlinGerin also asks XUPS alarm table 

@@ -7606,6 +7606,3 @@ $GLPlugin::SNMP::definitions = {
   },
 };
 
-$GLPlugin::SNMP::mibdepot = [
-];
-
