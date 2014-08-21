@@ -67,6 +67,13 @@ $plugin->add_arg(
     required => 0,
 );
 $plugin->add_arg(
+    spec => 'drecksptkdb=s',
+    help => "--drecksptkdb
+   This parameter must be used instead of --name, because Devel::ptkdb is stealing the latter from the command line",
+    aliasfor => "name",
+    required => 0,
+);
+$plugin->add_arg(
     spec => 'regexp',
     help => "--regexp
    A flag indicating that --name is a regular expression",
@@ -191,10 +198,6 @@ if (! $plugin->check_messages()) {
     $plugin->add_ok($plugin->get_extendedinfo(" "))
         if $plugin->get_extendedinfo();
   }
-} elsif ($plugin->opts->snmpwalk && $plugin->opts->offline) {
-  ;
-} else {
-  $plugin->add_critical('wrong device');
 }
 my ($code, $message) = $plugin->opts->multiline ?
     $plugin->check_messages(join => "\n", join_all => ', ') :
