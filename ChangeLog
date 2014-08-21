@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2014-08-21 2.4.0.11
+- GLPluginSNMP update/uptime thresholds
+
 2014-08-21 2.4.0.10
 - GLPluginSNMP update
 
