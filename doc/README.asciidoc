@@ -1,89 +1,131 @@
 
-check_ups_health - Ein universelles Tape-Library-Plugin for Shinken / Nagios / Icinga
-===========================================================================
+check_tl_health - Ein universelles Tape-Library-Plugin for Shinken / Nagios / Icinga
+====================================================================================
 
 Beschreibung
 ------------
-Das Plugin check_ups_health wurde mit dem Ziel entwickelt, ein einziges Werkzeug für sämtliche Belange des Monitorings von unterbrechungsfreien Stromversorgungen zur Verfügung zu haben. 
+Das Plugin check_tl_health wurde mit dem Ziel entwickelt, ein einziges Werkzeug für sämtliche Belange des Monitorings von Tape Libraries zur Verfügung zu haben. 
 
 Motivation
-Anstatt eine Vielzahl von Plugins für das Monitoring von Interfaces, Hardware, Slots etc. zu installieren und das für jedes Fabrikat, soll mit check_ups_health nur noch ein einziges Plugin ausreichen.
+----------
+Anstatt eine Vielzahl von Plugins für das Monitoring von Interfaces, Hardware, Slots etc. zu installieren und das für jedes Fabrikat, soll mit check_tl_health nur noch ein einziges Plugin ausreichen.
 
 
 Dokumentation
-
-.An example table
-[options="header,footer"]
-|=======================
-|Col 1|Col 2      |Col 3
-|1    |Item 1     |a
-|2    |Item 2     |b
-|3    |Item 3     |c
-|6    |Three items|d
-|=======================
-
-.Modes
-[[tabmodes]]
-[options="header,footer"]
-|=============================
-|		|	|hardware-health|cpu-load|memory-usage|interface-usage
-|HP		|StorEver 1x8	|X|||X
-|=============================
+-------------
 
 Kommandozeilenparameter
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Modi
+~~~~
+[role="nagiosplugins", options="header", cols=6, width="50%"]
+|==========================================
+|.		|.		|hardware-health|cpu-load|memory-usage|uptime
+|HP		|StorEver 1x8	|X|.	|.	|X
+|HP		|StorEver MSL4048	|X|.	|.	|X
+|Quantum	|i40	|X|.	|.	|X
+|Quantum	|i80	|X|.	|.	|X
+|Spectralogic	|T950	|X|.	|.	|X
+|==========================================
+Die Liste ist ungenau. Manche Laufwerke, die hier nicht aufgeführt sind, werden evt. anhand der implementierten MIBs erkannt. Einfach ausprobieren....
+(Wenn ein Gerät nicht erkannt wird, kann ich das Plugin erweitern. Hier gilt allerdings: betteln hilft nicht, bezahlen dagegen sehr)
 
 
 Installation
+------------
 
 
 Beispiele
+---------
 
 
 Download
+--------
+http://labs.consol.de/download/shinken-nagios-plugins/check_tl_health-1.2.0.11.tar.gz[check_tl_health-1.2.0.11.tar.gz]
+
 
 
 Externe Links
+-------------
 
 
 Changelog
+---------
+
+* 2014-08-22 1.2.0.11
++
+bugfix in glplugin/uptime because of buggy snmpengineuptime
+
+* 2014-08-21 1.2.0.10
++
+GLPluginSNMP update/uptime thresholds
+
+* 2014-08-21 1.2.0.9
++
+GLPluginSNMP update
+
+* 2014-08-20 1.2.0.8
++
+GLPluginSNMP update
+
+* 2014-08-19 1.2.0.7
++
+GLPlugin/SNMP update
+
+* 2014-08-14 1.2.0.6
++
+GLPluginSNMP update
+
+* 2014-08-01 1.2.0.5
++
+GLPluginSNMP update
+
+* 2014-07-28 1.2.0.4
++
+GLPlugin update
+
+* 2014-07-03 1.2.0.3
++
+update GLPlugin
+
+* 2014-06-03 1.2.0.2
++
+bugfix spectralogic messages (snmp msg size)
+
+* 2014-06-03 1.2.0.1
++
+bugfix in blacklisting
+
+* 2014-05-22 1.2
++
+finish GLPlugin
+add Spectralogic T950
+
+
+* 2013-10-07 1.1
++
+added Quantum small tape library i40 and i80
+
+* 2013-10-01 1.01
++
+Minor cosmetics. Production monitoring of HP StoreEver MSL4048 starts
+
+* 2013-09-26 1.00
++
+Thanks to a loyal customer the development starts.
 
 
 Copyright
+---------
+Gerhard Laußer
+
+Check_tl_health wird unter der GNU General Public License zur Verfügung gestellt.
+http://www.gnu.de/documents/gpl.de.html[GPL]
+
 
 
 Autor
-
-
-<div style="float: left; 
-position: relative;
--moz-transform: rotate(270deg);  /* FF3.5+ */        
--o-transform: rotate(270deg);  /* Opera 10.5 */   
--webkit-transform: rotate(270deg);  /* Saf3.1+, Chrome */              
-filter:  progid:DXImageTransform.Microsoft.BasicImage(rotation=3);  /* IE6,IE7 */          
--ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3); /* IE8 */           
-"
->Count & Value</div>;
-
-
-
-<style type="text/css">.r90 { 
--webkit-transform: rotate(90deg); 
--moz-transform: rotate(90deg); 
--o-transform: rotate(90deg); 
--ms-transform: rotate(90deg); 
-transform: rotate(90deg); 
-width: 1em; 
-line-height: 1ex;  
-}</style> 
-<div style="display: table-cell; vertical-align: middle;"> 
-<div class="r90">p</div> 
-<div class="r90">o</div> 
-<div class="r90">s</div> 
-</div><div style="display: table-cell; vertical-align: middle;"> 
-<div class="r90">(</div> 
-<div class="r90">A</div> 
-<div class="r90">b</div> 
-<div class="r90">s</div> 
-<div class="r90">)</div> 
-</div> 
+-----
+Gerhard Laußer (mailto:gerhard.lausser@consol.de[gerhard.lausser@consol.de]) beantwortet gerne Fragen zu diesem Plugin. Er ignoriert aber Fragen wie "Wann implementieren sie Library XY?", "Wann haben sie mal Zeit, meine Probleme zu lösen?", "Hatten sie schon Zeit, meine Probleme zu lösen?", "Wann gibt's die nächste Version?", "Blablablubb funktioniert nicht, können sie dieses Problem lösen?", "Hilfääää, mein Chef möchte, dass ich unseren Dong-Sing-Hao-Tapeloader von Ebay ins Icinga einbinde, kannst du das für mich machen?"
 
