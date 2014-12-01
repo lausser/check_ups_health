@@ -12,7 +12,9 @@ sub classify {
       if ($self->opts->verbose && $self->opts->verbose) {
         printf "I am a %s\n", $self->{productname};
       }
-      if ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel')) {
+      if ($self->opts->mode =~ /^my-/) {
+        $self->load_my_extension();
+      } elsif ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel')) {
         bless $self, 'Classes::APC::Powermib';
         $self->debug('using Classes::APC::Powermib');
       } elsif ($self->{productname} =~ /APC /) {

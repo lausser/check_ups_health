@@ -492,9 +492,11 @@ sub getopts {
   # bzw. durch den exit3 ein evt. unsauberes beenden der verbindung.
   if ((! grep { $self->opts->mode eq $_ } map { $_->{spec} } @{$GLPlugin::plugin->{modes}}) &&
       (! grep { $self->opts->mode eq $_ } map { defined $_->{alias} ? @{$_->{alias}} : () } @{$GLPlugin::plugin->{modes}})) {
-    printf "UNKNOWN - mode %s\n", $self->opts->mode;
-    $self->opts->print_help();
-    exit 3;
+    if ($self->opts->mode !~ /^my-/) {
+      printf "UNKNOWN - mode %s\n", $self->opts->mode;
+      $self->opts->print_help();
+      exit 3;
+    }
   }
 }
 
@@ -1443,7 +1445,9 @@ sub check_thresholds {
     $warningrange = $self->{thresholds}->{default}->{warning};
     $criticalrange = $self->{thresholds}->{default}->{critical};
   }
-  if ($warningrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
+  if (! defined $warningrange) {
+    # there was no set_thresholds for defaults, no --warning, no --warningx
+  } elsif ($warningrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
     # warning = 10, warn if > 10 or < 0
     $level = $ERRORS{WARNING}
         if ($value > $1 || $value < 0);
@@ -1464,7 +1468,9 @@ sub check_thresholds {
     $level = $ERRORS{WARNING}
         if ($value >= $1 && $value <= $2);
   }
-  if ($criticalrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
+  if (! defined $criticalrange) {
+    # there was no set_thresholds for defaults, no --critical, no --criticalx
+  } elsif ($criticalrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
     # critical = 10, crit if > 10 or < 0
     $level = $ERRORS{CRITICAL}
         if ($value > $1 || $value < 0);
@@ -1742,4 +1748,5 @@ sub check {
   # items (e.g. sensorthresholds enhance sensors)
   # normal tableitems should have their own check-method
 }
+
 
