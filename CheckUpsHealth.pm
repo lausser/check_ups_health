@@ -27,53 +27,16 @@ use strict;
 sub init {
   my $self = shift;
   $self->get_snmp_tables('PDU2-MIB', [
-    ['trapInformationTable', 'trapInformationTable', 'GLPlugin::SNMP::TableItem'],
-    ['nameplateTable', 'nameplateTable', 'GLPlugin::SNMP::TableItem'],
-    ['unitConfigurationTable', 'unitConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['controllerConfigurationTable', 'controllerConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['logConfigurationTable', 'logConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['unitSensorConfigurationTable', 'unitSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletConfigurationTable', 'inletConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletSensorConfigurationTable', 'inletSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletPoleSensorConfigurationTable', 'inletPoleSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['overCurrentProtectorConfigurationTable', 'overCurrentProtectorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['overCurrentProtectorSensorConfigurationTable', 'overCurrentProtectorSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletConfigurationTable', 'outletConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletSensorConfigurationTable', 'outletSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletPoleSensorConfigurationTable', 'outletPoleSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['externalSensorConfigurationTable', 'externalSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['serverReachabilityTable', 'serverReachabilityTable', 'GLPlugin::SNMP::TableItem'],
-    ['wireConfigurationTable', 'wireConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['wireSensorConfigurationTable', 'wireSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['transferSwitchConfigurationTable', 'transferSwitchConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['transferSwitchSensorConfigurationTable', 'transferSwitchSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletSwitchControlTable', 'outletSwitchControlTable', 'GLPlugin::SNMP::TableItem'],
-    ['transferSwitchControlTable', 'transferSwitchControlTable', 'GLPlugin::SNMP::TableItem'],
-    ['unitSensorMeasurementsTable', 'unitSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletSensorMeasurementsTable', 'inletSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletPoleSensorMeasurementsTable', 'inletPoleSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['overCurrentProtectorSensorMeasurementsTable', 'overCurrentProtectorSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletSensorMeasurementsTable', 'outletSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletPoleSensorMeasurementsTable', 'outletPoleSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['externalSensorMeasurementsTable', 'externalSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['wireSensorMeasurementsTable', 'wireSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['transferSwitchSensorMeasurementsTable', 'transferSwitchSensorMeasurementsTable', 'GLPlugin::SNMP::TableItem'],
-    ['logIndexTable', 'logIndexTable', 'GLPlugin::SNMP::TableItem'],
-    ['logTimeStampTable', 'logTimeStampTable', 'GLPlugin::SNMP::TableItem'],
-    ['unitSensorLogTable', 'unitSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletSensorLogTable', 'inletSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['inletPoleSensorLogTable', 'inletPoleSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    #['overCurrentProtectorSensorLogTable', 'overCurrentProtectorSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletSensorLogTable', 'outletSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['outletPoleSensorLogTable', 'outletPoleSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['externalSensorLogTable', 'externalSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['wireSensorLogTable', 'wireSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['transferSwitchSensorLogTable', 'transferSwitchSensorLogTable', 'GLPlugin::SNMP::TableItem'],
-    ['reliabilityDataTable', 'reliabilityDataTable', 'GLPlugin::SNMP::TableItem'],
-    ['reliabilityErrorLogTable', 'reliabilityErrorLogTable', 'GLPlugin::SNMP::TableItem'],
+    ['extsensorconfigs', 'externalSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
   ]);
 }
 
+sub check {
+  my $self = shift;
+  # hier steht das array @{$self->{extsensorconfigs}} zur verfuegung
+  # $self->add_info(text)
+  # $self->add_critical(text) oder $self->add_critical() 
+}
 
 
 $MyRaritan::mibs_and_oids = {
