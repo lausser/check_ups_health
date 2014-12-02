@@ -5,6 +5,8 @@ sub init {
   my $self = shift;
   $GLPlugin::SNMP::mibs_and_oids->{'PDU2-MIB'} =
       $MyRaritan::mibs_and_oids->{'PDU2-MIB'};
+  $GLPlugin::SNMP::definitions->{'PDU2-MIB'} =
+      $MyRaritan::definitions->{'PDU2-MIB'};
   #if ($self->mode =~ /device::hardware::health/) {
 printf "%s\n", $self->mode;
   if ($self->mode =~ /my::raritan::hardware::health/) {
@@ -27,8 +29,66 @@ use strict;
 sub init {
   my $self = shift;
   $self->get_snmp_tables('PDU2-MIB', [
-    ['extsensorconfigs', 'externalSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
+#    ['extsensorconfigs', 'externalSensorConfigurationTable', 'GLPlugin::SNMP::TableItem'],
   ]);
+foreach (qw(
+controllerConfigurationTable
+externalSensorConfigurationTable
+externalSensorLogTable
+externalSensorMeasurementsTable
+inletConfigurationTable
+inletPoleSensorConfigurationTable
+inletPoleSensorLogTable
+inletPoleSensorMeasurementsTable
+inletSensorConfigurationTable
+inletSensorLogTable
+inletSensorMeasurementsTable
+logConfigurationTable
+logIndexTable
+logTimeStampTable
+nameplateTable
+outletConfigurationTable
+outletPoleSensorConfigurationTable
+outletPoleSensorLogTable
+outletPoleSensorMeasurementsTable
+outletSensorConfigurationTable
+outletSensorLogTable
+outletSensorMeasurementsTable
+outletSwitchControlTable
+overCurrentProtectorConfigurationTable
+overCurrentProtectorSensorConfigurationTable
+overCurrentProtectorSensorLogTable
+overCurrentProtectorSensorMeasurementsTable
+reliabilityDataTable
+reliabilityDataTableSequenceNumber
+reliabilityErrorLogTable
+serverReachabilityTable
+transferSwitchConfigurationTable
+transferSwitchControlTable
+transferSwitchSensorConfigurationTable
+transferSwitchSensorLogTable
+transferSwitchSensorMeasurementsTable
+trapInformationTable
+unitConfigurationTable
+unitSensorConfigurationTable
+unitSensorLogTable
+unitSensorMeasurementsTable
+wireConfigurationTable
+wireSensorConfigurationTable
+wireSensorLogTable
+wireSensorMeasurementsTable
+
+    )) {
+my $code = <<EOCODE;
+  package MyRaritan::$_;
+  our \@ISA = qw(GLPlugin::SNMP::TableItem);
+EOCODE
+eval $code;
+  $self->get_snmp_tables('PDU2-MIB', [
+    [$_, $_, "MyRaritan::".$_],
+  ]);
+}
+
 }
 
 sub check {
@@ -286,6 +346,7 @@ $MyRaritan::mibs_and_oids = {
     externalSensorConfigurationEntry => '1.3.6.1.4.1.13742.6.3.6.3.1',
     sensorID => '1.3.6.1.4.1.13742.6.3.6.3.1.1',
     externalSensorType => '1.3.6.1.4.1.13742.6.3.6.3.1.2',
+    externalSensorTypeDefinition => 'PDU2-MIB::SensorTypeEnumeration',
     externalSensorSerialNumber => '1.3.6.1.4.1.13742.6.3.6.3.1.3',
     externalSensorName => '1.3.6.1.4.1.13742.6.3.6.3.1.4',
     externalSensorDescription => '1.3.6.1.4.1.13742.6.3.6.3.1.5',
@@ -294,8 +355,10 @@ $MyRaritan::mibs_and_oids = {
     externalSensorZCoordinate => '1.3.6.1.4.1.13742.6.3.6.3.1.8',
     externalSensorChannelNumber => '1.3.6.1.4.1.13742.6.3.6.3.1.9',
     externalOnOffSensorSubtype => '1.3.6.1.4.1.13742.6.3.6.3.1.10',
+    externalOnOffSensorSubtypeDefinition => 'PDU2-MIB::SensorTypeEnumeration',
     externalSensorLogAvailable => '1.3.6.1.4.1.13742.6.3.6.3.1.14',
     externalSensorUnits => '1.3.6.1.4.1.13742.6.3.6.3.1.16',
+    externalSensorUnitsDefinition => 'PDU2-MIB::SensorUnitsEnumeration',
     externalSensorDecimalDigits => '1.3.6.1.4.1.13742.6.3.6.3.1.17',
     externalSensorAccuracy => '1.3.6.1.4.1.13742.6.3.6.3.1.18',
     externalSensorResolution => '1.3.6.1.4.1.13742.6.3.6.3.1.19',
@@ -402,7 +465,9 @@ $MyRaritan::mibs_and_oids = {
     inletSensorMeasurementsTable => '1.3.6.1.4.1.13742.6.5.2.3',
     inletSensorMeasurementsEntry => '1.3.6.1.4.1.13742.6.5.2.3.1',
     measurementsInletSensorIsAvailable => '1.3.6.1.4.1.13742.6.5.2.3.1.2',
+    measurementsInletSensorIsAvailableDefinition => 'PDU2-MIB::TruthValue',
     measurementsInletSensorState => '1.3.6.1.4.1.13742.6.5.2.3.1.3',
+    measurementsInletSensorStateDefinition => 'PDU2-MIB::SensorSTateEnumeration',
     measurementsInletSensorValue => '1.3.6.1.4.1.13742.6.5.2.3.1.4',
     measurementsInletSensorTimeStamp => '1.3.6.1.4.1.13742.6.5.2.3.1.5',
     inletPoleSensorMeasurementsTable => '1.3.6.1.4.1.13742.6.5.2.4',
@@ -435,7 +500,9 @@ $MyRaritan::mibs_and_oids = {
     externalSensorMeasurementsTable => '1.3.6.1.4.1.13742.6.5.5.3',
     externalSensorMeasurementsEntry => '1.3.6.1.4.1.13742.6.5.5.3.1',
     measurementsExternalSensorIsAvailable => '1.3.6.1.4.1.13742.6.5.5.3.1.2',
+    measurementsExternalSensorIsAvailableDefinition => 'PDU2-MIB::TruthValue',
     measurementsExternalSensorState => '1.3.6.1.4.1.13742.6.5.5.3.1.3',
+    measurementsExternalSensorStateDefinition => 'PDU2-MIB::SensorStateEnumeration',
     measurementsExternalSensorValue => '1.3.6.1.4.1.13742.6.5.5.3.1.4',
     measurementsExternalSensorTimeStamp => '1.3.6.1.4.1.13742.6.5.5.3.1.5',
     measurementsWire => '1.3.6.1.4.1.13742.6.5.6',
@@ -561,4 +628,225 @@ $MyRaritan::mibs_and_oids = {
     reliabilityErrorLogTime => '1.3.6.1.4.1.13742.6.10.2.2.1.10',
   },
 };
+$MyRaritan::definitions = {
+  'PDU2-MIB' => {
+    'SensorTypeEnumeration' => {
+      1 => 'rmsCurrent',
+      2 => 'peakCurrent',
+      3 => 'unbalancedCurrent',
+      4 => 'rmsVoltage',
+      5 => 'activePower',
+      6 => 'apparentPower',
+      7 => 'powerFactor',
+      8 => 'activeEnergy',
+      9 => 'apparentEnergy',
+      10 => 'temperature',
+      11 => 'humidity',
+      12 => 'airFlow',
+      13 => 'airPressure',
+      14 => 'onOff',
+      15 => 'trip',
+      16 => 'vibration',
+      17 => 'waterDetection',
+      18 => 'smokeDetection',
+      19 => 'binary',
+      20 => 'contact',
+      21 => 'fanSpeed',
+      22 => 'surgeProtectorStatus',
+      23 => 'frequency',
+      24 => 'phaseAngle',
+      30 => 'other',
+      31 => 'none',
+      32 => 'powerQuality',
+      33 => 'overloadStatus',
+      34 => 'overheatStatus',
+      35 => 'scrOpenStatus',
+      36 => 'scrShortStatus',
+      37 => 'fanStatus',
+      38 => 'inletPhaseSyncAngle',
+      39 => 'inletPhaseSync',
+      40 => 'operatingState',
+      41 => 'activeInlet',
+    },
+    'SensorStateEnumeration' => {
+      -1 => 'unavailable',
+      0 => 'open',
+      1 => 'closed',
+      2 => 'belowLowerCritical',
+      3 => 'belowLowerWarning',
+      4 => 'normal',
+      5 => 'aboveUpperWarning',
+      6 => 'aboveUpperCritical',
+      7 => 'on',
+      8 => 'off',
+      9 => 'detected',
+      10 => 'notDetected',
+      11 => 'alarmed',
+      12 => 'ok',
+      13 => 'marginal',
+      14 => 'fail',
+      15 => 'yes',
+      16 => 'no',
+      17 => 'standby',
+      18 => 'one',
+      19 => 'two',
+      20 => 'inSync',
+      21 => 'outOfSync',
+    },
+    'SensorUnitsEnumeration' => {
+      -1 => 'none',
+      0 => 'other',
+      1 => 'volt',
+      2 => 'amp',
+      3 => 'watt',
+      4 => 'voltamp',
+      5 => 'wattHour',
+      6 => 'voltampHour',
+      7 => 'degreeC',
+      8 => 'hertz',
+      9 => 'percent',
+      10 => 'meterpersec',
+      11 => 'pascal',
+      12 => 'psi',
+      13 => 'g',
+      14 => 'degreeF',
+      15 => 'feet',
+      16 => 'inches',
+      17 => 'cm',
+      18 => 'meters',
+      19 => 'rpm',
+      20 => 'degrees',
+    },
+    'inletDeviceCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      2 => 'unbalancedCurrent',
+      3 => 'rmsVoltage',
+      4 => 'activePower',
+      5 => 'apparentPower',
+      6 => 'powerFactor',
+      7 => 'activeEnergy',
+      8 => 'apparentEnergy',
+      21 => 'surgeProtectorStatus',
+      22 => 'frequency',
+      23 => 'phaseAngle',
+      31 => 'powerQuality',
+    },
+    'inletPoleCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      3 => 'rmsVoltage',
+      4 => 'activePower',
+      5 => 'apparentPower',
+      6 => 'powerFactor',
+      7 => 'activeEnergy',
+      8 => 'apparentEnergy',
+    },
+    'inletSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'inletPoleSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'overCurrentProtectorCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      14 => 'trip',
+    },
+    'overCurrentProtectorSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'outletDeviceCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      2 => 'unbalancedCurrent',
+      3 => 'rmsVoltage',
+      4 => 'activePower',
+      5 => 'apparentPower',
+      6 => 'powerFactor',
+      7 => 'activeEnergy',
+      8 => 'apparentEnergy',
+      21 => 'surgeProtectorStatus',
+      22 => 'frequency',
+      23 => 'phaseAngle',
+    },
+    'outletPoleCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      3 => 'rmsVoltage',
+      4 => 'activePower',
+      5 => 'apparentPower',
+      6 => 'powerFactor',
+      7 => 'activeEnergy',
+      8 => 'apparentEnergy',
+    },
+    'outletSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'outletPoleSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'externalSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'wireCapabilities' => {
+      0 => 'rmsCurrent',
+      1 => 'peakCurrent',
+      2 => 'unbalancedCurrent',
+      3 => 'rmsVoltage',
+      4 => 'activePower',
+      5 => 'apparentPower',
+      6 => 'powerFactor',
+      7 => 'activeEnergy',
+      8 => 'apparentEnergy',
+    },
+    'wireSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'transferSwitchCapabilities' => {
+      9 => 'temperature',
+      21 => 'surgeProtectorStatus',
+      32 => 'overloadStatus',
+      33 => 'overheatStatus',
+      34 => 'scrOpenStatus',
+      35 => 'scrShortStatus',
+      36 => 'fanStatus',
+      37 => 'inletPhaseSyncAngle',
+      38 => 'inletPhaseSync',
+      39 => 'operatingState',
+      40 => 'activeInlet',
+    },
+    'transferSwitchSensorEnabledThresholds' => {
+      0 => 'lowerCritical',
+      1 => 'lowerWarning',
+      2 => 'upperWarning',
+      3 => 'upperCritical',
+    },
+    'TruthValue' => {
+      1 => 'true',
+      2 => 'false',
+    }
+  }
+}
 
