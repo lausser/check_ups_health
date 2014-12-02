@@ -31,7 +31,7 @@ $plugin->add_mode(
 $plugin->add_mode(
     internal => 'device::battery::health',
     spec => 'battery-health',
-    alias => undef,
+    alias => ['power-health'],
     help => 'Check the status of battery equipment (batteries, currencies)',
 );
 $plugin->add_mode(

@@ -151,7 +151,10 @@ sub check {
       $self->add_info(sprintf '%s sensor %s is %s (%.2f %s)',
           $self->{SensorType}, $self->{SensorName}, $self->{SensorState},
           $self->{SensorValue}, $self->{SensorUnits});
-      $self->add_perfdata(label => 'sensor_'.$self->{SensorName},
+      my $label = sprintf 'sensor_%s%s', $self->{SensorName},
+          $self->{SensorType} eq 'inlet' && $self->{SensorUnits} ?
+          '_'.$self->{SensorUnits} : '';
+      $self->add_perfdata(label => $label,
           value => $self->{SensorValue},
           thresholds => 0,
           units => $self->{SensorUnits} eq '%' ? '%' : undef,
