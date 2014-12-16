@@ -744,7 +744,7 @@ sub check_snmp_and_model {
         } elsif (/^([\d\.]+) = Hex-STRING: (.*)/) {
           $response->{$1} = "0x".$2;
           $response->{$1} =~ s/\s+$//;
-        } elsif (/^([\d\.]+) = \w+: (\-*\d+)/) {
+        } elsif (/^([\d\.]+) = \w+: (\-*\d+)\s*$/) {
           $response->{$1} = $2;
         } elsif (/^([\d\.]+) = \w+: "(.*?)"/) {
           $response->{$1} = $2;
@@ -842,7 +842,8 @@ sub check_snmp_and_model {
     my $tac = time;
     if (defined $sysUptime && defined $sysDescr) {
       # drecksschrott asa liefert negative werte
-      if (defined $snmpEngineTime && $snmpEngineTime > 0) {
+      # und drecksschrott socomec liefert: wrong type (should be INTEGER): NULL
+      if (defined $snmpEngineTime && $snmpEngineTime =~ /^\d+$/ && $snmpEngineTime > 0) {
         $self->{uptime} = $snmpEngineTime;
       } else {
         $self->{uptime} = $self->timeticks($sysUptime);
@@ -1232,9 +1233,50 @@ sub get_snmp_table_objects {
   }
   my $entry = $table;
   $entry =~ s/Table/Entry/g;
-  if (scalar(@{$indices}) == 1) {
-    if (exists $GLPlugin::SNMP::mibs_and_oids->{$mib} &&
-        exists $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table}) {
+  if (exists $GLPlugin::SNMP::mibs_and_oids->{$mib} &&
+      exists $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table}) {
+    if (scalar(@{$indices}) == 1 && $indices->[0] == -1) {
+      # get mini-version of a table
+      my $result = {};
+      my $eoid = $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.';
+      my $eoidlen = length($eoid);
+      my @columns = map {
+          $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}
+      } grep {
+        substr($GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}, 0, $eoidlen) eq
+            $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.'
+      } keys %{$GLPlugin::SNMP::mibs_and_oids->{$mib}};
+      my $ifresult = $self->get_entries(
+          -columns => \@columns,
+      );
+      map { $result->{$_} = $ifresult->{$_} }
+          keys %{$ifresult};
+      if ($augmenting_table &&
+          exists $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$augmenting_table}) {
+        my $entry = $augmenting_table;
+        $entry =~ s/Table/Entry/g;
+        my $eoid = $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.';
+        my $eoidlen = length($eoid);
+        my @columns = map {
+            $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}
+        } grep {
+          substr($GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}, 0, $eoidlen) eq $eoid
+        } keys %{$GLPlugin::SNMP::mibs_and_oids->{$mib}};
+        my $ifresult = $self->get_entries(
+            -columns => \@columns,
+        );
+        map { $result->{$_} = $ifresult->{$_} }
+            keys %{$ifresult};
+      }
+      my @indices = 
+          $self->get_indices(
+              -baseoid => $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry},
+              -oids => [keys %{$result}]);
+      $self->debug(sprintf "get_snmp_table_objects get_table returns %d indices",
+          scalar(@indices));
+      @entries = $self->make_symbolic($mib, $result, \@indices);
+      @entries = map { $_->{indices} = shift @indices; $_ } @entries;
+    } elsif (scalar(@{$indices}) == 1) {
       my $result = {};
       my $eoid = $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.';
       my $eoidlen = length($eoid);
@@ -1273,12 +1315,9 @@ sub get_snmp_table_objects {
       }
       @entries = $self->make_symbolic($mib, $result, $indices);
       @entries = map { $_->{indices} = shift @{$indices}; $_ } @entries;
-    }
-  } elsif (scalar(@{$indices}) > 1) {
+    } elsif (scalar(@{$indices}) > 1) {
     # man koennte hier pruefen, ob die indices aufeinanderfolgen
     # und dann get_entries statt get_table aufrufen
-    if (exists $GLPlugin::SNMP::mibs_and_oids->{$mib} &&
-        exists $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table}) {
       my $result = {};
       my $eoid = $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.';
       my $eoidlen = length($eoid);
@@ -1341,10 +1380,7 @@ sub get_snmp_table_objects {
       # $self->get_indices($GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry});
       @entries = $self->make_symbolic($mib, $result, $indices);
       @entries = map { $_->{indices} = shift @{$indices}; $_ } @entries;
-    }
-  } else {
-    if (exists $GLPlugin::SNMP::mibs_and_oids->{$mib} &&
-        exists $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table}) {
+    } else {
       $self->debug(sprintf "get_snmp_table_objects calls get_table %s",
           $GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table});
       my $result = $self->get_table(
@@ -1512,7 +1548,7 @@ sub get_entries {
   if (! $self->opts->snmpwalk) {
     $result = $self->get_entries_get_bulk(%params);
     if (! $result) {
-      if (scalar (@{$params{'-columns'}}) < 50 && $params{'-startindex'} eq $params{'-endindex'}) {
+      if (scalar (@{$params{'-columns'}}) < 50 && $params{'-endindex'} && $params{'-startindex'} eq $params{'-endindex'}) {
         $result = $self->get_entries_get_simple(%params);
       } else {
         $result = $self->get_entries_get_next(%params);
@@ -1784,8 +1820,14 @@ sub make_symbolic {
             } elsif ($GLPlugin::SNMP::mibs_and_oids->{$mib}->{$symoid.'Definition'} =~ /^(.*?)::(.*)/) {
               my $mib = $1;
               my $definition = $2;
-              if  (exists $GLPlugin::SNMP::definitions->{$mib} && exists $GLPlugin::SNMP::definitions->{$mib}->{$definition}
-                  && exists $GLPlugin::SNMP::definitions->{$mib}->{$definition}->{$result->{$fulloid}}) {
+              if  (exists $GLPlugin::SNMP::definitions->{$mib} &&
+                  exists $GLPlugin::SNMP::definitions->{$mib}->{$definition} &&
+                  ref($GLPlugin::SNMP::definitions->{$mib}->{$definition}) eq 'CODE') {
+                $mo->{$symoid} = $GLPlugin::SNMP::definitions->{$mib}->{$definition}->($result->{$fulloid});
+              } elsif  (exists $GLPlugin::SNMP::definitions->{$mib} &&
+                  exists $GLPlugin::SNMP::definitions->{$mib}->{$definition} &&
+                  ref($GLPlugin::SNMP::definitions->{$mib}->{$definition}) eq 'HASH' &&
+                  exists $GLPlugin::SNMP::definitions->{$mib}->{$definition}->{$result->{$fulloid}}) {
                 $mo->{$symoid} = $GLPlugin::SNMP::definitions->{$mib}->{$definition}->{$result->{$fulloid}};
               } else {
                 $mo->{$symoid} = 'unknown_'.$result->{$fulloid};
