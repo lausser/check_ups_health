@@ -38,9 +38,6 @@ sub classify {
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');
-      } elsif ($self->implements_mib('PDU2-MIB')) {
-        bless $self, 'Classes::Raritan';
-        $self->debug('using Classes::Raritan');
       } else {
         if (my $class = $self->discover_suitable_class()) {
           bless $self, $class;

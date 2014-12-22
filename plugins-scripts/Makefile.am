@@ -37,8 +37,6 @@ EXTRA_MODULES=\
   Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
   Classes/MerlinGerin/Components/BatterySubsystem.pm \
   Classes/MerlinGerin.pm \
-  Classes/Raritan/Components/SensorSubsystem.pm \
-  Classes/Raritan.pm \
   Classes/MibsAndOids.pm \
   Classes/Device.pm
 EXTRA_DIST=check_ups_health.pl $(EXTRA_MODULES)
