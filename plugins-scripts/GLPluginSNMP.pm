@@ -868,6 +868,14 @@ sub check_snmp_and_model {
   }
 }
 
+sub mult_snmp_max_msg_size {
+  my $self = shift;
+  my $factor = shift || 10;
+  $self->debug(sprintf "raise maxmsgsize %d * %d", 
+      $factor, $GLPlugin::SNMP::session->max_msg_size());
+  $GLPlugin::SNMP::session->max_msg_size($factor * $GLPlugin::SNMP::session->max_msg_size()) if $GLPlugin::SNMP::session;
+}
+
 sub no_such_model {
   my $self = shift;
   printf "Model %s is not implemented\n", $self->{productname};
@@ -1553,7 +1561,7 @@ sub get_entries {
       } else {
         $result = $self->get_entries_get_next(%params);
       }
-      if (! $result && $params{'-startindex'} !~ /\./) {
+      if (! $result && defined $params{'-startindex'} && $params{'-startindex'} !~ /\./) {
         # compound indexes cannot continue, as these two methods iterate numerically
         if ($GLPlugin::SNMP::session->error() =~ /tooBig/i) {
           $result = $self->get_entries_get_next_1index(%params);
