@@ -186,6 +186,7 @@ sub init {
     if ($self->opts->snmpdump) {
       $name = $self->opts->snmpdump;
     }
+    $self->opts->override_opt("protocol", $1) if $self->opts->protocol =~ /^v(.*)/;
     if (defined $self->opts->offline) {
       $self->{pidfile} = $name.".pid";
       if (! $self->check_pidfile()) {
@@ -651,6 +652,8 @@ sub init {
         '1.3.6.1.2.1', '1.3.6.1.4.1',
     ]);
     foreach my $mibinfo (@{$mibdepot}) {
+      next if $self->opts->protocol eq "1" && $mibinfo->[2] ne "v1";
+      next if $self->opts->protocol ne "1" && $mibinfo->[2] eq "v1";
       $GLPlugin::SNMP::mib_ids->{$mibinfo->[3]} = $mibinfo->[0];
     }
     $GLPlugin::SNMP::mib_ids->{'SNMP-MIB2'} = "1.3.6.1.2.1";
@@ -872,7 +875,7 @@ sub mult_snmp_max_msg_size {
   my $self = shift;
   my $factor = shift || 10;
   $self->debug(sprintf "raise maxmsgsize %d * %d", 
-      $factor, $GLPlugin::SNMP::session->max_msg_size());
+      $factor, $GLPlugin::SNMP::session->max_msg_size()) if $GLPlugin::SNMP::session;
   $GLPlugin::SNMP::session->max_msg_size($factor * $GLPlugin::SNMP::session->max_msg_size()) if $GLPlugin::SNMP::session;
 }
 
@@ -2105,6 +2108,10 @@ sub unhex_ip {
   if ($value && $value =~ /^0x(\w{8})/) {
     $value = join(".", unpack "C*", pack "H*", $1);
   } elsif ($value && $value =~ /^0x(\w{2} \w{2} \w{2} \w{2})/) {
+    $value = $1;
+    $value =~ s/ //g;
+    $value = join(".", unpack "C*", pack "H*", $value);
+  } elsif ($value && $value =~ /^([A-Z0-9]{2} [A-Z0-9]{2} [A-Z0-9]{2} [A-Z0-9]{2})/i) {
     $value = $1;
     $value =~ s/ //g;
     $value = join(".", unpack "C*", pack "H*", $value);
