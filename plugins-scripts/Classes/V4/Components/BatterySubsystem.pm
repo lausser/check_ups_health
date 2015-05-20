@@ -93,9 +93,18 @@ sub check {
       value => $self->{dupsTemperature},
   );
 
-  $self->set_thresholds(
-      metric => 'remaining_time', warning => '15:', critical => '10:');
-  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{dupsBatteryEstimatedTime});
+  if ($self->{dupsSecondsOnBattery}) {
+    $self->set_thresholds(
+        metric => 'remaining_time', warning => '15:', critical => '10:');
+    $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{dupsBatteryEstimatedTime});
+  } else {
+    # laeuft nicht auf batterie, kann also nicht sagen, wie lang diese haelt.
+    # dupsBatteryEstimatedTime liefert in dem fall undef
+    $self->{dupsBatteryEstimatedTime} = 0;
+    $self->force_thresholds(
+        metric => 'remaining_time', warning => '0:', critical => '0:');
+    $self->add_info(sprintf 'unit is not on battery power');
+  }
   $self->add_message(
       $self->check_thresholds(
           value => $self->{dupsBatteryEstimatedTime},

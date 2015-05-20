@@ -40,9 +40,15 @@ sub check {
       value => $self->{upsBatteryTemperature},
   );
 
-  $self->set_thresholds(
-      metric => 'remaining_time', warning => '15:', critical => '10:');
-  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining});
+  if ($self->{upsBaseBatteryTimeOnBattery}) {
+    $self->set_thresholds(
+        metric => 'remaining_time', warning => '15:', critical => '10:');
+    $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining});
+  } else {
+    $self->set_thresholds(
+        metric => 'remaining_time', warning => '0:', critical => '0:');
+    $self->add_info('unit is not on battery power');
+  }
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsEstimatedMinutesRemaining},

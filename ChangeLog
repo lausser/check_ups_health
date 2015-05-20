@@ -2,6 +2,9 @@
 # Changelog of the check_ups_health plugin #
 ############################################
 
+2015-05-20 2.5.2.4
+- bugfix in V4 battery runtime (undef if not on batt.)
+
 2015-04-23 2.5.2.3
 - update GLPlugin[SNMP]
 
