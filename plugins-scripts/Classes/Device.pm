@@ -14,8 +14,10 @@ sub classify {
       }
       if ($self->opts->mode =~ /^my-/) {
         $self->load_my_extension();
-      } elsif (defined $self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel')) {
-        # kann auch "" sein, daher defined
+      } elsif ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel') ||
+          $self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentName')) {
+        # upsBasicIdentModel kann auch "" sein, upsBasicIdentName
+        # theoretisch auch (da r/w), aber hoffentlich nicht beide zusammen
         bless $self, 'Classes::APC::Powermib';
         $self->debug('using Classes::APC::Powermib');
       } elsif ($self->{productname} =~ /APC /) {
