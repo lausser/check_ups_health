@@ -1,105 +1,70 @@
-############################################
-# Changelog of the check_ups_health plugin #
-############################################
-
-2015-05-20 2.5.2.4
-- bugfix in V4 battery runtime (undef if not on batt.)
-
-2015-04-23 2.5.2.3
-- update GLPlugin[SNMP]
-
-2015-04-23 2.5.2.2
-- update GLPlugin[SNMP]
-
-2015-01-26 2.5.2.1
-- update GLPlugin[SNMP]
-
-2014-12-22 2.5.2
-- remove Raritan PX2 (was moved to the new plugin check_pdu_health)
-
-2014-12-16 2.5.1
-- update GLPlugin
-
-2014-12-02 2.5
-- implement Raritan PX2
-
-2014-10-01 2.4.0.13
-- update GLPlugin
-
-2014-08-22 2.4.0.12
-- bugfix in glplugin/uptime because of buggy snmpengineuptime
-
-2014-08-21 2.4.0.11
-- GLPluginSNMP update/uptime thresholds
-
-2014-08-21 2.4.0.10
-- GLPluginSNMP update
-
-2014-08-20 2.4.0.9
-- GLPluginSNMP update
-
-2014-08-19 2.4.0.8
-- GLPlugin/SNMP update
-
-2014-08-14 2.4.0.7
-- GLPluginSNMP update
-
-2014-08-01 2.4.0.6
-- GLPluginSNMP update
-- MerlinGerin also asks XUPS alarm table 
-
-2014-07-28 2.4.0.5
-- GLPlugin update
-
-2014-07-28 2.4.0.4
-- added more xups alarm descriptions
-
-2014-07-03 2.4.0.3
-- update GLPlugin
-
-2014-06-06 2.4.0.2
-- remove deprecated threshold code in add_perfdata
-
-2014-06-04 2.4.0.1
-- bugfix in xups alert age
-- detect merlingerin before xups
-
-2014-05-22 2.4
-- finished GLPlugin migration
-- rearranged the classification checks
-- GLPlugin update
-
-2014-03-03 2.3.1
-- bugfix in XUPS input current
-- bugfix in Merlin Gerin input/output numbers
-
-2014-02-21 2.3
-- add a check for input voltage = 0
-
-2014-02-21 2.2
-- code cleanup
-
-2014-02-19 2.1
-- add UPS-MIB
-- add XPCC-MIB
-
-2014-02-18 2.0.1
-- some bugfixes (unimplemented oids and perl undefs)
-
-2014-02-14 2.0
-- rewrite using GLPlugin
-- raise apc battery temperature threshold
-
-2014-01-15 1.2.1
-- bugfix for apc powernet outputload undef values
-- add XUPS MIB for Eaton 
-
-2013-12-24 1.2
-- add socomec netys and netvision
-
-2013-12-16 1.1
-- add apc mge galaxy
-
-2013-12-11 1.0
-- initial release (can Socomec RT 3000VA and generic UPS V4 devices)
-
+* 2015-05-20 2.5.2.4
+  bugfix in V4 battery runtime (undef if not on batt.)
+* 2015-04-23 2.5.2.3
+  update GLPlugin[SNMP]
+* 2015-04-23 2.5.2.2
+  update GLPlugin[SNMP]
+* 2015-01-26 2.5.2.1
+  update GLPlugin[SNMP]
+* 2014-12-22 2.5.2
+  remove Raritan PX2 (was moved to the new plugin check_pdu_health)
+* 2014-12-16 2.5.1
+  update GLPlugin
+* 2014-12-02 2.5
+  implement Raritan PX2
+* 2014-10-01 2.4.0.13
+  update GLPlugin
+* 2014-08-22 2.4.0.12
+  bugfix in glplugin/uptime because of buggy snmpengineuptime
+* 2014-08-21 2.4.0.11
+  GLPluginSNMP update/uptime thresholds
+* 2014-08-21 2.4.0.10
+  GLPluginSNMP update
+* 2014-08-20 2.4.0.9
+  GLPluginSNMP update
+* 2014-08-19 2.4.0.8
+  GLPlugin/SNMP update
+* 2014-08-14 2.4.0.7
+  GLPluginSNMP update
+* 2014-08-01 2.4.0.6
+  GLPluginSNMP update
+  MerlinGerin also asks XUPS alarm table 
+* 2014-07-28 2.4.0.5
+  GLPlugin update
+* 2014-07-28 2.4.0.4
+  added more xups alarm descriptions
+* 2014-07-03 2.4.0.3
+  update GLPlugin
+* 2014-06-06 2.4.0.2
+  remove deprecated threshold code in add_perfdata
+* 2014-06-04 2.4.0.1
+  bugfix in xups alert age
+  detect merlingerin before xups
+* 2014-05-22 2.4
+  finished GLPlugin migration
+  rearranged the classification checks
+  GLPlugin update
+* 2014-03-03 2.3.1
+  bugfix in XUPS input current
+  bugfix in Merlin Gerin input/output numbers
+* 2014-02-21 2.3
+  add a check for input voltage = 0
+* 2014-02-21 2.2
+  code cleanup
+* 2014-02-19 2.1
+  add UPS-MIB
+  add XPCC-MIB
+* 2014-02-18 2.0.1
+  some bugfixes (unimplemented oids and perl undefs)
+* 2014-02-14 2.0
+  rewrite using GLPlugin
+  raise apc battery temperature threshold
+* 2014-01-15 1.2.1
+  bugfix for apc powernet outputload undef values
+  add XUPS MIB for Eaton 
+* 2013-12-24 1.2
+  add socomec netys and netvision
+* 2013-12-16 1.1
+  add apc mge galaxy
+* 2013-12-11 1.0
+  initial release (can Socomec RT 3000VA and generic UPS V4 devices)
