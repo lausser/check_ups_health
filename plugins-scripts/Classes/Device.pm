@@ -38,6 +38,9 @@ sub classify {
       } elsif ($self->implements_mib('XUPS-MIB')) {
         bless $self, 'Classes::XUPS';
         $self->debug('using Classes::XUPS');
+      } elsif ($self->{productname} =~ /Net Vision v6/) {
+        bless $self, 'Classes::Socomec';
+        $self->debug('using Classes::Socomec');
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');
