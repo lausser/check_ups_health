@@ -101,13 +101,18 @@ sub check {
       value => $self->{upsAdvBatteryRunTimeRemaining},
   );
 
-  if (defined $self->{upsAdvInputLineVoltage} && $self->{upsAdvInputLineVoltage} < 1 && $self->{upsAdvBatteryCapacity} != 100) {
+  if (defined $self->{upsAdvInputLineVoltage} && $self->{upsAdvInputLineVoltage} < 1 && $self->{upsAdvBatteryCapacity} < 90) {
     # upsAdvInputLineVoltage can be noTransfer after spikes or selftests.
     # this might be tolerable as long as the battery is full.
     # only when external voltage is needed this should raise an alarm
+    # (< 100 is not enough, even under normal circumstances the capacity drops
+    # below 100)
     $self->add_critical('input power outage');
     if ($self->{upsAdvInputLineFailCause}) {
       $self->add_critical($self->{upsAdvInputLineFailCause});
+      if ($self->{upsAdvInputLineFailCause} eq 'noTransfer') {
+        $self->add_critical('please repeat self-tests or reboot');
+      }
     }
   }
   $self->add_perfdata(

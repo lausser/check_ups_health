@@ -3,7 +3,7 @@ AC_REVISION ($Revision: 1.150 $)
 AC_PREREQ(2.58)
 AC_INIT(check_ups_health,2.5.2.6)
 AM_INIT_AUTOMAKE([1.9 tar-pax])
-AM_MAINTAINER_MODE([enable])
+AM_MAINTAINER_MODE([disable])
 AC_CANONICAL_HOST
 
 RELEASE=1
