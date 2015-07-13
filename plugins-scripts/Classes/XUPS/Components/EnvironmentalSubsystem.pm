@@ -44,7 +44,7 @@ sub dump {
 
 
 package Classes::XUPS::Components::EnvironmentalSubsystem::Alarm;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
@@ -54,11 +54,11 @@ sub check {
       xupsOutputOverload xupsInternalFailure xupsBatteryDischarged xupsInverterFailure 
       xupsOnBypass xupsBypassNotAvailable xupsOutputOff xupsInputFailure 
       xupsBuildingAlarm xupsShutdownImminent xupsOnInverter)) {
-    if ($self->{xupsAlarmDescr} eq  $GLPlugin::SNMP::mibs_and_oids->{"XUPS-MIB"}->{$_}) {
+    if ($self->{xupsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::mibs_and_oids->{"XUPS-MIB"}->{$_}) {
       $self->{xupsAlarmDescr} = $_;
     }
   }
-  my $age = $GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
+  my $age = $Monitoring::GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
   # xupsAlarmDescr: xupsUtilityPowerRestored
   # xupsAlarmTime: 723852361
   # CRITICAL - alarm: xupsUtilityPowerRestored (-11941630 min ago)

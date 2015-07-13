@@ -27,14 +27,14 @@ sub check {
   }
   if ($self->{upsTestStartTime}) {
     my $result = sprintf "test result from %s was %s", 
-        scalar localtime time - $GLPlugin::SNMP::uptime + $self->{upsTestStartTime},
+        scalar localtime time - $Monitoring::GLPlugin::SNMP::uptime + $self->{upsTestStartTime},
         $self->{upsTestResultsDetail} ? $self->{upsTestResultsDetail} : $self->{upsTestResultsSummary};
     if ($self->{upsTestResultsSummary} eq "doneWarning") {
       $self->add_warning($result);
     } elsif ($self->{upsTestResultsSummary} eq "doneError") {
       $self->add_critical($result);
     }
-    my $last_test = $GLPlugin::SNMP::uptime - $self->{upsTestStartTime};
+    my $last_test = $Monitoring::GLPlugin::SNMP::uptime - $self->{upsTestStartTime};
     my $days_ago = (time - $last_test) / (3600 * 24);
     $self->add_info(sprintf 'last selftest was %d days ago (%s)',
         $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
@@ -68,7 +68,7 @@ sub dump {
 
 
 package Classes::UPS::Components::EnvironmentalSubsystem::Alarm;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
@@ -81,11 +81,11 @@ sub check {
       upsAlarmFanFailure upsAlarmFuseFailure upsAlarmGeneralFault
       upsAlarmDiagnosticTestFailed upsAlarmCommunicationsLost upsAlarmAwaitingPower
       upsAlarmShutdownPending upsAlarmShutdownImminent upsAlarmTestInProgress)) {
-    if ($self->{upsAlarmDescr} eq  $GLPlugin::SNMP::mibs_and_oids->{"UPS-MIB"}->{$_}) {
+    if ($self->{upsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::mibs_and_oids->{"UPS-MIB"}->{$_}) {
       $self->{upsAlarmDescr} = $_;
     }
   }
-  my $age = $GLPlugin::SNMP::uptime - $self->{upsAlarmTime};
+  my $age = $Monitoring::GLPlugin::SNMP::uptime - $self->{upsAlarmTime};
   if ($age < 3600) {
     $self->add_critical(sprintf "alarm: %s (%d min ago)",
         $self->{upsAlarmDescr}, $age / 60);

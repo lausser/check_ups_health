@@ -92,7 +92,7 @@ sub dump {
 
 
 package Classes::XUPS::Components::BatterySubsystem::Input;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
@@ -111,7 +111,7 @@ sub check {
 }
 
 package Classes::XUPS::Components::BatterySubsystem::Output;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {

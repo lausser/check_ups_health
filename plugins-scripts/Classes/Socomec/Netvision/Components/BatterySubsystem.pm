@@ -126,7 +126,7 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Input;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 
@@ -158,7 +158,7 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Output;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 
@@ -198,7 +198,7 @@ sub dump {
 
 
 package Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 

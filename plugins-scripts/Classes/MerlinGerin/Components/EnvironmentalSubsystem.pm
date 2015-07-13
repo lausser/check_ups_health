@@ -89,7 +89,7 @@ sub dump {
 
 
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
@@ -99,12 +99,12 @@ sub check {
 
 
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::SensorConfig;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 
 package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironmentSensor;
-our @ISA = qw(GLPlugin::SNMP::TableItem);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {

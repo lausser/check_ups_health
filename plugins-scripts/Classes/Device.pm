@@ -1,5 +1,5 @@
 package Classes::Device;
-our @ISA = qw(GLPlugin::SNMP);
+our @ISA = qw(Monitoring::GLPlugin::SNMP);
 use strict;
 
 sub classify {
@@ -66,7 +66,7 @@ use strict;
 sub init {
   my $self = shift;
   if ($self->mode =~ /.*/) {
-    bless $self, 'GLPlugin::SNMP';
+    bless $self, 'Monitoring::GLPlugin::SNMP';
     $self->no_such_mode();
   }
 }

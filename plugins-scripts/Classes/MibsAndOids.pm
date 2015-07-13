@@ -1,9 +1,17 @@
-$GLPlugin::SNMP::discover_ids = {
+{
+  no warnings qw(once);
+  $Monitoring::Monitoring::GLPlugin::SNMP::discover_ids = {};
+  $Monitoring::Monitoring::GLPlugin::SNMP::mib_ids = {};
+  $Monitoring::Monitoring::GLPlugin::SNMP::mibs_and_oids = {};
+  $Monitoring::Monitoring::GLPlugin::SNMP::definitions = {};
+}
+
+$Monitoring::GLPlugin::SNMP::discover_ids = {
   '1.3.6.1.4.1.4555.1.1.1' => 'Classes::Socomec::Netvision',
   '1.3.6.1.4.1.318.1.3.17.1' => 'Classes::APC::Powermib',
 };
 
-$GLPlugin::SNMP::mib_ids = {
+$Monitoring::GLPlugin::SNMP::mib_ids = {
   'UPSV4-MIB' => '1.3.6.1.4.1.2254.2.4',
   'XUPS-MIB' => '1.3.6.1.4.1.534.1',
   'MG-SNMP-UPS-MIB' => '1.3.6.1.4.1.705.1',
@@ -11,7 +19,7 @@ $GLPlugin::SNMP::mib_ids = {
   'XPPC-MIB' => '1.3.6.1.4.1.935',
 };
 
-$GLPlugin::SNMP::mibs_and_oids = {
+$Monitoring::GLPlugin::SNMP::mibs_and_oids = {
   'MIB-II' => {
       sysDescr => '1.3.6.1.2.1.1.1',
       sysObjectID => '1.3.6.1.2.1.1.2',
@@ -7668,7 +7676,7 @@ $GLPlugin::SNMP::mibs_and_oids = {
   },
 };
 
-$GLPlugin::SNMP::definitions = {
+$Monitoring::GLPlugin::SNMP::definitions = {
   'DELTAUPS-MIB' => {
     dupsAlarm => {
       0 => 'off',
