@@ -1,5 +1,10 @@
 package Monitoring::GLPlugin;
-# ABSTRACT: helper functions to build a upnp-based monitoring plugin
+
+=head1 Monitoring::GLPlugin
+
+Monitoring::GLPlugin - infrastructure functions to build a monitoring plugin
+
+=cut
 
 use strict;
 use IO::File;
@@ -7,7 +12,7 @@ use File::Basename;
 use Digest::MD5 qw(md5_hex);
 use Errno;
 our $AUTOLOAD;
-our $VERSION = "1.0";
+*VERSION = \'1.4';
 
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
@@ -27,6 +32,12 @@ sub new {
   my %params = @_;
   my $self = {};
   bless $self, $class;
+  require Monitoring::GLPlugin::Commandline
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::Commandline::;
+  require Monitoring::GLPlugin::Item
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::Item::;
+  require Monitoring::GLPlugin::TableItem
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::TableItem::;
   $Monitoring::GLPlugin::plugin = Monitoring::GLPlugin::Commandline->new(%params);
   return $self;
 }
@@ -70,8 +81,7 @@ sub add_default_args {
   $self->add_arg(
       spec => 'regexp',
       help => "--regexp
-   if this parameter is used, name will be interpreted as a
-   regular expression",
+   Parameter name/name2/name3 will be interpreted as (perl) regular expression",
       required => 0,);
   $self->add_arg(
       spec => 'warning=s',
@@ -113,6 +123,12 @@ sub add_default_args {
       spec => 'name2=s',
       help => "--name2
    The secondary name of a component",
+      required => 0,
+  );
+  $self->add_arg(
+      spec => 'name3=s',
+      help => "--name3
+   The tertiary name of a component",
       required => 0,
   );
   $self->add_arg(
@@ -284,6 +300,24 @@ sub validate_args {
     $input =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
     printf "%s\n", $input;
     exit 0;
+  } elsif ($self->opts->mode eq 'decode') {
+    if (! -t STDIN) {
+      my $input = <>;
+      chomp $input;
+      $input =~ s/%([A-Za-z0-9]{2})/chr(hex($1))/seg;
+      printf "%s\n", $input;
+      exit OK;
+    } else {
+      if ($self->opts->name) {
+        my $input = $self->opts->name;
+        $input =~ s/%([A-Za-z0-9]{2})/chr(hex($1))/seg;
+        printf "%s\n", $input;
+        exit OK;
+      } else {
+        printf "i can't find your encoded statement. use --name or pipe it in my stdin\n";
+        exit UNKNOWN;
+      }
+    }
   } elsif ((! grep { $self->opts->mode eq $_ } map { $_->{spec} } @{$Monitoring::GLPlugin::plugin->{modes}}) &&
       (! grep { $self->opts->mode eq $_ } map { defined $_->{alias} ? @{$_->{alias}} : () } @{$Monitoring::GLPlugin::plugin->{modes}})) {
     printf "UNKNOWN - mode %s\n", $self->opts->mode;
@@ -324,17 +358,17 @@ sub validate_args {
       $self->override_opt('statefilesdir', "/var/tmp/".$Monitoring::GLPlugin::plugin->{name});
     }
   }
-  $Monitoring::GLPlugin::plugin->{statefilesdir} = $self->opts->statefilesdir 
+  $Monitoring::GLPlugin::plugin->{statefilesdir} = $self->opts->statefilesdir
       if $self->opts->can("statefilesdir");
   if ($self->opts->can("warningx") && $self->opts->warningx) {
     foreach my $key (keys %{$self->opts->warningx}) {
-      $self->set_thresholds(metric => $key, 
+      $self->set_thresholds(metric => $key,
           warning => $self->opts->warningx->{$key});
     }
   }
   if ($self->opts->can("criticalx") && $self->opts->criticalx) {
     foreach my $key (keys %{$self->opts->criticalx}) {
-      $self->set_thresholds(metric => $key, 
+      $self->set_thresholds(metric => $key,
           critical => $self->opts->criticalx->{$key});
     }
   }
@@ -630,7 +664,9 @@ sub load_my_extension {
     }
     my $original_class = ref($self);
     my $original_init = $self->can("init");
+    $self->compatibility_class() if $self->can('compatibility_class');
     bless $self, "My$class";
+    $self->compatibility_methods() if $self->can('compatibility_methods');
     if ($self->isa("Monitoring::GLPlugin")) {
       my $new_init = $self->can("init");
       if ($new_init == $original_init) {
@@ -659,6 +695,45 @@ sub decode_password {
     $password =~ s/%([A-Za-z0-9]{2})/chr(hex($1))/seg;
   }
   return $password;
+}
+
+sub number_of_bits {
+  my $self = shift;
+  my $unit = shift;
+  # https://en.wikipedia.org/wiki/Data_rate_units
+  my $bits = {
+    'bit' => 1,			# Bit per second
+    'B' => 8,			# Byte per second, 8 bits per second
+    'kbit' => 1000,		# Kilobit per second, 1,000 bits per second
+    'kb' => 1000,		# Kilobit per second, 1,000 bits per second
+    'Kibit' => 1024,		# Kibibit per second, 1,024 bits per second
+    'kB' => 8000,		# Kilobyte per second, 8,000 bits per second
+    'KiB' => 8192,		# Kibibyte per second, 1,024 bytes per second
+    'Mbit' => 1000000,		# Megabit per second, 1,000,000 bits per second
+    'Mb' => 1000000,		# Megabit per second, 1,000,000 bits per second
+    'Mibit' => 1048576,		# Mebibit per second, 1,024 kibibits per second
+    'MB' => 8000000,		# Megabyte per second, 1,000 kilobytes per second
+    'MiB' => 8388608,		# Mebibyte per second, 1,024 kibibytes per second
+    'Gbit' => 1000000000,	# Gigabit per second, 1,000 megabits per second
+    'Gb' => 1000000000,		# Gigabit per second, 1,000 megabits per second
+    'Gibit' => 1073741824,	# Gibibit per second, 1,024 mebibits per second
+    'GB' => 8000000000,		# Gigabyte per second, 1,000 megabytes per second
+    'GiB' => 8589934592,	# Gibibyte per second, 8192 mebibits per second
+    'Tbit' => 1000000000000,	# Terabit per second, 1,000 gigabits per second
+    'Tb' => 1000000000000,	# Terabit per second, 1,000 gigabits per second
+    'Tibit' => 1099511627776,	# Tebibit per second, 1,024 gibibits per second
+    'TB' => 8000000000000,	# Terabyte per second, 1,000 gigabytes per second
+    # eigene kreationen
+    'Bits' => 1,
+    'KBi' => 1024,
+    'MBi' => 1024 * 1024,
+    'GBi' => 1024 * 1024 * 1024,
+  };
+  if (exists $bits->{$unit}) {
+    return $bits->{$unit};
+  } else {
+    return 0;
+  }
 }
 
 
@@ -848,7 +923,7 @@ sub is_blacklisted {
         }
       }
     }
-  } 
+  }
   return $self->{blacklisted};
 }
 
@@ -931,18 +1006,18 @@ sub valdiff {
   }
   # lookback=99999, freeze=0(default)
   #  nimm den letzten lauf und schreib ihn nach {cold}
-  #  vergleich dann 
+  #  vergleich dann
   #    wenn es frozen gibt, vergleich frozen und den letzten lauf
   #    sonst den letzten lauf und den aktuellen lauf
   # lookback=99999, freeze=1
-  #  wird dann aufgerufen,wenn nach dem freeze=0 ein problem festgestellt wurde 
+  #  wird dann aufgerufen,wenn nach dem freeze=0 ein problem festgestellt wurde
   #     (also als 2.valdiff hinterher)
   #  schreib cold nach frozen
   # lookback=99999, freeze=2
   #  wird dann aufgerufen,wenn nach dem freeze=0 wieder alles ok ist
   #     (also als 2.valdiff hinterher)
   #  loescht frozen
-  #  
+  #
   my $last_values = $self->load_state(%params) || eval {
     my $empty_events = {};
     foreach (@keys) {
@@ -992,7 +1067,7 @@ sub valdiff {
         } else {
           $last_values->{$_} = $last_values->{frozen}->{$_};
         }
-      } 
+      }
     } elsif ($mode eq "lookback") {
       # find a last_value in the history which fits lookback best
       # and overwrite $last_values->{$_} with historic data
@@ -1013,10 +1088,14 @@ sub valdiff {
       }
     }
     if ($mode eq "normal" || $mode eq "lookback" || $mode eq "lookback_freeze_chill") {
-      if ($self->{$_} =~ /^\d+$/) {
+      if ($self->{$_} =~ /^\d+\.*\d*$/) {
         $last_values->{$_} = 0 if ! exists $last_values->{$_};
         if ($self->{$_} >= $last_values->{$_}) {
           $self->{'delta_'.$_} = $self->{$_} - $last_values->{$_};
+        } elsif ($self->{$_} eq $last_values->{$_}) {
+          # dawischt! in einem fall wurde 131071.999023438 >= 131071.999023438 da oben nicht erkannt
+          # subtrahieren ging auch daneben, weil ein winziger negativer wert rauskam.
+          $self->{'delta_'.$_} = 0;
         } else {
           if ($mode =~ /lookback_freeze/) {
             # hier koennen delta-werte auch negativ sein, wenn z.b. peers verschwinden
@@ -1118,7 +1197,7 @@ sub create_statefile {
   $extension =~ s/\*/_/g;
   $extension =~ s/\s/_/g;
   return sprintf "%s/%s%s", $self->statefilesdir(),
-      $self->opts->mode, lc $extension;
+      $self->mode, lc $extension;
 }
 
 sub schimpf {
@@ -1162,7 +1241,7 @@ sub protect_value {
     }
     $self->save_state(name => 'protect_'.$ident.'_'.$key, save => {
         $key => $laststate->{$key},
-        exception => $laststate->{exception}++,
+        exception => ++$laststate->{exception},
     });
   }
 }
@@ -1268,6 +1347,77 @@ sub write_pidfile {
   }
 }
 
+sub compatibility_methods {
+  my $self = shift;
+  # add_perfdata
+  # add_message
+  # nagios_exit
+  # ->{warningrange}
+  # ->{criticalrange}
+  # ...
+  $self->{warningrange} = ($self->get_thresholds())[0];
+  $self->{criticalrange} = ($self->get_thresholds())[1];
+  my $old_init = $self->can('init');
+  my %params = (
+    'mode' => join('::', split(/-/, $self->opts->mode)),
+    'name' => $self->opts->name,
+    'name2' => $self->opts->name2,
+  );
+  {
+    no strict 'refs';
+    no warnings 'redefine';
+    *{ref($self).'::init'} = sub {
+      $self->$old_init(%params);
+      $self->nagios(%params);
+    };
+    *{ref($self).'::add_nagios'} = \&{"Monitoring::GLPlugin::add_message"};
+    *{ref($self).'::add_nagios_ok'} = \&{"Monitoring::GLPlugin::add_ok"};
+    *{ref($self).'::add_nagios_warning'} = \&{"Monitoring::GLPlugin::add_warning"};
+    *{ref($self).'::add_nagios_critical'} = \&{"Monitoring::GLPlugin::add_critical"};
+    *{ref($self).'::add_nagios_unknown'} = \&{"Monitoring::GLPlugin::add_unknown"};
+    *{ref($self).'::add_perfdata'} = sub {
+      my $self = shift;
+      my $message = shift;
+      foreach my $perfdata (split(/\s+/, $message)) {
+      my ($label, $perfstr) = split(/=/, $perfdata);
+      my ($value, $warn, $crit, $min, $max) = split(/;/, $perfstr);
+      $value =~ /^([\d\.\-\+]+)(.*)$/;
+      $value = $1;
+      my $uom = $2;
+      $Monitoring::GLPlugin::plugin->add_perfdata(
+        label => $label,
+        value => $value,
+        uom => $uom,
+        warn => $warn,
+        crit => $crit,
+        min => $min,
+        max => $max,
+      );
+      }
+    };
+    *{ref($self).'::check_thresholds'} = sub {
+      my $self = shift;
+      my $value = shift;
+      my $defaultwarningrange = shift;
+      my $defaultcriticalrange = shift;
+      $Monitoring::GLPlugin::plugin->set_thresholds(
+          metric => 'default',
+          warning => $defaultwarningrange,
+          critical => $defaultcriticalrange,
+      );
+      $self->{warningrange} = ($self->get_thresholds())[0];
+      $self->{criticalrange} = ($self->get_thresholds())[1];
+      return $Monitoring::GLPlugin::plugin->check_thresholds(
+          metric => 'default',
+          value => $value,
+          warning => $defaultwarningrange,
+          critical => $defaultcriticalrange,
+      );
+    };
+  }
+}
+
+
 sub AUTOLOAD {
   my $self = shift;
   return if ($AUTOLOAD =~ /DESTROY/);
@@ -1298,7 +1448,7 @@ sub AUTOLOAD {
         if $self->opts->verbose >= 2;
   } elsif ($AUTOLOAD =~ /^.*::(status_code|check_messages|nagios_exit|html_string|perfdata_string|selected_perfdata|check_thresholds|get_thresholds|opts)$/) {
     return $Monitoring::GLPlugin::plugin->$1(@_);
-  } elsif ($AUTOLOAD =~ /^.*::(clear_messages|suppress_messages|add_html|add_perfdata|override_opt|create_opt|set_thresholds|force_thresholds)$/) {
+  } elsif ($AUTOLOAD =~ /^.*::(reduce_messages|reduce_messages_short|clear_messages|suppress_messages|add_html|add_perfdata|override_opt|create_opt|set_thresholds|force_thresholds)$/) {
     $Monitoring::GLPlugin::plugin->$1(@_);
   } elsif ($AUTOLOAD =~ /^.*::mod_arg_(.*)$/) {
     return $Monitoring::GLPlugin::plugin->mod_arg($1, @_);
@@ -1308,785 +1458,6 @@ sub AUTOLOAD {
   }
 }
 
+1;
 
-package Monitoring::GLPlugin::Commandline;
-use strict;
-use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3, DEPENDENT => 4 };
-our %ERRORS = (
-    'OK'        => OK,
-    'WARNING'   => WARNING,
-    'CRITICAL'  => CRITICAL,
-    'UNKNOWN'   => UNKNOWN,
-    'DEPENDENT' => DEPENDENT,
-);
-
-our %STATUS_TEXT = reverse %ERRORS;
-
-
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-       perfdata => [],
-       messages => {
-         ok => [],
-         warning => [],
-         critical => [],
-         unknown => [],
-       },
-       args => [],
-       opts => Monitoring::GLPlugin::Commandline::Getopt->new(%params),
-       modes => [],
-       statefilesdir => undef,
-  };
-  foreach (qw(shortname usage version url plugin blurb extra
-      license timeout)) {
-    $self->{$_} = $params{$_};
-  }
-  bless $self, $class;
-  $self->{plugin} ||= $Monitoring::GLPlugin::pluginname;
-  $self->{name} = $self->{plugin};
-  $Monitoring::GLPlugin::plugin = $self;
-}
-
-sub AUTOLOAD {
-  my $self = shift;
-  return if ($AUTOLOAD =~ /DESTROY/);
-  $self->debug("AUTOLOAD %s\n", $AUTOLOAD)
-        if $self->{opts}->verbose >= 2;
-  if ($AUTOLOAD =~ /^.*::(add_arg|override_opt|create_opt)$/) {
-    $self->{opts}->$1(@_);
-  }
-}
-
-sub DESTROY {
-  my $self = shift;
-  # ohne dieses DESTROY rennt nagios_exit in obiges AUTOLOAD rein
-  # und fliegt aufs Maul, weil {opts} bereits nicht mehr existiert.
-  # Unerklaerliches Verhalten.
-}
-
-sub debug {
-  my $self = shift;
-  my $format = shift;
-  my $tracefile = "/tmp/".$Monitoring::GLPlugin::pluginname.".trace";
-  $self->{trace} = -f $tracefile ? 1 : 0;
-  if ($self->opts->verbose && $self->opts->verbose > 10) {
-    printf("%s: ", scalar localtime);
-    printf($format, @_);
-    printf "\n";
-  }
-  if ($self->{trace}) {
-    my $logfh = new IO::File;
-    $logfh->autoflush(1);
-    if ($logfh->open($tracefile, "a")) {
-      $logfh->printf("%s: ", scalar localtime);
-      $logfh->printf($format, @_);
-      $logfh->printf("\n");
-      $logfh->close();
-    }
-  }
-}
-
-sub opts {
-  my $self = shift;
-  return $self->{opts};
-}
-
-sub getopts {
-  my $self = shift;
-  $self->opts->getopts();
-}
-
-sub add_message {
-  my $self = shift;
-  my ($code, @messages) = @_;
-  $code = (qw(ok warning critical unknown))[$code] if $code =~ /^\d+$/;
-  $code = lc $code;
-  push @{$self->{messages}->{$code}}, @messages;
-}
-
-sub selected_perfdata {
-  my $self = shift;
-  my $label = shift;
-  if ($self->opts->can("selectedperfdata") && $self->opts->selectedperfdata) {
-    my $pattern = $self->opts->selectedperfdata;
-    return ($label =~ /$pattern/i) ? 1 : 0;
-  } else {
-    return 1;
-  }
-}
-
-sub add_perfdata {
-  my ($self, %args) = @_;
-#printf "add_perfdata %s\n", Data::Dumper::Dumper(\%args);
-#printf "add_perfdata %s\n", Data::Dumper::Dumper($self->{thresholds});
-#
-# wenn warning, critical, dann wird von oben ein expliziter wert mitgegeben
-# wenn thresholds
-#  wenn label in 
-#    warningx $self->{thresholds}->{$label}->{warning} existiert
-#  dann nimm $self->{thresholds}->{$label}->{warning}
-#  ansonsten thresholds->default->warning
-#
-
-  my $label = $args{label};
-  my $value = $args{value};
-  my $uom = $args{uom} || "";
-  my $format = '%d';
-
-  if ($self->opts->can("morphperfdata") && $self->opts->morphperfdata) {
-    # 'Intel [R] Interface (\d+) usage'='nic$1'
-    foreach my $key (keys %{$self->opts->morphperfdata}) {
-      if ($label =~ /$key/) {
-        my $replacement = '"'.$self->opts->morphperfdata->{$key}.'"';
-        my $oldlabel = $label;
-        $label =~ s/$key/$replacement/ee;
-        if (exists $self->{thresholds}->{$oldlabel}) {
-          %{$self->{thresholds}->{$label}} = %{$self->{thresholds}->{$oldlabel}};
-        }
-      }
-    }
-  }
-  if ($value =~ /\./) {
-    if (defined $args{places}) {
-      $value = sprintf '%.'.$args{places}.'f', $value;
-    } else {
-      $value = sprintf "%.2f", $value;
-    }
-  } else {
-    $value = sprintf "%d", $value;
-  }
-  my $warn = "";
-  my $crit = "";
-  my $min = defined $args{min} ? $args{min} : "";
-  my $max = defined $args{max} ? $args{max} : "";
-  if ($args{thresholds} || (! exists $args{warning} && ! exists $args{critical})) {
-    if (exists $self->{thresholds}->{$label}->{warning}) {
-      $warn = $self->{thresholds}->{$label}->{warning};
-    } elsif (exists $self->{thresholds}->{default}->{warning}) {
-      $warn = $self->{thresholds}->{default}->{warning};
-    }
-    if (exists $self->{thresholds}->{$label}->{critical}) {
-      $crit = $self->{thresholds}->{$label}->{critical};
-    } elsif (exists $self->{thresholds}->{default}->{critical}) {
-      $crit = $self->{thresholds}->{default}->{critical};
-    }
-  } else {
-    if ($args{warning}) {
-      $warn = $args{warning};
-    }
-    if ($args{critical}) {
-      $crit = $args{critical};
-    }
-  }
-  if ($uom eq "%") {
-    $min = 0;
-    $max = 100;
-  }
-  if (defined $args{places}) {
-    # cut off excessive decimals which may be the result of a division
-    # length = places*2, no trailing zeroes
-    if ($warn ne "") {
-      $warn = join("", map {
-          s/\.0+$//; $_
-      } map {
-          s/(\.[1-9]+)0+$/$1/; $_
-      } map {
-          /[\+\-\d\.]+/ ? sprintf '%.'.2*$args{places}.'f', $_ : $_;
-      } split(/([\+\-\d\.]+)/, $warn));
-    }
-    if ($crit ne "") {
-      $crit = join("", map {
-          s/\.0+$//; $_
-      } map {
-          s/(\.[1-9]+)0+$/$1/; $_
-      } map {
-          /[\+\-\d\.]+/ ? sprintf '%.'.2*$args{places}.'f', $_ : $_;
-      } split(/([\+\-\d\.]+)/, $crit));
-    }
-    if ($min ne "") {
-      $min = join("", map {
-          s/\.0+$//; $_
-      } map {
-          s/(\.[1-9]+)0+$/$1/; $_
-      } map {
-          /[\+\-\d\.]+/ ? sprintf '%.'.2*$args{places}.'f', $_ : $_;
-      } split(/([\+\-\d\.]+)/, $min));
-    }
-    if ($max ne "") {
-      $max = join("", map {
-          s/\.0+$//; $_
-      } map {
-          s/(\.[1-9]+)0+$/$1/; $_
-      } map {
-          /[\+\-\d\.]+/ ? sprintf '%.'.2*$args{places}.'f', $_ : $_;
-      } split(/([\+\-\d\.]+)/, $max));
-    }
-  }
-  push @{$self->{perfdata}}, sprintf("'%s'=%s%s;%s;%s;%s;%s",
-      $label, $value, $uom, $warn, $crit, $min, $max)
-      if $self->selected_perfdata($label);
-}
-
-sub add_html {
-  my $self = shift;
-  my $line = shift;
-  push @{$self->{html}}, $line;
-}
-
-sub suppress_messages {
-  my $self = shift;
-  $self->{suppress_messages} = 1;
-}
-
-sub clear_messages {
-  my $self = shift;
-  my $code = shift;
-  $code = (qw(ok warning critical unknown))[$code] if $code =~ /^\d+$/;
-  $code = lc $code;
-  $self->{messages}->{$code} = [];
-}
-
-sub check_messages {
-  my $self = shift;
-  my %args = @_;
-
-  # Add object messages to any passed in as args
-  for my $code (qw(critical warning unknown ok)) {
-    my $messages = $self->{messages}->{$code} || [];
-    if ($args{$code}) {
-      unless (ref $args{$code} eq 'ARRAY') {
-        if ($code eq 'ok') {
-          $args{$code} = [ $args{$code} ];
-        }
-      }
-      push @{$args{$code}}, @$messages;
-    } else {
-      $args{$code} = $messages;
-    }
-  }
-  my %arg = %args;
-  $arg{join} = ' ' unless defined $arg{join};
-
-  # Decide $code
-  my $code = OK;
-  $code ||= CRITICAL  if @{$arg{critical}};
-  $code ||= WARNING   if @{$arg{warning}};
-  $code ||= UNKNOWN   if @{$arg{unknown}};
-  return $code unless wantarray;
-
-  # Compose message
-  my $message = '';
-  if ($arg{join_all}) {
-      $message = join( $arg{join_all},
-          map { @$_ ? join( $arg{'join'}, @$_) : () }
-              $arg{critical},
-              $arg{warning},
-              $arg{unknown},
-              $arg{ok} ? (ref $arg{ok} ? $arg{ok} : [ $arg{ok} ]) : []
-      );
-  }
-
-  else {
-      $message ||= join( $arg{'join'}, @{$arg{critical}} )
-          if $code == CRITICAL;
-      $message ||= join( $arg{'join'}, @{$arg{warning}} )
-          if $code == WARNING;
-      $message ||= join( $arg{'join'}, @{$arg{unknown}} )
-          if $code == UNKNOWN;
-      $message ||= ref $arg{ok} ? join( $arg{'join'}, @{$arg{ok}} ) : $arg{ok}
-          if $arg{ok};
-  }
-
-  return ($code, $message);
-}
-
-sub status_code {
-  my $self = shift;
-  my $code = shift;
-  $code = (qw(ok warning critical unknown))[$code] if $code =~ /^\d+$/;
-  $code = uc $code;
-  $code = $ERRORS{$code} if defined $code && exists $ERRORS{$code};
-  $code = UNKNOWN unless defined $code && exists $STATUS_TEXT{$code};
-  return "$STATUS_TEXT{$code}";
-}
-
-sub perfdata_string {
-  my $self = shift;
-  if (scalar (@{$self->{perfdata}})) {
-    return join(" ", @{$self->{perfdata}});
-  } else {
-    return "";
-  }
-}
-
-sub html_string {
-  my $self = shift;
-  if (scalar (@{$self->{html}})) {
-    return join(" ", @{$self->{html}});
-  } else {
-    return "";
-  }
-}
-
-sub nagios_exit {
-  my $self = shift;
-  my ($code, $message, $arg) = @_;
-  $code = $ERRORS{$code} if defined $code && exists $ERRORS{$code};
-  $code = UNKNOWN unless defined $code && exists $STATUS_TEXT{$code};
-  $message = '' unless defined $message;
-  if (ref $message && ref $message eq 'ARRAY') {
-      $message = join(' ', map { chomp; $_ } @$message);
-  } else {
-      chomp $message;
-  }
-  if ($self->opts->negate) {
-    my $original_code = $code;
-    foreach my $from (keys %{$self->opts->negate}) {
-      if ((uc $from) =~ /^(OK|WARNING|CRITICAL|UNKNOWN)$/ &&
-          (uc $self->opts->negate->{$from}) =~ /^(OK|WARNING|CRITICAL|UNKNOWN)$/) {
-        if ($original_code == $ERRORS{uc $from}) {
-          $code = $ERRORS{uc $self->opts->negate->{$from}};
-        }
-      }
-    }
-  }
-  my $output = "$STATUS_TEXT{$code}";
-  $output .= " - $message" if defined $message && $message ne '';
-  if ($self->opts->can("morphmessage") && $self->opts->morphmessage) {
-    # 'Intel [R] Interface (\d+) usage'='nic$1'
-    # '^OK.*'="alles klar"   '^CRITICAL.*'="alles hi"
-    foreach my $key (keys %{$self->opts->morphmessage}) {
-      if ($output =~ /$key/) {
-        my $replacement = '"'.$self->opts->morphmessage->{$key}.'"';
-        $output =~ s/$key/$replacement/ee;
-      }
-    }
-  }
-  if (scalar (@{$self->{perfdata}})) {
-    $output .= " | ".$self->perfdata_string();
-  }
-  $output .= "\n";
-  if ($self->opts->can("isvalidtime") && ! $self->opts->isvalidtime) {
-    $code = OK;
-    $output = "OK - outside valid timerange. check results are not relevant now. original message was: ".
-        $output;
-  }
-  if (! exists $self->{suppress_messages}) {
-    print $output;
-  }
-  exit $code;
-}
-
-sub set_thresholds {
-  my $self = shift;
-  my %params = @_;
-  if (exists $params{metric}) {
-    my $metric = $params{metric};
-    # erst die hartcodierten defaultschwellwerte
-    $self->{thresholds}->{$metric}->{warning} = $params{warning};
-    $self->{thresholds}->{$metric}->{critical} = $params{critical};
-    # dann die defaultschwellwerte von der kommandozeile
-    if (defined $self->opts->warning) {
-      $self->{thresholds}->{$metric}->{warning} = $self->opts->warning;
-    }
-    if (defined $self->opts->critical) {
-      $self->{thresholds}->{$metric}->{critical} = $self->opts->critical;
-    }
-    # dann die ganz spezifischen schwellwerte von der kommandozeile
-    if ($self->opts->warningx) { # muss nicht auf defined geprueft werden, weils ein hash ist
-      foreach my $key (keys %{$self->opts->warningx}) {
-        next if $key ne $metric;
-        $self->{thresholds}->{$metric}->{warning} = $self->opts->warningx->{$key};
-      }
-    }
-    if ($self->opts->criticalx) {
-      foreach my $key (keys %{$self->opts->criticalx}) {
-        next if $key ne $metric;
-        $self->{thresholds}->{$metric}->{critical} = $self->opts->criticalx->{$key};
-      }
-    }
-  } else {
-    $self->{thresholds}->{default}->{warning} =
-        defined $self->opts->warning ? $self->opts->warning : defined $params{warning} ? $params{warning} : 0;
-    $self->{thresholds}->{default}->{critical} =
-        defined $self->opts->critical ? $self->opts->critical : defined $params{critical} ? $params{critical} : 0;
-  }
-}
-
-sub force_thresholds {
-  my $self = shift;
-  my %params = @_;
-  if (exists $params{metric}) {
-    my $metric = $params{metric};
-    $self->{thresholds}->{$metric}->{warning} = $params{warning} || 0;
-    $self->{thresholds}->{$metric}->{critical} = $params{critical} || 0;
-  } else {
-    $self->{thresholds}->{default}->{warning} = $params{warning} || 0;
-    $self->{thresholds}->{default}->{critical} = $params{critical} || 0;
-  }
-}
-
-sub get_thresholds {
-  my $self = shift;
-  my @params = @_;
-  if (scalar(@params) > 1) {
-    my %params = @params;
-    my $metric = $params{metric};
-    return ($self->{thresholds}->{$metric}->{warning},
-        $self->{thresholds}->{$metric}->{critical});
-  } else {
-    return ($self->{thresholds}->{default}->{warning},
-        $self->{thresholds}->{default}->{critical});
-  }
-}
-
-sub check_thresholds {
-  my $self = shift;
-  my @params = @_;
-  my $level = $ERRORS{OK};
-  my $warningrange;
-  my $criticalrange;
-  my $value;
-  if (scalar(@params) > 1) {
-    my %params = @params;
-    $value = $params{value};
-    my $metric = $params{metric};
-    if ($metric ne 'default') {
-      $warningrange = exists $self->{thresholds}->{$metric}->{warning} ?
-          $self->{thresholds}->{$metric}->{warning} :
-          $self->{thresholds}->{default}->{warning};
-      $criticalrange = exists $self->{thresholds}->{$metric}->{critical} ?
-          $self->{thresholds}->{$metric}->{critical} :
-          $self->{thresholds}->{default}->{critical};
-    } else {
-      $warningrange = (defined $params{warning}) ?
-          $params{warning} : $self->{thresholds}->{default}->{warning};
-      $criticalrange = (defined $params{critical}) ?
-          $params{critical} : $self->{thresholds}->{default}->{critical};
-    }
-  } else {
-    $value = $params[0];
-    $warningrange = $self->{thresholds}->{default}->{warning};
-    $criticalrange = $self->{thresholds}->{default}->{critical};
-  }
-  if (! defined $warningrange) {
-    # there was no set_thresholds for defaults, no --warning, no --warningx
-  } elsif ($warningrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
-    # warning = 10, warn if > 10 or < 0
-    $level = $ERRORS{WARNING}
-        if ($value > $1 || $value < 0);
-  } elsif ($warningrange =~ /^([-+]?[0-9]*\.?[0-9]+):$/) {
-    # warning = 10:, warn if < 10
-    $level = $ERRORS{WARNING}
-        if ($value < $1);
-  } elsif ($warningrange =~ /^~:([-+]?[0-9]*\.?[0-9]+)$/) {
-    # warning = ~:10, warn if > 10
-    $level = $ERRORS{WARNING}
-        if ($value > $1);
-  } elsif ($warningrange =~ /^([-+]?[0-9]*\.?[0-9]+):([-+]?[0-9]*\.?[0-9]+)$/) {
-    # warning = 10:20, warn if < 10 or > 20
-    $level = $ERRORS{WARNING}
-        if ($value < $1 || $value > $2);
-  } elsif ($warningrange =~ /^@([-+]?[0-9]*\.?[0-9]+):([-+]?[0-9]*\.?[0-9]+)$/) {
-    # warning = @10:20, warn if >= 10 and <= 20
-    $level = $ERRORS{WARNING}
-        if ($value >= $1 && $value <= $2);
-  }
-  if (! defined $criticalrange) {
-    # there was no set_thresholds for defaults, no --critical, no --criticalx
-  } elsif ($criticalrange =~ /^([-+]?[0-9]*\.?[0-9]+)$/) {
-    # critical = 10, crit if > 10 or < 0
-    $level = $ERRORS{CRITICAL}
-        if ($value > $1 || $value < 0);
-  } elsif ($criticalrange =~ /^([-+]?[0-9]*\.?[0-9]+):$/) {
-    # critical = 10:, crit if < 10
-    $level = $ERRORS{CRITICAL}
-        if ($value < $1);
-  } elsif ($criticalrange =~ /^~:([-+]?[0-9]*\.?[0-9]+)$/) {
-    # critical = ~:10, crit if > 10
-    $level = $ERRORS{CRITICAL}
-        if ($value > $1);
-  } elsif ($criticalrange =~ /^([-+]?[0-9]*\.?[0-9]+):([-+]?[0-9]*\.?[0-9]+)$/) {
-    # critical = 10:20, crit if < 10 or > 20
-    $level = $ERRORS{CRITICAL}
-        if ($value < $1 || $value > $2);
-  } elsif ($criticalrange =~ /^@([-+]?[0-9]*\.?[0-9]+):([-+]?[0-9]*\.?[0-9]+)$/) {
-    # critical = @10:20, crit if >= 10 and <= 20
-    $level = $ERRORS{CRITICAL}
-        if ($value >= $1 && $value <= $2);
-  }
-  return $level;
-}
-
-
-package Monitoring::GLPlugin::Commandline::Getopt;
-use strict;
-use File::Basename;
-use Getopt::Long qw(:config no_ignore_case bundling);
-
-# Standard defaults
-my %DEFAULT = (
-  timeout => 15,
-  verbose => 0,
-  license =>
-"This monitoring plugin is free software, and comes with ABSOLUTELY NO WARRANTY.
-It may be used, redistributed and/or modified under the terms of the GNU
-General Public Licence (see http://www.fsf.org/licensing/licenses/gpl.txt).",
-);
-# Standard arguments
-my @ARGS = ({
-    spec => 'usage|?',
-    help => "-?, --usage\n   Print usage information",
-  }, {
-    spec => 'help|h',
-    help => "-h, --help\n   Print detailed help screen",
-  }, {
-    spec => 'version|V',
-    help => "-V, --version\n   Print version information",
-  }, {
-    #spec => 'extra-opts:s@',
-    #help => "--extra-opts=[<section>[@<config_file>]]\n   Section and/or config_file from which to load extra options (may repeat)",
-  }, {
-    spec => 'timeout|t=i',
-    help => sprintf("-t, --timeout=INTEGER\n   Seconds before plugin times out (default: %s)", $DEFAULT{timeout}),
-    default => $DEFAULT{timeout},
-  }, {
-    spec => 'verbose|v+',
-    help => "-v, --verbose\n   Show details for command-line debugging (can repeat up to 3 times)",
-    default => $DEFAULT{verbose},
-  },
-);
-# Standard arguments we traditionally display last in the help output
-my %DEFER_ARGS = map { $_ => 1 } qw(timeout verbose);
-
-sub _init {
-  my $self = shift;
-  my %params = @_;
-  # Check params
-  my %attr = (
-    usage => 1,
-    version => 0,
-    url => 0,
-    plugin => { default => $Monitoring::GLPlugin::pluginname },
-    blurb => 0,
-    extra => 0,
-    'extra-opts' => 0,
-    license => { default => $DEFAULT{license} },
-    timeout => { default => $DEFAULT{timeout} },
-  );
-
-  # Add attr to private _attr hash (except timeout)
-  $self->{timeout} = delete $attr{timeout};
-  $self->{_attr} = { %attr };
-  foreach (keys %{$self->{_attr}}) {
-    if (exists $params{$_}) {
-      $self->{_attr}->{$_} = $params{$_};
-    } else {
-      $self->{_attr}->{$_} = $self->{_attr}->{$_}->{default}
-          if ref ($self->{_attr}->{$_}) eq 'HASH' &&
-              exists $self->{_attr}->{$_}->{default};
-    }
-  }
-  # Chomp _attr values
-  chomp foreach values %{$self->{_attr}};
-
-  # Setup initial args list
-  $self->{_args} = [ grep { exists $_->{spec} } @ARGS ];
-
-  $self
-}
-
-sub new {
-  my $class = shift;
-  my $self = bless {}, $class;
-  $self->_init(@_);
-}
-
-sub add_arg {
-  my $self = shift;
-  my %arg = @_;
-  push (@{$self->{_args}}, \%arg);
-}
-
-sub mod_arg {
-  my $self = shift;
-  my $argname = shift;
-  my %arg = @_;
-  foreach my $old_arg (@{$self->{_args}}) {
-    next unless $old_arg->{spec} =~ /(\w+).*/ && $argname eq $1;
-    foreach my $key (keys %arg) {
-      $old_arg->{$key} = $arg{$key};
-    }
-  }
-}
-
-sub getopts {
-  my $self = shift;
-  my %commandline = ();
-  my @params = map { $_->{spec} } @{$self->{_args}};
-  if (! GetOptions(\%commandline, @params)) {
-    $self->print_help();
-    exit 0;
-  } else {
-    no strict 'refs';
-    no warnings 'redefine';
-    do { $self->print_help(); exit 0; } if $commandline{help};
-    do { $self->print_version(); exit 0 } if $commandline{version};
-    do { $self->print_usage(); exit 3 } if $commandline{usage};
-    foreach (map { $_->{spec} =~ /^([\w\-]+)/; $1; } @{$self->{_args}}) {
-      my $field = $_;
-      *{"$field"} = sub {
-        return $self->{opts}->{$field};
-      };
-    }
-    foreach (map { $_->{spec} =~ /^([\w\-]+)/; $1; }
-        grep { exists $_->{required} && $_->{required} } @{$self->{_args}}) {
-      do { $self->print_usage(); exit 0 } if ! exists $commandline{$_};
-    }
-    foreach (grep { exists $_->{default} } @{$self->{_args}}) {
-      $_->{spec} =~ /^([\w\-]+)/;
-      my $spec = $1;
-      $self->{opts}->{$spec} = $_->{default};
-    }
-    foreach (keys %commandline) {
-      $self->{opts}->{$_} = $commandline{$_};
-    }
-    foreach (grep { exists $_->{env} } @{$self->{_args}}) {
-      $_->{spec} =~ /^([\w\-]+)/;
-      my $spec = $1;
-      if (exists $ENV{'NAGIOS__HOST'.$_->{env}}) {
-        $self->{opts}->{$spec} = $ENV{'NAGIOS__HOST'.$_->{env}};
-      }
-      if (exists $ENV{'NAGIOS__SERVICE'.$_->{env}}) {
-        $self->{opts}->{$spec} = $ENV{'NAGIOS__SERVICE'.$_->{env}};
-      }
-    }
-    foreach (grep { exists $_->{aliasfor} } @{$self->{_args}}) {
-      my $field = $_->{aliasfor};
-      $_->{spec} =~ /^([\w\-]+)/;
-      my $aliasfield = $1;
-      next if $self->{opts}->{$field};
-      *{"$field"} = sub {
-        return $self->{opts}->{$aliasfield};
-      };
-    }
-  }
-}
-
-sub create_opt {
-  my $self = shift;
-  my $key = shift;
-  no strict 'refs';
-  *{"$key"} = sub {
-      return $self->{opts}->{$key};
-  };
-}
-
-sub override_opt {
-  my $self = shift;
-  my $key = shift;
-  my $value = shift;
-  $self->{opts}->{$key} = $value;
-}
-
-sub get {
-  my $self = shift;
-  my $opt = shift;
-  return $self->{opts}->{$opt};
-}
-
-sub print_help {
-  my $self = shift;
-  $self->print_version();
-  printf "\n%s\n", $self->{_attr}->{license};
-  printf "\n%s\n\n", $self->{_attr}->{blurb};
-  $self->print_usage();
-  foreach (grep {
-      ! (exists $_->{hidden} && $_->{hidden}) 
-  } @{$self->{_args}}) {
-    printf " %s\n", $_->{help};
-  }
-  exit 0;
-}
-
-sub print_usage {
-  my $self = shift;
-  printf $self->{_attr}->{usage}, $self->{_attr}->{plugin};
-  print "\n";
-}
-
-sub print_version {
-  my $self = shift;
-  printf "%s %s", $self->{_attr}->{plugin}, $self->{_attr}->{version};
-  printf " [%s]", $self->{_attr}->{url} if $self->{_attr}->{url};
-  print "\n";
-}
-
-sub print_license {
-  my $self = shift;
-  printf "%s\n", $self->{_attr}->{license};
-  print "\n";
-}
-
-
-package Monitoring::GLPlugin::Item;
-our @ISA = qw(Monitoring::GLPlugin);
-
-use strict;
-
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {
-    blacklisted => 0,
-    info => undef,
-    extendedinfo => undef,
-  };
-  bless $self, $class;
-  $self->init(%params);
-  return $self;
-}
-
-sub check {
-  my $self = shift;
-  my $lists = shift;
-  my @lists = $lists ? @{$lists} : grep { ref($self->{$_}) eq "ARRAY" } keys %{$self};
-  foreach my $list (@lists) {
-    $self->add_info('checking '.$list);
-    foreach my $element (@{$self->{$list}}) {
-      $element->blacklist() if $self->is_blacklisted();
-      $element->check();
-    }
-  }
-}
-
-
-package Monitoring::GLPlugin::TableItem;
-our @ISA = qw(Monitoring::GLPlugin::Item);
-
-use strict;
-
-sub new {
-  my $class = shift;
-  my %params = @_;
-  my $self = {};
-  bless $self, $class;
-  foreach (keys %params) {
-    $self->{$_} = $params{$_};
-  }
-  if ($self->can("finish")) {
-    $self->finish(%params);
-  }
-  return $self;
-}
-
-sub check {
-  my $self = shift;
-  # some tableitems are not checkable, they are only used to enhance other
-  # items (e.g. sensorthresholds enhance sensors)
-  # normal tableitems should have their own check-method
-}
-
-
+__END__

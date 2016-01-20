@@ -28,6 +28,8 @@ sub init {
   $self->{upsAdvOutputLoad} = 
       ! defined $self->{upsAdvOutputLoad} || $self->{upsAdvOutputLoad} eq '' ?
       $self->{upsHighPrecOutputLoad} / 10 : $self->{upsAdvOutputLoad};
+  # wer keine Angaben macht, gilt als gesund.
+  $self->{upsBasicBatteryStatus} ||= 'batteryNormal';
 }
 
 sub check {

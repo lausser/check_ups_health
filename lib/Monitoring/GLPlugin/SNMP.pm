@@ -8,7 +8,6 @@ use Digest::MD5 qw(md5_hex);
 use Data::Dumper;
 use AutoLoader;
 our $AUTOLOAD;
-our $VERSION = "1.0";
 
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
@@ -24,6 +23,22 @@ use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
   our $summary = [];
   our $oidtrace = [];
   our $uptime = 0;
+}
+
+sub new {
+  my $class = shift;
+  my %params = @_;
+  require Monitoring::GLPlugin
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::;
+  require Monitoring::GLPlugin::SNMP::CSF
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::SNMP::CSF::;
+  require Monitoring::GLPlugin::SNMP::Item
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::SNMP::Item::;
+  require Monitoring::GLPlugin::SNMP::TableItem
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::SNMP::TableItem::;
+  my $self = Monitoring::GLPlugin->new(%params);
+  bless $self, $class;
+  return $self;
 }
 
 sub v2tov3 {
@@ -53,6 +68,28 @@ sub v2tov3 {
       ! $self->opts->protocol eq '3') {
     $self->override_opt('protocol', '3') ;
   }
+}
+
+sub add_snmp_modes {
+  my $self = shift;
+  $self->add_mode(
+      internal => 'device::uptime',
+      spec => 'uptime',
+      alias => undef,
+      help => 'Check the uptime of the device',
+  );
+  $self->add_mode(
+      internal => 'device::walk',
+      spec => 'walk',
+      alias => undef,
+      help => 'Show snmpwalk command with the oids necessary for a simulation',
+  );
+  $self->add_mode(
+      internal => 'device::supportedmibs',
+      spec => 'supportedmibs',
+      alias => undef,
+      help => 'Shows the names of the mibs which this devices has implemented (only lausser may run this command)',
+  );
 }
 
 sub add_snmp_args {
@@ -718,7 +755,7 @@ sub init {
     }
     my $toplevels = {};
     map {
-        /^(1\.3\.6\.1\.(2|4)\.1\.\d+\.\d+)\./; $toplevels->{$1} = 1; 
+        /^(1\.3\.6\.1\.(\d+)\.(\d+)\.\d+\.\d+)\./; $toplevels->{$1} = 1; 
     } keys %{$unknowns};
     foreach (sort {$a cmp $b} keys %{$toplevels}) {
       push(@outputlist, ["<unknown>", $_]);
@@ -1237,21 +1274,66 @@ sub get_snmp_tables {
     my $table = $info->[1];
     my $class = $info->[2];
     my $filter = $info->[3];
+    my $rows = $info->[4];
     $self->{$arrayname} = [] if ! exists $self->{$arrayname};
     if (! exists $Monitoring::GLPlugin::SNMP::tablecache->{$mib} || ! exists $Monitoring::GLPlugin::SNMP::tablecache->{$mib}->{$table}) {
       $Monitoring::GLPlugin::SNMP::tablecache->{$mib}->{$table} = [];
-      foreach ($self->get_snmp_table_objects($mib, $table)) {
+      foreach ($self->get_snmp_table_objects($mib, $table, undef, $rows)) {
+        push(@{$Monitoring::GLPlugin::SNMP::tablecache->{$mib}->{$table}}, $_);
         my $new_object = $class->new(%{$_});
         next if (defined $filter && ! &$filter($new_object));
         push(@{$self->{$arrayname}}, $new_object);
-        push(@{$Monitoring::GLPlugin::SNMP::tablecache->{$mib}->{$table}}, $new_object);
       }
     } else {
       $self->debug(sprintf "get_snmp_tables %s %s cache hit", $mib, $table);
       foreach (@{$Monitoring::GLPlugin::SNMP::tablecache->{$mib}->{$table}}) {
-        push(@{$self->{$arrayname}}, $_);
+        my $new_object = $class->new(%{$_});
+        next if (defined $filter && ! &$filter($new_object));
+        push(@{$self->{$arrayname}}, $new_object);
       }
     }
+  }
+}
+
+sub merge_tables {
+  my $self = shift;
+  my $into = shift;
+  my @from = @_;
+  my $into_indices = {};
+  map { $into_indices->{$_->{flat_indices}} = $_ } @{$self->{$into}};
+  foreach (@from) {
+    foreach my $element (@{$self->{$_}}) {
+      if (exists $into_indices->{$element->{flat_indices}}) {
+        foreach my $key (keys %{$element}) {
+          $into_indices->{$element->{flat_indices}}->{$key} = $element->{$key};
+        }
+      }
+    }
+    delete $self->{$_};
+  }
+}
+
+sub merge_tables_with_code {
+  my $self = shift;
+  my $into = shift;
+  my @from = @_;
+  my $into_indices = {};
+  my @to_del = ();
+  foreach my $into_elem (@{$self->{$into}}) {
+    for (my $i = 0; $i < @from; $i += 2) {
+      my ($from_elems, $func) = @from[$i, $i+1];
+      foreach my $from_elem (@{$self->{$from_elems}}) {
+        if (&$func($into_elem, $from_elem)) {
+          foreach my $key (grep !/^(info|trace|warning|critical|blacklisted|extendedinfo|flat_indices|indices)/, sort keys %{$from_elem}) {
+            $into_elem->{$key} = $from_elem->{$key};
+          }
+        }
+      }
+    }
+  }
+  for (my $i = 0; $i < @from; $i += 2) {
+    my ($from_elems, $func) = @from[$i, $i+1];
+    delete $self->{$from_elems};
   }
 }
 
@@ -1313,6 +1395,29 @@ sub get_snmp_table_objects_with_cache {
   return @entries;
 }
 
+sub get_table_row_oids {
+  my $self = shift;
+  my $mib = shift;
+  my $table = shift;
+  my $rows = shift;
+  my $entry = $table;
+  $entry =~ s/Table/Entry/g;
+  my $eoid = $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.';
+  my $eoidlen = length($eoid);
+  my @columns = scalar(@{$rows}) ?
+  map {
+      $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}
+  } @{$rows}
+  :
+  map {
+      $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}
+  } grep {
+    substr($Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$_}, 0, $eoidlen) eq
+        $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry}.'.'
+  } keys %{$Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}};
+  return @columns;
+}
+
 # get_snmp_table_objects('MIB-Name', 'Table-Name', 'Table-Entry', [indices])
 # returns array of hashrefs
 sub get_snmp_table_objects {
@@ -1320,6 +1425,7 @@ sub get_snmp_table_objects {
   my $mib = shift;
   my $table = shift;
   my $indices = shift || [];
+  my $rows = shift || [];
   my @entries = ();
   my $augmenting_table;
   $self->debug(sprintf "get_snmp_table_objects %s %s", $mib, $table);
@@ -1476,6 +1582,21 @@ sub get_snmp_table_objects {
       # $self->get_indices($Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry});
       @entries = $self->make_symbolic($mib, $result, $indices);
       @entries = map { $_->{indices} = shift @{$indices}; $_ } @entries;
+    } elsif (scalar(@{$rows})) {
+      my @columns = $self->get_table_row_oids($mib, $table, $rows);
+      my $result = $self->get_entries(
+          -columns => \@columns,
+      );
+      $self->debug(sprintf "get_snmp_table_objects get_table_r returns %d oids",
+          scalar(keys %{$result}));
+      my @indices =
+          $self->get_indices(
+              -baseoid => $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$entry},
+              -oids => [keys %{$result}]);
+      $self->debug(sprintf "get_snmp_table_objects get_table_r returns %d indices",
+          scalar(@indices));
+      @entries = $self->make_symbolic($mib, $result, \@indices);
+      @entries = map { $_->{indices} = shift @indices; $_ } @entries;
     } else {
       $self->debug(sprintf "get_snmp_table_objects calls get_table %s",
           $Monitoring::GLPlugin::SNMP::mibs_and_oids->{$mib}->{$table});
@@ -2140,86 +2261,6 @@ sub get_cache_indices {
   return map { join('.', ref($_) eq "ARRAY" ? @{$_} : $_) } @indices;
 }
 
+1;
 
-package Monitoring::GLPlugin::SNMP::CSF;
-#our @ISA = qw(Monitoring::GLPlugin::SNMP);
-use Digest::MD5 qw(md5_hex);
-use strict;
-
-sub create_statefile {
-  my $self = shift;
-  my %params = @_;
-  my $extension = "";
-  $extension .= $params{name} ? '_'.$params{name} : '';
-  if ($self->opts->community) {
-    $extension .= md5_hex($self->opts->community);
-  }
-  $extension =~ s/\//_/g;
-  $extension =~ s/\(/_/g;
-  $extension =~ s/\)/_/g;
-  $extension =~ s/\*/_/g;
-  $extension =~ s/\s/_/g;
-  if ($self->opts->snmpwalk && ! $self->opts->hostname) {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
-        $self->opts->mode, lc $extension;
-  } elsif ($self->opts->snmpwalk && $self->opts->hostname eq "walkhost") {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        'snmpwalk.file'.md5_hex($self->opts->snmpwalk),
-        $self->opts->mode, lc $extension;
-  } else {
-    return sprintf "%s/%s_%s%s", $self->statefilesdir(),
-        $self->opts->hostname, $self->opts->mode, lc $extension;
-  }
-}
-
-package Monitoring::GLPlugin::SNMP::Item;
-our @ISA = qw(Monitoring::GLPlugin::SNMP::CSF Monitoring::GLPlugin::Item Monitoring::GLPlugin::SNMP);
-use strict;
-
-
-package Monitoring::GLPlugin::SNMP::TableItem;
-our @ISA = qw(Monitoring::GLPlugin::SNMP::CSF Monitoring::GLPlugin::TableItem Monitoring::GLPlugin::SNMP);
-use strict;
-
-sub ensure_index {
-  my $self = shift;
-  my $key = shift;
-  $self->{$key} ||= $self->{flat_indices};
-}
-
-sub unhex_ip {
-  my $self = shift;
-  my $value = shift;
-  if ($value && $value =~ /^0x(\w{8})/) {
-    $value = join(".", unpack "C*", pack "H*", $1);
-  } elsif ($value && $value =~ /^0x(\w{2} \w{2} \w{2} \w{2})/) {
-    $value = $1;
-    $value =~ s/ //g;
-    $value = join(".", unpack "C*", pack "H*", $value);
-  } elsif ($value && $value =~ /^([A-Z0-9]{2} [A-Z0-9]{2} [A-Z0-9]{2} [A-Z0-9]{2})/i) {
-    $value = $1;
-    $value =~ s/ //g;
-    $value = join(".", unpack "C*", pack "H*", $value);
-  } elsif ($value && unpack("H8", $value) =~ /(\w{2})(\w{2})(\w{2})(\w{2})/) {
-    $value = join(".", map { hex($_) } ($1, $2, $3, $4));
-  }
-  return $value;
-}
-
-sub unhex_mac {
-  my $self = shift;
-  my $value = shift;
-  if ($value && $value =~ /^0x(\w{12})/) {
-    $value = join(".", unpack "C*", pack "H*", $1);
-  } elsif ($value && $value =~ /^0x(\w{2}\s*\w{2}\s*\w{2}\s*\w{2}\s*\w{2}\s*\w{2})/) {
-    $value = $1;
-    $value =~ s/ //g;
-    $value = join(":", unpack "C*", pack "H*", $value);
-  } elsif ($value && unpack("H12", $value) =~ /(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})/) {
-    $value = join(":", map { hex($_) } ($1, $2, $3, $4, $5, $6));
-  }
-  return $value;
-}
-
-
+__END__

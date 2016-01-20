@@ -26,13 +26,6 @@ my $plugin = Classes::Device->new(
     url => 'http://labs.consol.de/nagios/check_ups_health',
     timeout => 60,
 );
-
-$plugin->add_mode(
-    internal => 'device::uptime',
-    spec => 'uptime',
-    alias => undef,
-    help => 'Check the uptime of the device',
-);
 $plugin->add_mode(
     internal => 'device::hardware::health',
     spec => 'hardware-health',
@@ -45,6 +38,7 @@ $plugin->add_mode(
     alias => ['power-health'],
     help => 'Check the status of battery equipment (batteries, currencies)',
 );
+$plugin->add_snmp_modes();
 $plugin->add_snmp_args();
 $plugin->add_default_args();
 

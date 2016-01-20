@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION ($Revision: 1.150 $)
 AC_PREREQ(2.58)
-AC_INIT(check_ups_health,2.5.2.6)
+AC_INIT(check_ups_health,2.5.2.7)
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 AM_MAINTAINER_MODE([disable])
 AC_CANONICAL_HOST
@@ -55,9 +55,6 @@ AC_SUBST(PERL, $with_perl)
 
 AC_ARG_ENABLE([standalone],
     AS_HELP_STRING([--disable-standalone], [Disable feature standalone]))
-AS_IF([test "x$enable_standalone" != "xno"], [
-  dnl Do the stuff needed for enabling the feature
-])
 AM_CONDITIONAL([DISABLE_STANDALONE], [test "$enable_standalone" = "no"])
 
 AC_OUTPUT(Makefile plugins-scripts/Makefile plugins-scripts/subst)
