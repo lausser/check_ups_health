@@ -1,7 +1,14 @@
 libexec_SCRIPTS=check_ups_health
 GL_MODULES=\
+  ../lib/Monitoring/GLPlugin/Commandline/Getopt.pm \
+  ../lib/Monitoring/GLPlugin/Commandline.pm \
   ../lib/Monitoring/GLPlugin.pm \
-  ../lib/Monitoring/GLPlugin/SNMP.pm
+  ../lib/Monitoring/GLPlugin/Item.pm \
+  ../lib/Monitoring/GLPlugin/TableItem.pm \
+  ../lib/Monitoring/GLPlugin/SNMP.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/CSF.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/Item.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/TableItem.pm
 EXTRA_MODULES=\
   Classes/APC/Powermib/Components/EnvironmentalSubsystem.pm \
   Classes/APC/Powermib/Components/BatterySubsystem.pm \
