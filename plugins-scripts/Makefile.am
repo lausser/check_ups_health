@@ -6,12 +6,17 @@ GL_MODULES=\
   ../lib/Monitoring/GLPlugin/Item.pm \
   ../lib/Monitoring/GLPlugin/TableItem.pm \
   ../lib/Monitoring/GLPlugin/SNMP.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids.pm \
   ../lib/Monitoring/GLPlugin/SNMP/CSF.pm \
   ../lib/Monitoring/GLPlugin/SNMP/Item.pm \
   ../lib/Monitoring/GLPlugin/SNMP/TableItem.pm
 EXTRA_MODULES=\
-  Classes/APC/Powermib/Components/EnvironmentalSubsystem.pm \
-  Classes/APC/Powermib/Components/BatterySubsystem.pm \
+  Classes/APC/Powermib/UPS/Components/EnvironmentalSubsystem.pm \
+  Classes/APC/Powermib/UPS/Components/BatterySubsystem.pm \
+  Classes/APC/Powermib/UPS.pm \
+  Classes/APC/Powermib/ATS/Components/EnvironmentalSubsystem.pm \
+  Classes/APC/Powermib/ATS/Components/BatterySubsystem.pm \
+  Classes/APC/Powermib/ATS.pm \
   Classes/APC/Powermib.pm \
   Classes/APC.pm \
   Classes/Socomec/Netvision/Components/EnvironmentalSubsystem.pm \
@@ -33,7 +38,6 @@ EXTRA_MODULES=\
   Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
   Classes/MerlinGerin/Components/BatterySubsystem.pm \
   Classes/MerlinGerin.pm \
-  Classes/MibsAndOids.pm \
   Classes/Device.pm
 
 SED=/bin/sed

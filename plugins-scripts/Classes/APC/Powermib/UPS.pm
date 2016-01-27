@@ -1,5 +1,5 @@
-package Classes::APC::Powermib;
-our @ISA = qw(Classes::APC);
+package Classes::APC::Powermib::UPS;
+our @ISA = qw(Classes::APC::Powermib);
 use strict;
 
 sub init {

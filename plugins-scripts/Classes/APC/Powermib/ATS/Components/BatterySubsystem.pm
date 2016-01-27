@@ -1,4 +1,4 @@
-package Classes::APC::Powermib::Components::BatterySubsystem;
+package Classes::APC::Powermib::ATS::Components::BatterySubsystem;
 our @ISA = qw(Classes::APC::Powermib);
 use strict;
 
