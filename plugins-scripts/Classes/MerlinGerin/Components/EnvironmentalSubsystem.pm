@@ -12,11 +12,11 @@ sub new {
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects("MG-SNMP-UPS-MIB", qw(
+  $self->get_snmp_objects("MGSNMPUPSMIB", qw(
       upsmgConfigEmergencyTestFail upsmgConfigEmergencyOnByPass
       upsmgConfigEmergencyOverload
   ));
-  $self->get_snmp_objects("MG-SNMP-UPS-MIB", qw(
+  $self->get_snmp_objects("MGSNMPUPSMIB", qw(
    upsmgTestBatterySchedule
    upsmgTestDiagnostics
    upsmgTestDiagResult
@@ -29,13 +29,13 @@ sub init {
    upsmgTestResponseReady
    upsmgTestBatteryResult 
   ));
-  $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
+  $self->get_snmp_tables("MGSNMPUPSMIB", [
       ["environsensors", "upsmgEnvironSensorTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor"],
   ]);
-  $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
+  $self->get_snmp_tables("MGSNMPUPSMIB", [
       ["environmentsensors", "upsmgEnvironmentSensorTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironmentSensor"],
   ]);
-  $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
+  $self->get_snmp_tables("MGSNMPUPSMIB", [
       ["sensorconfigs", "upsmgConfigEnvironmentTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::SensorConfig"],
   ]);
   foreach my $es (@{$self->{environmentsensors}}) {

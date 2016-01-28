@@ -7,6 +7,9 @@ GL_MODULES=\
   ../lib/Monitoring/GLPlugin/TableItem.pm \
   ../lib/Monitoring/GLPlugin/SNMP.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/MIB2MIB.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/SNMPFRAMEWORKMIB.pm \
+  ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/POWERNETMIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/CSF.pm \
   ../lib/Monitoring/GLPlugin/SNMP/Item.pm \
   ../lib/Monitoring/GLPlugin/SNMP/TableItem.pm

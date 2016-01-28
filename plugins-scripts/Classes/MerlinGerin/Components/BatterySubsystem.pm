@@ -12,7 +12,7 @@ sub new {
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects('MG-SNMP-UPS-MIB', (qw(
+  $self->get_snmp_objects('MGSNMPUPSMIB', (qw(
       upsmgBatteryRemainingTime upsmgBatteryLevel
       upsmgBatteryRechargeTime upsmgBatteryRechargeLevel
       upsmgBatteryVoltage upsmgBatteryCurrent
@@ -24,7 +24,7 @@ sub init {
       upsmgBatteryLowRecharge
       upsmgInputPhaseNum upsmgOutputPhaseNum
       upsmgInputLineFailCause)));
-  $self->get_snmp_tables('MG-SNMP-UPS-MIB', [
+  $self->get_snmp_tables('MGSNMPUPSMIB', [
       ['inputs', 'upsmgInputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Input'],
       ['outputs', 'upsmgOutputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Output'],
   ]);

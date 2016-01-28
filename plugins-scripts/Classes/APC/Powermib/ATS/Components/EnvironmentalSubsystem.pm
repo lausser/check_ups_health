@@ -5,8 +5,16 @@ use POSIX qw(mktime);
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects('PowerNet-MIB', (qw(
-      atsStatusHardwareStatus atsStatusVoltageOutStatus
+  $self->get_snmp_objects('PowerNet-MIB', (qw(atsIdentHardwareRev
+   atsIdentFirmwareRev atsIdentFirmwareDate atsIdentDateOfManufacture
+   atsIdentModelNumber atsIdentSerialNumber atsIdentNominalLineVoltage
+   atsIdentNominalLineFrequency atsIdentDeviceRating atsStatusCommStatus
+   atsStatusSelectedSource atsStatusRedundancyState atsStatusOverCurrentState
+   atsStatus5VPowerSupply atsStatus24VPowerSupply atsStatus24VSourceBPowerSupply
+   atsStatusPlus12VPowerSupply atsStatusMinus12VPowerSupply
+   atsStatusSwitchStatus atsStatusFrontPanel atsStatusSourceAStatus
+   atsStatusSourceBStatus atsStatusPhaseSyncStatus atsStatusVoltageOutStatus
+   atsStatusHardwareStatus 
   )));
 }
 
@@ -15,62 +23,28 @@ sub check {
   my $info = undef;
   $self->add_info('checking hardware and self-tests');
   $self->add_info('status is '.$self->{atsStatusHardwareStatus});
-  if ($self->{upsAdvTestLastDiagnosticsDate}) {
-    $self->add_info(sprintf 'selftest result was %s',
-        $self->{upsAdvTestDiagnosticsResults});
-    if ($self->{upsAdvTestDiagnosticsResults} ne 'ok') {
+  foreach my $item (qw(atsStatus24VPowerSupply atsStatus24VSourceBPowerSupply
+      atsStatus5VPowerSupply atsStatusMinus12VPowerSupply atsStatusPlus12VPowerSupply)) {
+    $self->add_info(sprintf "%s is %s", $item, $self->{$item});
+    if ($self->{$item} ne "atsPowerSupplyOK") {
+      $self->add_critical();
+    }
+  }
+  foreach my $item (qw(atsStatusHardwareStatus atsStatusSourceAStatus
+      atsStatusSourceBStatus atsStatusSwitchStatus atsStatusVoltageOutStatus)) {
+    $self->add_info(sprintf "%s is %s", $item, $self->{$item});
+    if ($self->{$item} ne "ok") {
+      $self->add_critical();
+    }
+  }
+  foreach my $item (qw(atsStatusRedundancyState)) {
+    $self->add_info(sprintf "%s is %s", $item, $self->{$item});
+    if ($self->{$item} ne "atsFullyRedundant") {
       $self->add_warning();
-    } else {
-      $self->add_ok();
-    } 
-    my $maxage = undef;
-    if ($self->{upsAdvTestDiagnosticSchedule} eq 'never') {
-      $maxage = 365;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'biweekly') {
-      $maxage = 14;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'weekly') {
-      $maxage = 7;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'fourWeeks') {
-      $maxage = 28;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'twelveWeeks') {
-      $maxage = 84;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'biweeklySinceLastTest') {
-      $maxage = 14;
-    } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'weeklySinceLastTest') {
-      $maxage = 7;
     }
-    if (! defined $maxage && $self->{upsAdvTestDiagnosticSchedule} ne 'never') {
-      $self->set_thresholds(
-          metric => 'selftest_age', warning => '30', critical => '60');
-    } else {
-      $maxage *= 2; # got lots of alerts from my test devices
-      $self->set_thresholds(
-          metric => 'selftest_age', warning => $maxage, critical => $maxage);
-    }
-    $self->add_info(sprintf 'last selftest was %d days ago (%s)', $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
-    $self->add_message(
-        $self->check_thresholds(
-            value => $self->{upsAdvTestLastDiagnosticsAge},
-            metric => 'selftest_age'));
-    $self->add_perfdata(
-        label => 'selftest_age',
-        value => $self->{upsAdvTestLastDiagnosticsAge},
-    );
-  } else {
-    $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run");
+  }
+  if (! $self->check_messages()) {
+    $self->add_ok("hardware working fine");
   }
 }
 
-sub dump {
-  my $self = shift;
-  printf "[HARDWARE]\n";
-  foreach (qw(upsBasicIdentModel 
-      upsAdvIdentDateOfManufacture upsAdvIdentSerialNumber
-      upsAdvTestDiagnosticSchedule
-      upsAdvTestDiagnosticsResults upsAdvTestLastDiagnosticsDate)) {
-    printf "%s: %s\n", $_, $self->{$_} if defined $self->{$_};
-    printf "%s: %s\n", $_, scalar localtime $self->{$_} if (defined $self->{$_} && $_ =~ /Date$/);
-  }
-  printf "info: %s\n", $self->{info};
-  printf "\n";
-}

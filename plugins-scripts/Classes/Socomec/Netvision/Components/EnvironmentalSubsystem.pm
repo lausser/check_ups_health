@@ -12,10 +12,10 @@ sub new {
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects("Netvision-v6-MIB", (qw(
+  $self->get_snmp_objects("NETVISIONV6", (qw(
       upsIdentModel upsIdentClassesFirmwareVersion upsIdentUpsSerialNumber
       upsAlarmsPresent)));
-  $self->get_snmp_tables("Netvision-v6-MIB", [
+  $self->get_snmp_tables("NETVISIONV6", [
       ["alarms", "upsAlarmTable", "Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm"],
   ]);
 }

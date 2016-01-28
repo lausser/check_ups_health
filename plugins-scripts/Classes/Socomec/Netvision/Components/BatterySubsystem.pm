@@ -12,7 +12,7 @@ sub new {
 
 sub init {
   my $self = shift;
-  $self->get_snmp_objects('Netvision-v6-MIB', (qw(
+  $self->get_snmp_objects('NETVISIONV6', (qw(
       upsBatteryStatus upsSecondsonBattery upsEstimatedMinutesRemaining
       upsEstimatedChargeRemaining upsBatteryVoltage upsBatteryTemperature
       upsInputFrequency upsOutputFrequency
@@ -22,12 +22,12 @@ sub init {
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsInputFrequency} /= 10;
   $self->{upsOutputFrequency} /= 10;
-  $self->get_snmp_tables('Netvision-v6-MIB', [
+  $self->get_snmp_tables('NETVISIONV6', [
       ['inputs', 'upsInputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Input'],
       ['outputs', 'upsOutputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Output'],
       ['bypasses', 'upsBypassTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass'],
   ]);
-  foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsAlarmTable')) {
+  foreach ($self->get_snmp_table_objects('NETVISIONV6', 'upsAlarmTable')) {
 #printf "%s\n", Data::Dumper::Dumper($_);
 ##!!!!
   }

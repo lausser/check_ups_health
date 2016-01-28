@@ -5,8 +5,8 @@ use File::Basename;
 
 eval {
   if ( ! grep /AUTOLOAD/, keys %Monitoring::GLPlugin::) {
-    require "Monitoring::GLPlugin";
-    require "Monitoring::GLPlugin::SNMP";
+    require Monitoring::GLPlugin;
+    require Monitoring::GLPlugin::SNMP;
   }
 };
 if ($@) {
