@@ -12,14 +12,16 @@ sub classify {
       if ($self->opts->verbose && $self->opts->verbose) {
         printf "I am a %s\n", $self->{productname};
       }
+      $self->map_oid_to_class('1.3.6.1.4.1.4555.1.1.1', 'Classes::Socomec::Netvision');
+      $self->map_oid_to_class('1.3.6.1.4.1.318.1.3.17.1', 'Classes::APC::Powermib');
       if ($self->opts->mode =~ /^my-/) {
         $self->load_my_extension();
       } elsif ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel') ||
           $self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentName')) {
         # upsBasicIdentModel kann auch "" sein, upsBasicIdentName
         # theoretisch auch (da r/w), aber hoffentlich nicht beide zusammen
-        bless $self, 'Classes::APC::Powermib';
-        $self->debug('using Classes::APC::Powermib');
+        bless $self, 'Classes::APC::Powermib::UPS';
+        $self->debug('using Classes::APC::Powermib::UPS');
       } elsif ($self->{productname} =~ /APC /) {
         bless $self, 'Classes::APC';
         $self->debug('using Classes::APC');

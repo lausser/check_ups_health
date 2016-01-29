@@ -54,7 +54,7 @@ sub check {
       xupsOutputOverload xupsInternalFailure xupsBatteryDischarged xupsInverterFailure 
       xupsOnBypass xupsBypassNotAvailable xupsOutputOff xupsInputFailure 
       xupsBuildingAlarm xupsShutdownImminent xupsOnInverter)) {
-    if ($self->{xupsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::mibs_and_oids->{"XUPS-MIB"}->{$_}) {
+    if ($self->{xupsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{"XUPS-MIB"}->{$_}) {
       $self->{xupsAlarmDescr} = $_;
     }
   }

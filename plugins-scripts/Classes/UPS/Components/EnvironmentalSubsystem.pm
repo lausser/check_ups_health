@@ -81,7 +81,7 @@ sub check {
       upsAlarmFanFailure upsAlarmFuseFailure upsAlarmGeneralFault
       upsAlarmDiagnosticTestFailed upsAlarmCommunicationsLost upsAlarmAwaitingPower
       upsAlarmShutdownPending upsAlarmShutdownImminent upsAlarmTestInProgress)) {
-    if ($self->{upsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::mibs_and_oids->{"UPS-MIB"}->{$_}) {
+    if ($self->{upsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{"UPS-MIB"}->{$_}) {
       $self->{upsAlarmDescr} = $_;
     }
   }

@@ -1,3 +1,5 @@
+* 2016-01-29 2.6
+  supports dynamic mib loading
 * 2016-01-20 2.5.2.7
   bugfix for apc powernet. no battery status means ok
 * 2015-07-13 2.5.2.6

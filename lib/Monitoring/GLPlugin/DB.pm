@@ -1,6 +1,8 @@
 package Monitoring::GLPlugin::DB;
 our @ISA = qw(Monitoring::GLPlugin);
 use strict;
+use File::Basename qw(basename dirname);
+use File::Temp qw(tempfile);
 
 {
   our $session = undef;
@@ -11,9 +13,11 @@ sub new {
   my %params = @_;
   require Monitoring::GLPlugin
       if ! grep /BEGIN/, keys %Monitoring::GLPlugin::;
-  require Monitoring::GLPlugin::DB::Item
-      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::DB::CSF::;
   require Monitoring::GLPlugin::DB::CSF
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::DB::CSF::;
+  require Monitoring::GLPlugin::DB::DBI
+      if ! grep /BEGIN/, keys %Monitoring::GLPlugin::DB::DBI::;
+  require Monitoring::GLPlugin::DB::Item
       if ! grep /BEGIN/, keys %Monitoring::GLPlugin::DB::Item::;
   require Monitoring::GLPlugin::DB::TableItem
       if ! grep /BEGIN/, keys %Monitoring::GLPlugin::DB::TableItem::;
@@ -305,6 +309,91 @@ sub set_thresholds {
       $self->SUPER::set_thresholds(%newparams) if scalar(%newparams);
     }
   }
+}
+
+sub find_extcmd {
+  my $self = shift;
+  my $cmd = shift;
+  my @envpaths = @_;
+  my @paths = $^O =~ /MSWin/ ?
+      split(';', $ENV{PATH}) : split(':', $ENV{PATH});
+  return $self->{extcmd} if $self->{extcmd};
+  foreach my $path (@envpaths) {
+    if ($ENV{$path}) {
+      if (! -d $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd) &&
+          -x $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd)) {
+        $self->{extcmd} = $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd);
+        last;
+      } elsif (! -d $path.'/bin/'.$cmd && -x $path.'/bin/'.$cmd) {
+        $self->{extcmd} = $path.'/bin/'.$cmd;
+        last;
+      }
+    }
+  }
+  return $self->{extcmd} if $self->{extcmd};
+  foreach my $path (@paths) {
+    if (! -d $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd) &&
+        -x $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd)) {
+      $self->{extcmd} = $path.'/'.($^O =~ /MSWin/ ? $cmd.'.exe' : $cmd);
+      if ($^O =~ /MSWin/) {
+        map { $ENV{$_} = $path } @envpaths;
+      } else {
+        if (basename(dirname($path)) eq "bin") {
+          $path = dirname(dirname($path));
+        }
+        map { $ENV{$_} = $path } @envpaths;
+      }
+      last;
+    }
+  }
+  return $self->{extcmd};
+}
+
+sub write_extcmd_file {
+  my $self = shift;
+  my $sql = shift;
+}
+
+sub create_extcmd_files {
+  my $self = shift;
+  my $template = $self->opts->mode.'XXXXX';
+  if ($^O =~ /MSWin/) {
+    $template =~ s/::/_/g;
+  }
+  ($self->{sql_commandfile_handle}, $self->{sql_commandfile}) =
+      tempfile($template, SUFFIX => ".sql",
+      DIR => $self->system_tmpdir() );
+  close $self->{sql_commandfile_handle};
+  ($self->{sql_resultfile_handle}, $self->{sql_resultfile}) =
+      tempfile($template, SUFFIX => ".out",
+      DIR => $self->system_tmpdir() );
+  close $self->{sql_resultfile_handle};
+  ($self->{sql_outfile_handle}, $self->{sql_outfile}) =
+      tempfile($template, SUFFIX => ".out",
+      DIR => $self->system_tmpdir() );
+  close $self->{sql_outfile_handle};
+  $Monitoring::GLPlugin::DB::sql_commandfile = $self->{sql_commandfile};
+  $Monitoring::GLPlugin::DB::sql_resultfile = $self->{sql_resultfile};
+  $Monitoring::GLPlugin::DB::sql_outfile = $self->{sql_outfile};
+}
+
+sub delete_extcmd_files {
+  my $self = shift;
+  unlink $Monitoring::GLPlugin::DB::sql_commandfile
+      if $Monitoring::GLPlugin::DB::sql_commandfile &&
+      -f $Monitoring::GLPlugin::DB::sql_commandfile;
+  unlink $Monitoring::GLPlugin::DB::sql_resultfile
+      if $Monitoring::GLPlugin::DB::sql_resultfile &&
+      -f $Monitoring::GLPlugin::DB::sql_resultfile;
+  unlink $Monitoring::GLPlugin::DB::sql_outfile
+      if $Monitoring::GLPlugin::DB::sql_outfile &&
+      -f $Monitoring::GLPlugin::DB::sql_outfile;
+}
+
+sub DESTROY {
+  my $self = shift;
+  $self->debug("try to clean up command and result files");
+  $self->delete_extcmd_files();
 }
 
 1;
