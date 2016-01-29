@@ -16,10 +16,6 @@ sub classify {
       }
       if ($self->opts->mode =~ /^my-/) {
         $self->load_my_extension();
-      } elsif ($self->get_snmp_object('PowerNet-MIB', 'atsIdentModelNumber') ||
-          $self->get_snmp_object('PowerNet-MIB', 'atsIdentSerialNumber')) {
-        bless $self, 'Classes::APC::Powermib::ATS';
-        $self->debug('using Classes::APC::Powermib::ATS');
       } elsif ($self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentModel') ||
           $self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentName')) {
         # upsBasicIdentModel kann auch "" sein, upsBasicIdentName
