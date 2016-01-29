@@ -23,6 +23,7 @@ sub check {
   my $self = shift;
   $self->add_info('checking alarms');
   foreach (@{$self->{alarms}}) {
+    next if ! $_->{upsAlarmDescr}; # irgendwelche Blindgaenger sind auch moeglich, z.b. einer bei upsTestResultsSummary: noTestsInitiated
     $_->check();
   }
   if ($self->{upsTestStartTime}) {

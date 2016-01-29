@@ -4,6 +4,8 @@ use strict;
 
 sub classify {
   my $self = shift;
+  $self->map_oid_to_class('1.3.6.1.4.1.318.1.3.17.1', 'Classes::APC::Powermib');
+  $self->map_oid_to_class('1.3.6.1.4.1.4555.1.1.1', 'Classes::Socomec::Netvision');
   if (! ($self->opts->hostname || $self->opts->snmpwalk)) {
     $self->add_unknown('either specify a hostname or a snmpwalk file');
   } else {

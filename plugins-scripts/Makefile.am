@@ -10,7 +10,6 @@ GL_MODULES=\
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/MGSNMPUPSMIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/MIB2MIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/NETVISIONV6.pm \
-  ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/PDUMIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/POWERNETMIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/SNMPFRAMEWORKMIB.pm \
   ../lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMIB.pm \
