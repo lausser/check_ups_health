@@ -131,6 +131,11 @@ package Classes::MerlinGerin::Components::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
+sub finish {
+  my $self = shift;
+  $self->{mginputCurrent} ||= 0; # mandatory, but sometimes missing
+}
+
 sub check {
   my $self = shift;
   $self->{mginputVoltage} /= 10;
