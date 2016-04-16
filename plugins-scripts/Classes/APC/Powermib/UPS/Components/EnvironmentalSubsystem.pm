@@ -13,11 +13,23 @@ sub new {
 
 sub init {
   my $self = shift;
+  # aufteilen in eigene packages: basic, advanced und smart
+  # wenn adv keine tests hatte, dann upsBasicStateOutputState fragen
   $self->get_snmp_objects('PowerNet-MIB', (qw(
       upsBasicIdentModel 
+      upsBasicOutputStatus upsBasicSystemStatus
+      upsBasicSystemInternalTemperature
+      upsBasicStateOutputState 
       upsAdvIdentDateOfManufacture upsAdvIdentSerialNumber
       upsAdvTestDiagnosticSchedule
-      upsAdvTestDiagnosticsResults upsAdvTestLastDiagnosticsDate)));
+      upsAdvTestDiagnosticsResults upsAdvTestLastDiagnosticsDate
+      upsAdvStateAbnormalConditions
+      upsAdvStateSymmetra3PhaseSpecificFaults
+      upsAdvStateDP300ESpecificFaults
+      upsAdvStateSymmetraSpecificFaults
+      upsAdvStateSmartUPSSpecificFaults
+      upsAdvStateSystemMessages
+  )));
   eval {
     die if ! $self->{upsAdvTestLastDiagnosticsDate};
     $self->{upsAdvTestLastDiagnosticsDate} =~ /(\d+)\/(\d+)\/(\d+)/ || die;
@@ -79,7 +91,7 @@ sub check {
   }
 }
 
-sub dump {
+sub xdump {
   my $self = shift;
   printf "[HARDWARE]\n";
   foreach (qw(upsBasicIdentModel 
@@ -92,3 +104,12 @@ sub dump {
   printf "info: %s\n", $self->{info};
   printf "\n";
 }
+
+package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Simple;
+our @ISA = qw(Classes::APC::Powermib);
+use strict;
+
+package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Advanced;
+our @ISA = qw(Classes::APC::Powermib);
+use strict;
+
