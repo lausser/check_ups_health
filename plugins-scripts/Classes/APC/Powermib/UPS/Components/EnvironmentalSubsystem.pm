@@ -45,6 +45,26 @@ sub check {
   my $self = shift;
   my $info = undef;
   $self->add_info('checking hardware and self-tests');
+  if (defined $self->{upsBasicStateOutputState}) {
+    my @bits = split(//, $self->{upsBasicStateOutputState});
+    if (scalar(@bits) == 64) {
+      $self->add_unknown('status unknown');
+    } else {
+      $self->add_ok('On Line') if $bits[4];
+      #$self->add_ok('Serial Communication Established') if $bits[6];
+      #$self->add_ok('On') if $bits[19];
+      $self->add_warning('Abnormal Condition Present') if $bits[1];
+      $self->add_warning('Electronic Unit Fan Failure') if $bits[41];
+      $self->add_warning('Main Relay Failure') if $bits[42];
+      $self->add_warning('Bypass Relay Failure') if $bits[43];
+      $self->add_warning('High Internal Temperature') if $bits[45];
+      $self->add_warning('Battery Temperature Sensor Fault') if $bits[46];
+      $self->add_warning('PFC Failure') if $bits[49];
+      $self->add_critical('Critical Hardware Fault') if $bits[50];
+      $self->add_critical('Emergency Power Off (EPO) Activated') if $bits[53];
+      $self->add_warning('UPS Internal Communication Failure') if $bits[56];
+    }
+  }
   if ($self->{upsAdvTestLastDiagnosticsDate}) {
     $self->add_info(sprintf 'selftest result was %s',
         $self->{upsAdvTestDiagnosticsResults});
@@ -87,7 +107,8 @@ sub check {
         value => $self->{upsAdvTestLastDiagnosticsAge},
     );
   } else {
-    $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run");
+    $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run") if ! $self->check_messages();
+    $self->add_ok("self-tests were never run") if $self->check_messages();
   }
 }
 
