@@ -1,3 +1,7 @@
+* 2016-06-03 2.7.0.2
+  update GLPlugin
+* 2016-03-30 2.7.0.1
+  bugfix in ups-mib batterytemperature
 * 2016-02-08 2.7
   add glplugin submodule
 * 2016-01-29 2.6.0.1

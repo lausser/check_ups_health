@@ -22,6 +22,8 @@ sub init {
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsBatteryCurrent} /= 10;
   $self->{upsOutputFrequency} /= 10;
+  # bad firmware, no sensor? who knows...
+  $self->{upsBatteryTemperature} = 0 if $self->{upsBatteryTemperature} == -50;
 }
 
 sub check {
