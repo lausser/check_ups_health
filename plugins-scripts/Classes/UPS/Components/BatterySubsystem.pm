@@ -19,11 +19,23 @@ sub init {
       ["inputs", "upsInputTable", "Classes::UPS::Components::BatterySubsystem::Input"],
       ["outputs", "upsOutputTable", "Classes::UPS::Components::BatterySubsystem::Output"],
   ]);
+  # Une generex cs141 situé en france n'avait pas de upsBatteryCurrent
+  # C'était en juin 2016. La grève dans les centrales nucléaires était
+  # annoncé à ce temps là, peut-être il y avait une coupure de counrant.
+  $self->{upsBatteryCurrent} = 0 if ! $self->{upsBatteryCurrent};
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsBatteryCurrent} /= 10;
   $self->{upsOutputFrequency} /= 10;
   # bad firmware, no sensor? who knows...
   $self->{upsBatteryTemperature} = 0 if $self->{upsBatteryTemperature} == -50;
+  # The same generex cs141 had inputs and outputs with only the index oid.
+  # So these do not exist in reality.
+  @{$self->{inputs}} = grep {
+      exists $_->{upsInputVoltage} && exists $_->{upsInputFrequency};
+  } @{$self->{inputs}};
+  @{$self->{outputs}} = grep {
+      exists $_->{upsOutputVoltage} && exists $_->{upsOutputPower};
+  } @{$self->{outputs}};
 }
 
 sub check {
