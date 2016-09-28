@@ -64,6 +64,30 @@ sub classify {
   return $self;
 }
 
+sub check_snmp_and_model {
+  my $self = shift;
+  $self->SUPER::check_snmp_and_model();
+  if ($self->check_messages() == 3 && ($self->check_messages())[1] =~ /neither sysUptime/) {
+    # firmwareupdate und dann sowas:
+    # .1.3.6.1.2.1.33.1.1.2.0 = STRING: "TRIMOD"
+    # .1.3.6.1.2.1.33.1.1.3.0 = STRING: "3.10.1"
+    # .1.3.6.1.2.1.33.1.1.4.0 = STRING: "cs141 v "
+    # .1.3.6.1.2.1.33.1.1.5.0 = STRING: "CS141 SNMP/WEB Adapter"
+    # kein 1.3.6.1.2.1, nix mehr, gaaar nix
+    $self->establish_snmp_session();
+    if ($self->implements_mib('UPS-MIB') &&
+        $self->get_snmp_object('UPS-MIB', 'upsIdentModel') =~ /TRIMOD/) {
+      $self->clear_messages(3);
+      bless $self, 'Classes::UPS';
+      $self->debug('using Classes::UPS');
+      $self->debug("check for UPSMIB");
+      $self->{uptime} = 3600;
+      $self->{productname} = "TRIMOD-with-broken-firmware";
+      $self->{sysobjectid} = "1.3.6.1.2.1.33";
+    }
+  }
+}
+
 
 package Classes::Generic;
 our @ISA = qw(Classes::Device);

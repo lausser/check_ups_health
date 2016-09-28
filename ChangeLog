@@ -1,3 +1,7 @@
+* 2016-09-27 2.7.1.2
+  fix generex trimod without mib-2
+* 2016-08-12 2.7.1.1
+  update GLPlugin/Extraopts
 * 2016-06-21 2.7.1
   fix UPS for Generex cs141
 * 2016-06-03 2.7.0.2
