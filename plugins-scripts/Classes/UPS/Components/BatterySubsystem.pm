@@ -27,7 +27,8 @@ sub init {
   $self->{upsBatteryCurrent} /= 10;
   $self->{upsOutputFrequency} /= 10;
   # bad firmware, no sensor? who knows...
-  $self->{upsBatteryTemperature} = 0 if $self->{upsBatteryTemperature} == -50;
+  $self->{upsBatteryTemperature} = 0 if defined $self->{upsBatteryTemperature}
+      && $self->{upsBatteryTemperature} == -50;
   # The same generex cs141 had inputs and outputs with only the index oid.
   # So these do not exist in reality.
   @{$self->{inputs}} = grep {
@@ -42,17 +43,19 @@ sub check {
   my $self = shift;
   $self->add_info('checking battery');
 
-  $self->set_thresholds(
-      metric => 'battery_temperature', warning => '35', critical => '38');
-  $self->add_info(sprintf 'temperature is %.2fC', $self->{upsBatteryTemperature});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsBatteryTemperature},
-          metric => 'battery_temperature'));
-  $self->add_perfdata(
-      label => 'battery_temperature',
-      value => $self->{upsBatteryTemperature},
-  );
+  if (defined $self->{upsBatteryTemperature}) {
+    $self->set_thresholds(
+        metric => 'battery_temperature', warning => '35', critical => '38');
+    $self->add_info(sprintf 'temperature is %.2fC', $self->{upsBatteryTemperature});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsBatteryTemperature},
+            metric => 'battery_temperature'));
+    $self->add_perfdata(
+        label => 'battery_temperature',
+        value => $self->{upsBatteryTemperature},
+    );
+  }
 
   if ($self->{upsBaseBatteryTimeOnBattery}) {
     $self->set_thresholds(

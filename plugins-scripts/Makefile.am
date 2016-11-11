@@ -11,6 +11,11 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/TableItem.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPCONDITIONSMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPENVIRONMENTALMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPPOWERMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPREGISTRATIONMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPSYSTEMMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/MGSNMPUPSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/MIB2MIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/NETVISIONV6.pm \
@@ -45,6 +50,9 @@ EXTRA_MODULES=\
   Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
   Classes/MerlinGerin/Components/BatterySubsystem.pm \
   Classes/MerlinGerin.pm \
+  Classes/Liebert/Component/EnvironmentalSubsystem.pm \
+  Classes/Liebert/Component/BatterySubsystem.pm \
+  Classes/Liebert.pm \
   Classes/Device.pm
 
 SED=/bin/sed

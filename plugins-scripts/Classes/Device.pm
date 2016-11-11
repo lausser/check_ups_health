@@ -46,6 +46,9 @@ sub classify {
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');
+      } elsif ($self->implements_mib('LIEBERT-GP-REGISTRATION-MIB')) {
+        bless $self, 'Classes::Liebert';
+        $self->debug('using Classes::Liebert');
       } else {
         $self->map_oid_to_class('1.3.6.1.4.1.318.1.3.17.1',
             'Classes::APC::Powermib');
