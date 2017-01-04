@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("MG-SNMP-UPS-MIB", qw(
       upsmgConfigEmergencyTestFail upsmgConfigEmergencyOnByPass
       upsmgConfigEmergencyOverload
@@ -50,7 +50,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking environment');
   if (defined $self->{upsmgTestDiagResult} &&
       $self->{upsmgTestDiagResult} eq "failed") {
@@ -63,7 +63,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[SENSORS]\n";
   foreach (@{$self->{environsensors}}) {
     $_->dump();
@@ -93,7 +93,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   return;
 }
 
@@ -108,7 +108,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   if ($self->{upsmgEnvironmentComFailure} eq "yes") {
     $self->add_info("no environment module is installed");
   } else {

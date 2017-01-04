@@ -12,7 +12,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('XPPC-MIB', (qw(upsBaseBatteryStatus
       upsSmartBatteryCapacity upsSmartBatteryVoltage upsSmartBatteryTemperature
       upsSmartBatteryRunTimeRemaining upsSmartBatteryReplaceIndicator
@@ -29,7 +29,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
   $self->add_info(sprintf 'battery status is %s', $self->{upsBaseBatteryStatus});
   if ($self->{upsBaseBatteryStatus} ne 'batteryNormal') {
@@ -123,7 +123,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (qw(upsBaseBatteryStatus
       upsSmartBatteryCapacity upsSmartBatteryVoltage upsSmartBatteryTemperature

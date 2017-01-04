@@ -12,7 +12,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('XPPC-MIB', (qw(upsSmartTestDiagnosticSchedule
       upsSmartTestDiagnostics upsSmartTestDiagnosticsResults
       upsSmartTestLastDiagnosticsDate upsSmartTestIndicators    upsThreePhaseBatteryGrp
@@ -33,7 +33,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking hardware and self-tests');
   if ($self->{upsEnvTemperature}) {
     my $over = $self->{upsEnvOverTemperature} || 30;
@@ -106,7 +106,7 @@ sub check {
 }
 
 sub xdump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[HARDWARE]\n";
   foreach (qw(upsBasicIdentModel 
       upsAdvIdentDateOfManufacture upsAdvIdentSerialNumber

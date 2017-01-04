@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("UPS-MIB", qw(upsBatteryStatus upsSecondsOnBattery 
       upsEstimatedMinutesRemaining upsBatteryVoltage upsBatteryCurrent
       upsBatteryTemperature upsOutputFrequency));
@@ -40,7 +40,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
 
   if (defined $self->{upsBatteryTemperature}) {
@@ -93,7 +93,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -114,7 +114,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->{upsInputFrequency} /= 10;
   $self->{upsInputCurrent} /= 10;
   if ($self->{upsInputVoltage} < 1) {
@@ -139,7 +139,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->{upsOutputCurrent} /= 10;
   my $metric = 'output_load'.$self->{flat_indices};
   $self->set_thresholds(

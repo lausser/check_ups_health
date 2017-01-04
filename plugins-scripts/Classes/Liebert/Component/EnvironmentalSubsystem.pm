@@ -3,7 +3,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("LIEBERT-GP-SYSTEM-MIB", qw(
       lgpSysState
   ));
@@ -18,7 +18,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
   if ($self->{lgpSysState} eq 'startUp' ||
       $self->{lgpSysState} eq 'normalOperation') {
@@ -36,5 +36,5 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
 }

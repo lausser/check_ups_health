@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('UPSV4-MIB', (qw(
       dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
       dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 
@@ -35,7 +35,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking environment');
   $self->add_info(sprintf 'temperature %dC', $self->{dupsEnvTemperature});
   $self->add_ok();
@@ -87,7 +87,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[HARDWARE]\n";
   foreach (qw(dupsEnvTemperature dupsAlarmOverEnvHumidity dupsAlarmEnvRelay1 
       dupsAlarmEnvRelay2 dupsAlarmEnvRelay3 dupsAlarmEnvRelay4 

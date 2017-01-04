@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarmNumEvents));
   $self->get_snmp_tables("XUPS-MIB", [
       ["alarms", "xupsAlarmTable", "Classes::XUPS::Components::EnvironmentalSubsystem::Alarm"],
@@ -19,7 +19,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking alarms');
   foreach (@{$self->{alarms}}) {
     $_->check();
@@ -30,7 +30,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[ALARMS]\n";
   foreach (grep /^xups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -49,7 +49,7 @@ use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   foreach (qw(xupsOnBattery xupsLowBattery xupsUtilityPowerRestored xupsReturnFromLowBattery 
       xupsOutputOverload xupsInternalFailure xupsBatteryDischarged xupsInverterFailure 
       xupsOnBypass xupsBypassNotAvailable xupsOutputOff xupsInputFailure 

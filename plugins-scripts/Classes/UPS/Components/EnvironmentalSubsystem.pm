@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("UPS-MIB", qw(upsAlarmsPresent upsTestResultsSummary
       upsTestResultsDetail upsTestStartTime));
   $self->get_snmp_tables("UPS-MIB", [
@@ -20,7 +20,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking alarms');
   foreach (@{$self->{alarms}}) {
     next if ! $_->{upsAlarmDescr}; # irgendwelche Blindgaenger sind auch moeglich, z.b. einer bei upsTestResultsSummary: noTestsInitiated
@@ -55,7 +55,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[ALARMS]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -73,7 +73,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   foreach (qw(upsAlarmBatteryBad upsAlarmOnBattery upsAlarmLowBattery
       upsAlarmDepletedBattery upsAlarmTempBad upsAlarmInputBad
       upsAlarmOutputBad upsAlarmOutputOverload upsAlarmOnBypass

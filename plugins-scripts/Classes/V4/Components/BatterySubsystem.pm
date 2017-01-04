@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('UPSV4-MIB', (qw(
       dupsBatteryCondiction dupsLastReplaceDate dupsNextReplaceDate
       dupsBatteryStatus dupsBatteryCharge dupsSecondsOnBattery
@@ -35,7 +35,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
   $self->add_info(sprintf 'output source is %s, battery condition is %s, %s', 
       $self->{dupsOutputSource}, 
@@ -140,7 +140,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (grep /^dups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};

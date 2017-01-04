@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('PowerNet-MIB', (qw(
       upsBasicBatteryStatus upsAdvBatteryCapacity 
       upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature 
@@ -33,7 +33,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
   $self->add_info(sprintf 'battery status is %s',
       $self->{upsBasicBatteryStatus});
@@ -136,7 +136,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (qw(upsBasicBatteryStatus upsAdvBatteryCapacity 
       upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature 

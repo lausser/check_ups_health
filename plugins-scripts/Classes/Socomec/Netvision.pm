@@ -3,7 +3,7 @@ our @ISA = qw(Classes::Socomec);
 use strict;
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   if ($self->mode =~ /device::hardware::health/) {
     $self->analyze_and_check_environmental_subsystem('Classes::Socomec::Netvision::Components::EnvironmentalSubsystem');
   } elsif ($self->mode =~ /device::battery/) {

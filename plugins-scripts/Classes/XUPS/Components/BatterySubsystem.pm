@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad xupsTestBatteryStatus));
   $self->get_snmp_tables("XUPS-MIB", [
       ["inputs", "xupsInputTable", "Classes::XUPS::Components::BatterySubsystem::Input"],
@@ -23,7 +23,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');
@@ -81,7 +81,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (grep /^xups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -96,7 +96,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   if ($self->{xupsInputVoltage} < 1) {
     $self->add_critical(sprintf 'input power%s outage', $self->{flat_indices});
   }
@@ -115,7 +115,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_perfdata(
       label => 'output_voltage_'.$self->{flat_indices},
       value => $self->{xupsOutputVoltage},

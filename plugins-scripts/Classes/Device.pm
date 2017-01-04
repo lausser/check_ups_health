@@ -3,7 +3,7 @@ our @ISA = qw(Monitoring::GLPlugin::SNMP);
 use strict;
 
 sub classify {
-  my $self = shift;
+  my ($self) = @_;
   if (! ($self->opts->hostname || $self->opts->snmpwalk)) {
     $self->add_unknown('either specify a hostname or a snmpwalk file');
   } else {
@@ -29,6 +29,9 @@ sub classify {
         # like XPPC, that's why UPS is now last
         bless $self, 'Classes::MerlinGerin';
         $self->debug('using Classes::MerlinGerin');
+      } elsif ($self->implements_mib('LIEBERT-GP-POWER-MIB')) {
+        bless $self, 'Classes::Liebert';
+        $self->debug('using Classes::Liebert');
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'Classes::V4';
         $self->debug('using Classes::V4');
@@ -46,9 +49,6 @@ sub classify {
       } elsif ($self->implements_mib('UPS-MIB')) {
         bless $self, 'Classes::UPS';
         $self->debug('using Classes::UPS');
-      } elsif ($self->implements_mib('LIEBERT-GP-REGISTRATION-MIB')) {
-        bless $self, 'Classes::Liebert';
-        $self->debug('using Classes::Liebert');
       } else {
         $self->map_oid_to_class('1.3.6.1.4.1.318.1.3.17.1',
             'Classes::APC::Powermib');
@@ -68,7 +68,7 @@ sub classify {
 }
 
 sub check_snmp_and_model {
-  my $self = shift;
+  my ($self) = @_;
   $self->SUPER::check_snmp_and_model();
   if ($self->check_messages() == 3 && ($self->check_messages())[1] =~ /neither sysUptime/) {
     # firmwareupdate und dann sowas:
@@ -97,7 +97,7 @@ our @ISA = qw(Classes::Device);
 use strict;
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   if ($self->mode =~ /.*/) {
     bless $self, 'Monitoring::GLPlugin::SNMP';
     $self->no_such_mode();

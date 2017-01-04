@@ -12,7 +12,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   # aufteilen in eigene packages: basic, advanced und smart
   # wenn adv keine tests hatte, dann upsBasicStateOutputState fragen
   $self->get_snmp_objects('PowerNet-MIB', (qw(
@@ -42,7 +42,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   my $info = undef;
   $self->add_info('checking hardware and self-tests');
   if (defined $self->{upsBasicStateOutputState}) {
@@ -113,7 +113,7 @@ sub check {
 }
 
 sub xdump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[HARDWARE]\n";
   foreach (qw(upsBasicIdentModel 
       upsAdvIdentDateOfManufacture upsAdvIdentSerialNumber

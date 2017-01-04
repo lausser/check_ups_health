@@ -11,7 +11,7 @@ sub new {
 }
 
 sub init {
-  my $self = shift;
+  my ($self) = @_;
   $self->get_snmp_objects('Netvision-v6-MIB', (qw(
       upsBatteryStatus upsSecondsonBattery upsEstimatedMinutesRemaining
       upsEstimatedChargeRemaining upsBatteryVoltage upsBatteryTemperature
@@ -34,7 +34,7 @@ sub init {
 }
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->add_info('checking battery');
   $self->add_info(sprintf 'battery status is %s', $self->{upsBatteryStatus});
   if ($self->{upsBatteryStatus} ne 'batteryNormal') {
@@ -106,7 +106,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BATTERY]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -131,7 +131,7 @@ use strict;
 
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->{upsInputVoltage} /= 10;
   $self->{upsInputVoltageMin} /= 10;
   $self->{upsInputVoltageMax} /= 10;
@@ -147,7 +147,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[INPUT]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -163,7 +163,7 @@ use strict;
 
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->{upsOutputVoltage} /= 10;
   $self->{upsOutputCurrent} /= 10;
   $self->set_thresholds(
@@ -187,7 +187,7 @@ sub check {
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[OUTPUT]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
@@ -203,13 +203,13 @@ use strict;
 
 
 sub check {
-  my $self = shift;
+  my ($self) = @_;
   $self->{upsBypassVoltage} /= 10;
   $self->add_info(sprintf 'bypass%d voltage is %dV', $self->{upsBypassLineIndex}, $self->{upsBypassVoltage});
 }
 
 sub dump {
-  my $self = shift;
+  my ($self) = @_;
   printf "[BYPASS]\n";
   foreach (grep /^ups/, keys %{$self}) {
     printf "%s: %s\n", $_, $self->{$_};
