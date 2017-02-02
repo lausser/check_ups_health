@@ -21,7 +21,7 @@ sub init {
   ]);
   # Une generex cs141 situé en france n'avait pas de upsBatteryCurrent
   # C'était en juin 2016. La grève dans les centrales nucléaires était
-  # annoncé à ce temps là, peut-être il y avait une coupure de counrant.
+  # annoncé à ce temps là, peut-être il y avait une coupure de courant.
   $self->{upsBatteryCurrent} = 0 if ! $self->{upsBatteryCurrent};
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsBatteryCurrent} /= 10;
@@ -57,7 +57,7 @@ sub check {
     );
   }
 
-  if ($self->{upsBaseBatteryTimeOnBattery}) {
+  if ($self->{upsSecondsOnBattery}) {
     $self->set_thresholds(
         metric => 'remaining_time', warning => '15:', critical => '10:');
     $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining});
