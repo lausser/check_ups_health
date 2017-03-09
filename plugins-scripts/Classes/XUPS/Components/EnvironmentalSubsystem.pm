@@ -51,17 +51,15 @@ use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 sub check {
   my ($self) = @_;
   my $age = $Monitoring::GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
-printf "age is %d\n", $age;
   # xupsAlarmDescr: xupsUtilityPowerRestored
   # xupsAlarmTime: 723852361
   # CRITICAL - alarm: xupsUtilityPowerRestored (-11941630 min ago)
   if ($age < 3600 && $age >= 0) {
-    $self->add_info(sprintf "alarm: %s (%d min ago)",
-        $self->{xupsAlarmDescr}, $age / 60);
     if ($self->{xupsAlarmDescr} =~ /(xupsOutputOffAsRequested|xupsAlarmTestInProgress|xupsOnMaintenanceBypass)/) {
       $self->add_ok();
     } else {
-      $self->add_critical();
+      $self->add_critical(sprintf "alarm: %s (%d min ago)",
+          $self->{xupsAlarmDescr}, $age / 60);
     }
   }
 }
