@@ -28,14 +28,14 @@ sub check {
   }
   if ($self->{upsTestStartTime}) {
     my $result = sprintf "test result from %s was %s", 
-        scalar localtime time - $Monitoring::GLPlugin::SNMP::uptime + $self->{upsTestStartTime},
+        scalar localtime time - $self->uptime() + $self->{upsTestStartTime},
         $self->{upsTestResultsDetail} ? $self->{upsTestResultsDetail} : $self->{upsTestResultsSummary};
     if ($self->{upsTestResultsSummary} eq "doneWarning") {
       $self->add_warning($result);
     } elsif ($self->{upsTestResultsSummary} eq "doneError") {
       $self->add_critical($result);
     }
-    my $last_test = $Monitoring::GLPlugin::SNMP::uptime - $self->{upsTestStartTime};
+    my $last_test = $self->uptime() - $self->{upsTestStartTime};
     my $days_ago = (time - $last_test) / (3600 * 24);
     $self->add_info(sprintf 'last selftest was %d days ago (%s)',
         $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
@@ -74,21 +74,11 @@ use strict;
 
 sub check {
   my ($self) = @_;
-  foreach (qw(upsAlarmBatteryBad upsAlarmOnBattery upsAlarmLowBattery
-      upsAlarmDepletedBattery upsAlarmTempBad upsAlarmInputBad
-      upsAlarmOutputBad upsAlarmOutputOverload upsAlarmOnBypass
-      upsAlarmBypassBad upsAlarmOutputOffAsRequested upsAlarmUpsOffAsRequested
-      upsAlarmChargerFailed upsAlarmUpsOutputOff upsAlarmUpsSystemOff
-      upsAlarmFanFailure upsAlarmFuseFailure upsAlarmGeneralFault
-      upsAlarmDiagnosticTestFailed upsAlarmCommunicationsLost upsAlarmAwaitingPower
-      upsAlarmShutdownPending upsAlarmShutdownImminent upsAlarmTestInProgress)) {
-    if ($self->{upsAlarmDescr} eq  $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{"UPS-MIB"}->{$_}) {
-      $self->{upsAlarmDescr} = $_;
-    }
-  }
-  my $age = $Monitoring::GLPlugin::SNMP::uptime - $self->{upsAlarmTime};
+  my $age = $self->uptime() - $self->{upsAlarmTime};
   if ($age < 3600) {
-    $self->add_critical(sprintf "alarm: %s (%d min ago)",
-        $self->{upsAlarmDescr}, $age / 60);
+    if ($self->{upsAlarmDescr} !~ /(upsAlarmTestInProgress|.*AsRequested)/) {
+      $self->add_critical(sprintf "alarm: %s (%d min ago)",
+          $self->{upsAlarmDescr}, $age / 60);
+    }
   }
 }

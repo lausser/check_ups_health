@@ -25,7 +25,7 @@ sub check {
     $_->check();
   }
   if (! $self->check_messages()) {
-    $self->add_ok("hardware working fine. no serious alarms");
+    $self->add_ok("hardware working fine");
   }
 }
 
@@ -50,13 +50,13 @@ use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
 sub check {
   my ($self) = @_;
-  my $age = $Monitoring::GLPlugin::SNMP::uptime - $self->{xupsAlarmTime};
+  my $age = $self->uptime() - $self->{xupsAlarmTime};
   # xupsAlarmDescr: xupsUtilityPowerRestored
   # xupsAlarmTime: 723852361
   # CRITICAL - alarm: xupsUtilityPowerRestored (-11941630 min ago)
   if ($age < 3600 && $age >= 0) {
     if ($self->{xupsAlarmDescr} =~ /(xupsOutputOffAsRequested|xupsAlarmTestInProgress|xupsOnMaintenanceBypass)/) {
-      $self->add_ok();
+      $self->add_ok('no serious alarms');
     } else {
       $self->add_critical(sprintf "alarm: %s (%d min ago)",
           $self->{xupsAlarmDescr}, $age / 60);
