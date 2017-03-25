@@ -18,14 +18,16 @@ sub init {
 
 sub check {
   my ($self) = @_;
-  $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
-  if ($self->{lgpSysState} eq 'startUp' ||
-      $self->{lgpSysState} eq 'normalOperation') {
-    $self->add_ok();
-  } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
-    $self->add_warning();
-  } else {
-    $self->add_critical();
+  if (exists $self->{lgpSysState}) {
+    $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
+    if ($self->{lgpSysState} eq 'startUp' ||
+        $self->{lgpSysState} eq 'normalOperation') {
+      $self->add_ok();
+    } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
+      $self->add_warning();
+    } else {
+      $self->add_critical();
+    }
   }
   if (! $self->implements_mib('UPS-MIB')) {
     $self->set_thresholds( metric => 'remaining_time', warning => '15:', critical => '10:');
@@ -42,12 +44,12 @@ sub check {
           value => $self->{lgpPwrBatteryTimeRemaining},
       );
     }
-  }
-  $self->add_info(sprintf 'battery capacity status is %s', $self->{lgpPwrBatteryCapacityStatus});
-  if ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryLow') {
-    $self->add_warning();
-  } elsif ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryDepleted') {
-    $self->add_critical();
+    $self->add_info(sprintf 'battery capacity status is %s', $self->{lgpPwrBatteryCapacityStatus});
+    if ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryLow') {
+      $self->add_warning();
+    } elsif ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryDepleted') {
+      $self->add_critical();
+    }
   }
 }
 

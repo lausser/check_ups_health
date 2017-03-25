@@ -14,7 +14,7 @@ sub init {
   my ($self) = @_;
   $self->get_snmp_objects("UPS-MIB", qw(upsBatteryStatus upsSecondsOnBattery 
       upsEstimatedMinutesRemaining upsBatteryVoltage upsBatteryCurrent
-      upsBatteryTemperature upsOutputFrequency));
+      upsBatteryTemperature upsOutputFrequency upsEstimatedChargeRemaining));
   $self->get_snmp_tables("UPS-MIB", [
       ["inputs", "upsInputTable", "Classes::UPS::Components::BatterySubsystem::Input"],
       ["outputs", "upsOutputTable", "Classes::UPS::Components::BatterySubsystem::Output"],

@@ -15,18 +15,30 @@ sub init {
       ["conditions", "lgpConditionsTable", "Classes::Liebert::Components::EnvironmentalSubsystem::Condition"],
     ]);
   }
+  if ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
+    $self->get_snmp_tables("LIEBERT-GP-ENVIRONMENTAL-MIB", [
+      ["temperatures", "lgpEnvTemperatureDegCTable", "Classes::Liebert::Components::EnvironmentalSubsystem::Temperature"],
+    ]);
+  }
 }
 
 sub check {
   my ($self) = @_;
-  $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
-  if ($self->{lgpSysState} eq 'startUp' ||
-      $self->{lgpSysState} eq 'normalOperation') {
-    $self->add_ok();
-  } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
-    $self->add_warning();
+  if ($self->{lgpConditionsPresent}) {
+    $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
+    if ($self->{lgpSysState} eq 'startUp' ||
+        $self->{lgpSysState} eq 'normalOperation') {
+      $self->add_ok();
+    } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
+      $self->add_warning();
+    } else {
+      $self->add_critical();
+    }
   } else {
-    $self->add_critical();
+    $self->add_info('lgpConditionsPresent false');
+  }
+  foreach (@{$self->{temperatures}}) {
+    $_->check();
   }
 }
 
@@ -38,3 +50,34 @@ use strict;
 sub check {
   my ($self) = @_;
 }
+
+package Classes::Liebert::Components::EnvironmentalSubsystem::Temperature;
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
+use strict;
+
+sub finish {
+  my ($self) = @_;
+  if ($self->{lgpEnvTemperatureDescrDegC} =~ /^[\.\d]+$/) {
+    my $result = $self->get_request(
+        '-varbindlist' => [$self->{lgpEnvTemperatureDescrDegC}]
+    );
+    # vielleicht irgendwann mal. gegen einwurf von muenzen
+    #printf %s\n", Data::Dumper::Dumper($result);
+  }
+  if ($self->{lgpEnvTemperatureDescrDegC} =~ /^[\.\d]+$/) {
+    $self->{name} = $self->{lgpEnvTemperatureIdDegC}
+  }
+}
+
+sub check {
+  my ($self) = @_;
+  $self->add_info(sprintf 'temperature %s is %.2fC', $self->{name},
+      $self->{lgpEnvTemperatureMeasurementDegC}
+  );
+  $self->add_ok();
+  $self->add_perfdata(
+      label => 'temperature_'.$self->{name},
+      value => $self->{lgpEnvTemperatureMeasurementDegC},
+  );
+}
+
