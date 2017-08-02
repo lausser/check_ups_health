@@ -58,25 +58,23 @@ use strict;
 sub finish {
   my ($self) = @_;
   if ($self->{lgpEnvTemperatureDescrDegC} =~ /^[\.\d]+$/) {
-    my $result = $self->get_request(
-        '-varbindlist' => [$self->{lgpEnvTemperatureDescrDegC}]
+    $self->{name} = $self->get_symbol(
+        "LIEBERT-GP-ENVIRONMENTAL-MIB",
+        $self->{lgpEnvTemperatureDescrDegC}
     );
-    # vielleicht irgendwann mal. gegen einwurf von muenzen
-    #printf %s\n", Data::Dumper::Dumper($result);
   }
-  if ($self->{lgpEnvTemperatureDescrDegC} =~ /^[\.\d]+$/) {
-    $self->{name} = $self->{lgpEnvTemperatureIdDegC}
-  }
+  $self->{name} ||= 'temperature_';
+  $self->{name} .= $self->{flat_indices};
 }
 
 sub check {
   my ($self) = @_;
-  $self->add_info(sprintf 'temperature %s is %.2fC', $self->{name},
+  $self->add_info(sprintf '%s is %.2fC', $self->{name},
       $self->{lgpEnvTemperatureMeasurementDegC}
   );
   $self->add_ok();
   $self->add_perfdata(
-      label => 'temperature_'.$self->{name},
+      label => $self->{name},
       value => $self->{lgpEnvTemperatureMeasurementDegC},
   );
 }

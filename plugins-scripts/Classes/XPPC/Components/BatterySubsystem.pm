@@ -41,12 +41,20 @@ sub check {
       $self->{upsSmartBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
     $self->add_critical('battery needs replacing');
   }
-  if ($self->{upsBaseOutputStatus} && # kann auch undef sein (10kv z.b.)
-      $self->{upsBaseOutputStatus} ne 'onLine') {
-    $self->add_warning(sprintf 'output status is %s',
+  if ($self->{upsBaseOutputStatus}) { # kann auch undef sein (10kv z.b.)
+    $self->add_info(sprintf 'output status is %s',
         $self->{upsBaseOutputStatus});
-    $self->add_warning(sprintf 'caused by %s',
-        $self->{upsSmartInputLineFailCause});
+    if ($self->{upsBaseOutputStatus} eq 'standBy') {
+      $self->add_ok();
+    } elsif ($self->{upsBaseOutputStatus} ne 'onLine') {
+      $self->add_warning();
+      if ($self->{upsSmartInputLineFailCause}) {
+        $self->add_warning(sprintf 'caused by %s',
+            $self->{upsSmartInputLineFailCause});
+      }
+    } else {
+      $self->add_ok();
+    }
   }
 
   $self->set_thresholds(
@@ -77,6 +85,11 @@ sub check {
 
   $self->set_thresholds(
       metric => 'battery_temperature', warning => '70', critical => '80');
+  if (defined $self->{upsSmartBatteryTemperature} &&
+      $self->{upsSmartBatteryTemperature} < 0) {
+    # if standby, temp can be -1000
+    $self->{upsSmartBatteryTemperature} = 0;
+  }
   $self->add_info(sprintf 'temperature is %.2fC', $self->{upsSmartBatteryTemperature});
   $self->add_message(
       $self->check_thresholds(
