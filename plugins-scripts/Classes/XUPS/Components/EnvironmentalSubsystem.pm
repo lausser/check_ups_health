@@ -12,7 +12,12 @@ sub new {
 
 sub init {
   my ($self) = @_;
-  $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarmNumEvents));
+  $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarmNumEvents
+      xupsEnvAmbientTemp xupsEnvAmbientLowerLimit xupsEnvAmbientUpperLimit
+      xupsEnvAmbientHumidity
+      xupsEnvRemoteTemp xupsEnvRemoteHumidity
+      xupsEnvRemoteTempLowerLimit xupsEnvRemoteTempUpperLimit
+      xupsEnvRemoteHumidityLowerLimit xupsEnvRemoteHumidityUpperLimit));
   $self->get_snmp_tables("XUPS-MIB", [
       ["alarms", "xupsAlarmTable", "Classes::XUPS::Components::EnvironmentalSubsystem::Alarm"],
   ]);
@@ -23,6 +28,33 @@ sub check {
   $self->add_info('checking alarms');
   foreach (@{$self->{alarms}}) {
     $_->check();
+  }
+  if ($self->{xupsEnvAmbientTemp}) {
+    $self->set_thresholds(metric => 'ambient_temperature',
+        warning => "",
+        critical => $self->{xupsEnvAmbientLowerLimit}.":".$self->{xupsEnvAmbientUpperLimit});
+    $self->add_perfdata(label => 'ambient_temperature',
+        value => $self->{xupsEnvAmbientTemp});
+  }
+  if ($self->{xupsEnvAmbientHumidity}) {
+    $self->add_perfdata(label => 'ambient_humidity',
+        value => $self->{xupsEnvAmbientHumidity},
+        uom => '%');
+  }
+  if ($self->{xupsEnvRemoteTemp}) {
+    $self->set_thresholds(metric => 'rempte_temperature',
+        warning => "",
+        critical => $self->{xupsEnvRemoteTempLowerLimit}.":".$self->{xupsEnvRemoteTempUpperLimit});
+    $self->add_perfdata(label => 'remote_temperature',
+        value => $self->{xupsEnvRemoteTemp});
+  }
+  if ($self->{xupsEnvRemoteHumidity}) {
+    $self->set_thresholds(metric => 'remote_humidity',
+        warning => "",
+        critical => $self->{xupsEnvRemoteHumidityLowerLimit}.":".$self->{xupsEnvRemoteHumidityUpperLimit});
+    $self->add_perfdata(label => 'remote_humidity',
+        value => $self->{xupsEnvRemoteHumidity},
+        uom => '%');
   }
   if (! $self->check_messages()) {
     $self->add_ok("hardware working fine");
