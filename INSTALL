@@ -20,6 +20,9 @@ Basic Installation
 
    These are generic installation instructions.
 
+   If you miss the 'configure' script (because you checked out the
+Github repository instead of the tar.gz), please run 'autoreconf'.
+
    The `configure' shell script attempts to guess correct values for
 various system-dependent variables used during compilation.  It uses
 those values to create a `Makefile' in each directory of the package.
@@ -48,6 +51,9 @@ may remove or edit it.
 a newer version of `autoconf'.
 
 The simplest way to compile this package is:
+
+  0.  If you miss the 'configure' script (because you checked out the
+      Github repository instead of the tar.gz), please run 'autoreconf'.
 
   1. `cd' to the directory containing the package's source code and type
      `./configure' to configure the package for your system.  If you're

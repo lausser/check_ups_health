@@ -19,6 +19,7 @@ sub init {
       upsOutputSource upsTestResultsSummary upsTestResultsDetail
       upsControlStatusControl)));
   $self->{upsSecondsonBattery} ||= 0;
+  $self->{upsBatteryTemperature} ||= 0;
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsInputFrequency} /= 10;
   $self->{upsOutputFrequency} /= 10;
