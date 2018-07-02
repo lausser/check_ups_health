@@ -42,7 +42,7 @@ sub check {
         uom => '%');
   }
   if ($self->{xupsEnvRemoteTemp}) {
-    $self->set_thresholds(metric => 'rempte_temperature',
+    $self->set_thresholds(metric => 'remote_temperature',
         warning => "",
         critical => $self->{xupsEnvRemoteTempLowerLimit}.":".$self->{xupsEnvRemoteTempUpperLimit});
     $self->add_perfdata(label => 'remote_temperature',
