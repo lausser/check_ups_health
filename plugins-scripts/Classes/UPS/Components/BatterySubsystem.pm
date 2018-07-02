@@ -186,5 +186,6 @@ sub check {
   $self->add_perfdata(
       label => 'output_power'.$self->{flat_indices},
       value => $self->{upsOutputPower} || 0,
-  );}
+  );
+}
 
