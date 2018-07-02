@@ -1,0 +1,11 @@
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.log
+config.status
+configure
+plugins-scripts/Makefile
+plugins-scripts/Makefile.in
+plugins-scripts/check_ups_health
+plugins-scripts/subst
