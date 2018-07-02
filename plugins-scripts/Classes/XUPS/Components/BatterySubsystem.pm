@@ -38,6 +38,14 @@ sub check {
       uom => '%',
   );
 
+  if (defined ($self->{xupsBatVoltage})) {
+    $self->add_info(sprintf 'battery voltage is %d VDC', $self->{xupsBatVoltage});
+    $self->add_perfdata(
+      label => 'battery_voltage',
+      value => $self->{xupsBatVoltage},
+    );
+  }
+
   $self->set_thresholds(
       metric => 'output_load', warning => '75', critical => '85');
   $self->add_info(sprintf 'output load %.2f%%', $self->{xupsOutputLoad});
@@ -117,11 +125,15 @@ use strict;
 sub check {
   my ($self) = @_;
   $self->add_perfdata(
-      label => 'output_voltage_'.$self->{flat_indices},
+      label => 'output_voltage'.$self->{flat_indices},
       value => $self->{xupsOutputVoltage},
   );
   $self->add_perfdata(
       label => 'output_current'.$self->{flat_indices},
       value => $self->{xupsOutputCurrent},
+  );
+  $self->add_perfdata(
+      label => 'output_power'.$self->{flat_indices},
+      value => $self->{xupsOutputWatts} || 0,
   );
 }
