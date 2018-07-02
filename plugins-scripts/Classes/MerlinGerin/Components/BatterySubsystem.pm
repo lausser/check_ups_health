@@ -33,6 +33,7 @@ sub init {
   } @{$self->{inputs}};
   @{$self->{inputs}} = splice(@{$self->{inputs}}, 0, $self->{upsmgInputPhaseNum});
   @{$self->{outputs}} = splice(@{$self->{outputs}}, 0, $self->{upsmgOutputPhaseNum});
+  $self->{upsmgBatteryVoltage} /= 10;
 }
 
 sub check {
@@ -98,6 +99,14 @@ sub check {
       label => 'remaining_time',
       value => $self->{upsmgBatteryRemainingTime},
   );
+
+  if (defined ($self->{upsmgBatteryVoltage})) {
+    $self->add_info(sprintf 'battery voltage is %d VDC', $self->{upsmgBatteryVoltage});
+    $self->add_perfdata(
+      label => 'battery_voltage',
+      value => $self->{upsmgBatteryVoltage},
+    );
+  }
 
   foreach (@{$self->{inputs}}) {
     $_->check();
