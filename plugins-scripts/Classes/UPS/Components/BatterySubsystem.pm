@@ -75,18 +75,20 @@ sub check {
       value => $self->{upsEstimatedMinutesRemaining},
   );
 
-  $self->set_thresholds(
-      metric => 'capacity', warning => '25:', critical => '10:');
-  $self->add_info(sprintf 'capacity is %.2f%%', $self->{upsEstimatedChargeRemaining});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsEstimatedChargeRemaining},
-          metric => 'capacity'));
-  $self->add_perfdata(
-      label => 'capacity',
-      value => $self->{upsEstimatedChargeRemaining},
-      uom => '%',
-  );
+  if (defined $self->{upsEstimatedChargeRemaining}) {
+    $self->set_thresholds(
+        metric => 'capacity', warning => '25:', critical => '10:');
+    $self->add_info(sprintf 'capacity is %.2f%%', $self->{upsEstimatedChargeRemaining});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsEstimatedChargeRemaining},
+            metric => 'capacity'));
+    $self->add_perfdata(
+        label => 'capacity',
+        value => $self->{upsEstimatedChargeRemaining},
+        uom => '%',
+    );
+  }
 
   if (defined ($self->{upsBatteryVoltage})) {
     $self->add_info(sprintf 'battery voltage is %d VDC', $self->{upsBatteryVoltage});

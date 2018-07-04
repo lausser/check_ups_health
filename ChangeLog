@@ -1,3 +1,5 @@
+* 2018-07-05 2.8.3
+  merged a lot of pull requests, thanks odenbach
 * 2018-07-02 2.8.2.3
   add amb/remote temp/hum to xups
   update glplugin
