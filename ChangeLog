@@ -1,3 +1,5 @@
+* 2018-12-17 2.8.3.2
+  fix a bug in UPS-MIB for AEG Protect 1.100
 * 2018-07-25 2.8.3.1
   update glplugin (apc firmware bug)
 * 2018-07-05 2.8.3

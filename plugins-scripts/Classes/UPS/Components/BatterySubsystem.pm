@@ -25,6 +25,7 @@ sub init {
   $self->{upsBatteryCurrent} = 0 if ! $self->{upsBatteryCurrent};
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsBatteryCurrent} /= 10;
+  $self->{upsOutputFrequency} = 0 if ! $self->{upsOutputFrequency};
   $self->{upsOutputFrequency} /= 10;
   # bad firmware, no sensor? who knows...
   $self->{upsBatteryTemperature} = 0 if defined $self->{upsBatteryTemperature}
@@ -139,7 +140,7 @@ use strict;
 sub check {
   my ($self) = @_;
   $self->{upsInputFrequency} /= 10;
-  $self->{upsInputCurrent} /= 10;
+  $self->{upsInputCurrent} /= 10 if defined $self->{upsInputCurrent};
   if ($self->{upsInputVoltage} < 1) {
     $self->add_critical(sprintf 'input power%s outage', $self->{flat_indices});
   }
@@ -154,7 +155,7 @@ sub check {
   $self->add_perfdata(
       label => 'input_current'.$self->{flat_indices},
       value => $self->{upsInputCurrent},
-  );
+  ) if defined $self->{upsInputCurrent};
 }
 
 package Classes::UPS::Components::BatterySubsystem::Output;
@@ -163,7 +164,7 @@ use strict;
 
 sub check {
   my ($self) = @_;
-  $self->{upsOutputCurrent} /= 10;
+  $self->{upsOutputCurrent} /= 10 if defined $self->{upsOutputCurrent};
   my $metric = 'output_load'.$self->{flat_indices};
   $self->set_thresholds(
       metric => $metric, warning => '75', critical => '85');
@@ -184,7 +185,7 @@ sub check {
   $self->add_perfdata(
       label => 'output_current'.$self->{flat_indices},
       value => $self->{upsOutputCurrent},
-  );
+  ) if defined $self->{upsOutputCurrent};
   $self->add_perfdata(
       label => 'output_power'.$self->{flat_indices},
       value => $self->{upsOutputPower} || 0,
