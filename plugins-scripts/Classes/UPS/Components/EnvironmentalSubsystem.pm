@@ -15,7 +15,7 @@ sub init {
   $self->get_snmp_objects("UPS-MIB", qw(upsAlarmsPresent upsTestResultsSummary
       upsTestResultsDetail upsTestStartTime));
   $self->get_snmp_tables("UPS-MIB", [
-      ["alarms", "upsAlarmTable", "Classes::UPS::Components::EnvironmentalSubsystem::Alarm"],
+      ["alarms", "upsAlarmTable", "Classes::UPS::Components::EnvironmentalSubsystem::Alarm", sub { shift->{upsAlarmDescr} =~ /0.0.0.0.0.0.0.0.0.0.0/ ? 0 : 1 } ],
   ]);
 }
 

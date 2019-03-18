@@ -1,3 +1,5 @@
+* 2019-03-18 2.8.3.3
+  skip ampty alarms in UPS-MIB
 * 2018-12-17 2.8.3.2
   fix a bug in UPS-MIB for AEG Protect 1.100
 * 2018-07-25 2.8.3.1
