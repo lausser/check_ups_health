@@ -1,3 +1,5 @@
+* 2019-10-22 2.8.3.4
+  fix false positive in UPS-MIB (remainingminutes and x-thresholds)
 * 2019-03-18 2.8.3.3
   skip ampty alarms in UPS-MIB
 * 2018-12-17 2.8.3.2

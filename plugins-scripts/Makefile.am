@@ -26,7 +26,8 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSV4MIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XPPCMIB.pm \
-  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XUPSMIB.pm
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XUPSMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMANRIELLOSENTRMIB.pm
 EXTRA_MODULES=\
   Classes/APC/Powermib/UPS/Components/EnvironmentalSubsystem.pm \
   Classes/APC/Powermib/UPS/Components/BatterySubsystem.pm \

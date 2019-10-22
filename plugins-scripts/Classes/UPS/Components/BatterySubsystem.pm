@@ -62,15 +62,17 @@ sub check {
     $self->set_thresholds(
         metric => 'remaining_time', warning => '15:', critical => '10:');
     $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsEstimatedMinutesRemaining});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsEstimatedMinutesRemaining},
+            metric => 'remaining_time'));
   } else {
     $self->set_thresholds(
         metric => 'remaining_time', warning => '0:', critical => '0:');
-    $self->add_info('unit is not on battery power');
+    # do not evaluate with check_thresholds, because there might be
+    # higher thresholds set by warningx/criticalx
+    $self->add_ok('unit is not on battery power');
   }
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsEstimatedMinutesRemaining},
-          metric => 'remaining_time'));
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{upsEstimatedMinutesRemaining},
