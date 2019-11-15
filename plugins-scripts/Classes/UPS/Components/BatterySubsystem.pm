@@ -29,7 +29,7 @@ sub init {
   $self->{upsOutputFrequency} /= 10;
   # bad firmware, no sensor? who knows...
   $self->{upsBatteryTemperature} = 0 if defined $self->{upsBatteryTemperature}
-      && $self->{upsBatteryTemperature} == -50;
+      && ($self->{upsBatteryTemperature} == -50 || $self->{upsBatteryTemperature} == 2147483647);
   # The same generex cs141 had inputs and outputs with only the index oid.
   # So these do not exist in reality.
   @{$self->{inputs}} = grep {
