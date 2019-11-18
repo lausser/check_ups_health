@@ -23,6 +23,12 @@ sub init {
   ]);
 }
 
+sub upper_lower_limit {
+  my ($lower, $upper) = @_;
+  my $range = (defined $lower ? $lower : "").":".(defined $upper ? $upper : "");
+  return $range eq ":" ? undef : $range;
+}
+
 sub check {
   my ($self) = @_;
   $self->add_info('checking alarms');
@@ -30,9 +36,12 @@ sub check {
     $_->check();
   }
   if ($self->{xupsEnvAmbientTemp}) {
-    $self->set_thresholds(metric => 'ambient_temperature',
-        warning => "",
-        critical => $self->{xupsEnvAmbientLowerLimit}.":".$self->{xupsEnvAmbientUpperLimit});
+    if (my $range = $self->upper_lower_limit($self->{xupsEnvAmbientLowerLimit}, $self->{xupsEnvAmbientUpperLimit})) {
+      $self->set_thresholds(metric => 'ambient_temperature',
+          warning => "",
+          critical => $range,
+      );
+    }
     $self->add_perfdata(label => 'ambient_temperature',
         value => $self->{xupsEnvAmbientTemp});
   }
@@ -42,16 +51,22 @@ sub check {
         uom => '%');
   }
   if ($self->{xupsEnvRemoteTemp}) {
-    $self->set_thresholds(metric => 'remote_temperature',
-        warning => "",
-        critical => $self->{xupsEnvRemoteTempLowerLimit}.":".$self->{xupsEnvRemoteTempUpperLimit});
+    if (my $range = $self->upper_lower_limit($self->{xupsEnvRemoteTempLowerLimit}, $self->{xupsEnvRemoteTempUpperLimit})) {
+      $self->set_thresholds(metric => 'remote_temperature',
+          warning => "",
+          critical => $range,
+      );
+    }
     $self->add_perfdata(label => 'remote_temperature',
         value => $self->{xupsEnvRemoteTemp});
   }
   if ($self->{xupsEnvRemoteHumidity}) {
-    $self->set_thresholds(metric => 'remote_humidity',
-        warning => "",
-        critical => $self->{xupsEnvRemoteHumidityLowerLimit}.":".$self->{xupsEnvRemoteHumidityUpperLimit});
+    if (my $range = $self->upper_lower_limit($self->{xupsEnvRemoteHumidityLowerLimit}, $self->{xupsEnvRemoteHumidityUpperLimit})) {
+      $self->set_thresholds(metric => 'remote_humidity',
+          warning => "",
+          critical => $range,
+      );
+    }
     $self->add_perfdata(label => 'remote_humidity',
         value => $self->{xupsEnvRemoteHumidity},
         uom => '%');
