@@ -45,12 +45,19 @@ sub check {
   if ($self->{upsAdvBatteryReplaceIndicator} && $self->{upsAdvBatteryReplaceIndicator} eq 'batteryNeedsReplacing') {
     $self->add_critical('battery needs replacing');
   }
-  if ($self->{upsBasicOutputStatus} && # kann auch undef sein (10kv z.b.)
-      $self->{upsBasicOutputStatus} ne 'onLine') {
-    $self->add_warning(sprintf 'output status is %s',
-        $self->{upsBasicOutputStatus});
-    $self->add_warning(sprintf 'caused by %s',
-        $self->{upsAdvInputLineFailCause});
+  if ($self->{upsBasicOutputStatus}) { # kann auch undef sein (10kv z.b.)
+    if ($self->{upsBasicOutputStatus} eq 'onBattery' &&
+        $self->{upsAdvInputLineFailCause} eq 'selfTest') {
+      $self->add_ok(sprintf 'output status is %s',
+          $self->{upsBasicOutputStatus});
+      $self->add_ok(sprintf 'caused by %s',
+          $self->{upsAdvInputLineFailCause});
+    } elsif ($self->{upsBasicOutputStatus} ne 'onLine') {
+      $self->add_warning(sprintf 'output status is %s',
+          $self->{upsBasicOutputStatus});
+      $self->add_warning(sprintf 'caused by %s',
+          $self->{upsAdvInputLineFailCause});
+    }
   }
 
   $self->set_thresholds(
