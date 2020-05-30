@@ -12,7 +12,6 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/SysDescPrettify.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids.pm \
-  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPCONDITIONSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPENVIRONMENTALMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPFLEXIBLEMIB.pm \
@@ -28,7 +27,9 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSV4MIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XPPCMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XUPSMIB.pm \
-  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMANRIELLOSENTRMIB.pm
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMANRIELLOSENTRMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSTHREEPHASEMIB.pm
 EXTRA_MODULES=\
   Classes/APC/Powermib/UPS/Components/EnvironmentalSubsystem.pm \
   Classes/APC/Powermib/UPS/Components/BatterySubsystem.pm \
@@ -57,6 +58,9 @@ EXTRA_MODULES=\
   Classes/Liebert/Component/EnvironmentalSubsystem.pm \
   Classes/Liebert/Component/BatterySubsystem.pm \
   Classes/Liebert.pm \
+  Classes/ATS/ATSTHREEPHASE/Components/EnvironmentalSubsystem.pm \
+  Classes/ATS/ATSTHREEPHASE/Components/BatterySubsystem.pm \
+  Classes/ATS.pm \
   Classes/Device.pm
 
 SED=/bin/sed

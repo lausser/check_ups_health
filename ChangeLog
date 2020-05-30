@@ -1,3 +1,5 @@
+* 2020-05-30 2.9
+  add ATS-THREEPHASE-MIB
 * 2020-05-19 2.8.3.9
   Powernet-MIB onBattery is ok when running a selftest
 * 2019-04-15 2.8.3.8

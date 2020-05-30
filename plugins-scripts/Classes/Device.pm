@@ -32,6 +32,8 @@ sub classify {
       } elsif ($self->implements_mib('LIEBERT-GP-POWER-MIB')) {
         bless $self, 'Classes::Liebert';
         $self->debug('using Classes::Liebert');
+      } elsif ($self->implements_mib('ATS-THREEPHASE-MIB')) {
+        $self->rebless('Classes::ATS');
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'Classes::V4';
         $self->debug('using Classes::V4');
