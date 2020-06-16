@@ -24,6 +24,7 @@ sub init {
 }
 
 sub upper_lower_limit {
+  my $self = shift;
   my ($lower, $upper) = @_;
   my $range = (defined $lower ? $lower : "").":".(defined $upper ? $upper : "");
   return $range eq ":" ? undef : $range;
