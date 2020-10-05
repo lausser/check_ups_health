@@ -29,7 +29,6 @@ sub init {
   if ($@) {
     $self->{upsSmartTestLastDiagnosticsDate} = 0;
   }
-
 }
 
 sub check {
@@ -97,6 +96,13 @@ sub check {
         label => 'selftest_age',
         value => $self->{upsSmartTestLastDiagnosticsAge},
     );
+  } elsif ($self->{upsSmartTestDiagnosticsResults}) {
+    $self->add_info(sprintf 'selftest result was %s (run date unknown)', $self->{upsSmartTestDiagnosticsResults});
+    if ($self->{upsSmartTestDiagnosticsResults} eq 'failed') {
+      $self->add_warning();
+    } else {
+      $self->add_ok();
+    }
   } else {
     $self->add_warning("please run diagnostics");
   }
