@@ -73,10 +73,13 @@ sub check {
     # higher thresholds set by warningx/criticalx
     $self->add_ok('unit is not on battery power');
   }
-  $self->add_perfdata(
-      label => 'remaining_time',
-      value => $self->{upsEstimatedMinutesRemaining},
-  );
+
+  if ($self->{upsEstimatedMinutesRemaining} ne '') {
+    $self->add_perfdata(
+        label => 'remaining_time',
+        value => $self->{upsEstimatedMinutesRemaining},
+    );
+  }
 
   if (defined $self->{upsEstimatedChargeRemaining}) {
     $self->set_thresholds(
