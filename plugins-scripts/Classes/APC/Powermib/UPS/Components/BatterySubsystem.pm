@@ -62,15 +62,32 @@ sub check {
 
   $self->set_thresholds(
       metric => 'capacity', warning => '25:', critical => '10:');
+  my ($warn, $crit) = $self->get_thresholds(metric => 'capacity');
+  if ($self->{upsBasicOutputStatus} and
+      $self->{upsBasicOutputStatus} eq 'onBattery' and
+      $self->{upsAdvInputLineFailCause} eq 'selfTest') {
+    # Schwellwerte halbieren, da beim Selbsttest durchaus ein paar Prozent
+    # verloren gehen.
+    (my $nwarn = $warn) =~ s/:$//g;
+    (my $ncrit = $crit) =~ s/:$//g;
+    $nwarn /= 2;
+    $ncrit /= 2;
+    $warn = $nwarn.':';
+    $crit = $ncrit.':';
+  }
   $self->add_info(sprintf 'capacity is %.2f%%', $self->{upsAdvBatteryCapacity});
   $self->add_message(
       $self->check_thresholds(
           value => $self->{upsAdvBatteryCapacity},
-          metric => 'capacity'));
+          metric => 'capacity',
+          warning => $warn,
+          critical => $crit));
   $self->add_perfdata(
       label => 'capacity',
       value => $self->{upsAdvBatteryCapacity},
       uom => '%',
+      warning => $warn,
+      critical => $crit,
   );
 
   $self->set_thresholds(

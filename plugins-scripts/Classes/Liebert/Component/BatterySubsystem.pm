@@ -29,7 +29,7 @@ sub check {
       $self->add_critical();
     }
   }
-  if (! $self->implements_mib('UPS-MIB')) {
+  if (! $self->implements_mib('UPS-MIB') && $self->implements_mib('LIEBERT-GP-POWER-MIB')) {
     $self->set_thresholds( metric => 'remaining_time', warning => '15:', critical => '10:');
     if ($self->{lgpPwrBatteryTimeRemaining} == 65535) {
       $self->add_info(sprintf 'system is not capable of providing the remaining battery run time (but is not operating on battery now)');
@@ -50,6 +50,8 @@ sub check {
     } elsif ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryDepleted') {
       $self->add_critical();
     }
+  } elsif (! $self->implements_mib('UPS-MIB') && ! $self->implements_mib('LIEBERT-GP-POWER-MIB')) {
+    $self->add_ok("there is neither UPS-MIB nor LIEBERT-GP-POWER-MIB, there is no information about battery and current");
   }
 }
 

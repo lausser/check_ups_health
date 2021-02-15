@@ -65,10 +65,19 @@ sub finish {
   }
   $self->{name} ||= 'temperature_';
   $self->{name} .= $self->{flat_indices};
+  if (! defined $self->{lgpEnvTemperatureMeasurementDegC}) {
+    $self->{lgpEnvTemperatureMeasurementDegC} =
+        $self->{lgpEnvTemperatureMeasurementTenthsDegC} / 10.0;
+  }
 }
 
 sub check {
   my ($self) = @_;
+  if ($self->{lgpEnvTemperatureMeasurementTenthsDegC} &&
+      $self->{lgpEnvTemperatureMeasurementTenthsDegC} ==  2147483647) {
+    # Maxint, duerfte ein nicht-existierender Wert sein.
+    return;
+  }
   $self->add_info(sprintf '%s is %.2fC', $self->{name},
       $self->{lgpEnvTemperatureMeasurementDegC}
   );

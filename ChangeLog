@@ -1,3 +1,7 @@
+* 2021-02-15 2.9.2.2
+  lower capacity thresholds during selftest for APC Powermib
+* 2020-10-05 2.9.2.1
+  fig Liebert detection, fix a NaN temperature value in Liebert
 * 2020-10-05 2.9.2
   update glplugin
   fix xppc selftests without a test date (tests may not be available at all)
