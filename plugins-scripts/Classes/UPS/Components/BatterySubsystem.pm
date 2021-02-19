@@ -28,8 +28,14 @@ sub init {
   $self->{upsOutputFrequency} = 0 if ! $self->{upsOutputFrequency};
   $self->{upsOutputFrequency} /= 10;
   # bad firmware, no sensor? who knows...
-  $self->{upsBatteryTemperature} = undef if defined $self->{upsBatteryTemperature}
-      && ($self->{upsBatteryTemperature} == -50 || $self->{upsBatteryTemperature} == 2147483647);
+  $self->{upsBatteryTemperature} = undef if
+      defined $self->{upsBatteryTemperature} &&
+      # 2 konkrete Faelle, -50 und -49. Gelernt, dass hier kein Sensor
+      # verbaut wurde und das Phantasiewerte sind. Denke nicht, dass es
+      # in der Realitaet eine USV gibt, die irgendwo bei -40 Grad rumsteht,
+      # also fliegt alles raus, was drunter liegt.
+      ($self->{upsBatteryTemperature} < -40 ||
+      $self->{upsBatteryTemperature} == 2147483647);
   # The same generex cs141 had inputs and outputs with only the index oid.
   # So these do not exist in reality.
   @{$self->{inputs}} = grep {

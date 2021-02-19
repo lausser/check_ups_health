@@ -1,3 +1,5 @@
+* 2021-02-19 2.9.2.3
+  ignore very low battery temperatures for ups-mib (cs141 with empty slot)
 * 2021-02-15 2.9.2.2
   lower capacity thresholds during selftest for APC Powermib
 * 2020-10-05 2.9.2.1
