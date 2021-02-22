@@ -1,3 +1,5 @@
+* 2021-02-22 2.9.2.4
+  suppress battery temperature for APC Powernet if undefined
 * 2021-02-19 2.9.2.3
   ignore very low battery temperatures for ups-mib (cs141 with empty slot)
 * 2021-02-15 2.9.2.2

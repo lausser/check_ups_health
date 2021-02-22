@@ -103,17 +103,19 @@ sub check {
       uom => '%',
   );
 
-  $self->set_thresholds(
-      metric => 'battery_temperature', warning => '70', critical => '80');
-  $self->add_info(sprintf 'temperature is %.2fC', $self->{upsAdvBatteryTemperature});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsAdvBatteryTemperature},
-          metric => 'battery_temperature'));
-  $self->add_perfdata(
-      label => 'battery_temperature',
-      value => $self->{upsAdvBatteryTemperature},
-  );
+  if (defined $self->{upsAdvBatteryTemperature}) {
+    $self->set_thresholds(
+        metric => 'battery_temperature', warning => '70', critical => '80');
+    $self->add_info(sprintf 'temperature is %.2fC', $self->{upsAdvBatteryTemperature});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsAdvBatteryTemperature},
+            metric => 'battery_temperature'));
+    $self->add_perfdata(
+        label => 'battery_temperature',
+        value => $self->{upsAdvBatteryTemperature},
+    );
+  }
 
   $self->set_thresholds(
       metric => 'remaining_time', warning => '10:', critical => '8:');
