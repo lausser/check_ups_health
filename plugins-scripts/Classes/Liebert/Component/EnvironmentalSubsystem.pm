@@ -24,18 +24,22 @@ sub init {
 
 sub check {
   my ($self) = @_;
-  if ($self->{lgpConditionsPresent}) {
-    $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
-    if ($self->{lgpSysState} eq 'startUp' ||
-        $self->{lgpSysState} eq 'normalOperation') {
-      $self->add_ok();
-    } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
-      $self->add_warning();
+  if (defined $self->{lgpSysState}) {
+    if ($self->{lgpConditionsPresent}) {
+      $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
+      if ($self->{lgpSysState} eq 'startUp' ||
+          $self->{lgpSysState} eq 'normalOperation') {
+        $self->add_ok();
+      } elsif ($self->{lgpSysState} eq 'normalWithWarning') {
+        $self->add_warning();
+      } else {
+        $self->add_critical();
+      }
     } else {
-      $self->add_critical();
+      $self->add_info('lgpConditionsPresent false');
     }
   } else {
-    $self->add_info('lgpConditionsPresent false');
+    # soll's die UPS-MIB richten
   }
   foreach (@{$self->{temperatures}}) {
     $_->check();
@@ -46,6 +50,12 @@ sub check {
 package Classes::Liebert::Components::EnvironmentalSubsystem::Condition;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
+
+sub finish {
+  my ($self) = @_;
+  $self->{lpgConditionEventTime} = time - $self->ago_sysuptime($self->{lpgConditionTime});
+  $self->{lpgConditionEventTimeHuman} = scalar localtime time - $self->ago_sysuptime($self->{lpgConditionTime});
+}
 
 sub check {
   my ($self) = @_;

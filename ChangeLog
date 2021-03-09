@@ -1,3 +1,8 @@
+* 2021-03-09 2.9.2.6
+  updated glplugin, fixes error for apc powernet and capacity during selftest
+  more logging output for liebert
+* 2021-03-08 2.9.2.5
+  bugfix in selftest of liebert
 * 2021-02-22 2.9.2.4
   suppress battery temperature for APC Powernet if undefined
 * 2021-02-19 2.9.2.3
