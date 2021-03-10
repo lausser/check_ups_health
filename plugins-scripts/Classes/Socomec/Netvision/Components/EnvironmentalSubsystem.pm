@@ -12,6 +12,9 @@ sub new {
 
 sub init {
   my ($self) = @_;
+  # one socomec did not like the default maxrepetitions of 20.
+  # upsAlarmTable hung until timeout
+  $self->bulk_is_baeh();
   $self->get_snmp_objects("Netvision-v6-MIB", (qw(
       upsIdentModel upsIdentClassesFirmwareVersion upsIdentUpsSerialNumber
       upsAlarmsPresent)));
