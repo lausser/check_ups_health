@@ -40,6 +40,8 @@ sub classify {
       } elsif ($self->implements_mib('UPSV4-MIB')) {
         bless $self, 'Classes::V4';
         $self->debug('using Classes::V4');
+      } elsif ($self->implements_mib('EPPC-MIB')) {
+        $self->rebless('Classes::EPPC');
       } elsif ($self->implements_mib('XPPC-MIB')) {
         # before UPS-MIB because i found a Intelligent MSII6000 which implemented
         # both XPPC and UPS, but the latter only partial

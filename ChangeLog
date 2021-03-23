@@ -1,3 +1,5 @@
+* 2021-03-23 2.10
+  add EPPC-MIB
 * 2021-03-10 2.9.2.7
   no bulk requests for Socomec Netvision, plugin may hang
 * 2021-03-09 2.9.2.6

@@ -29,7 +29,8 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/XUPSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/UPSMANRIELLOSENTRMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSMIB.pm \
-  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSTHREEPHASEMIB.pm
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSTHREEPHASEMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EPPCMIB.pm
 EXTRA_MODULES=\
   Classes/APC/Powermib/UPS/Components/EnvironmentalSubsystem.pm \
   Classes/APC/Powermib/UPS/Components/BatterySubsystem.pm \
@@ -46,6 +47,9 @@ EXTRA_MODULES=\
   Classes/XUPS/Components/EnvironmentalSubsystem.pm \
   Classes/XUPS/Components/BatterySubsystem.pm \
   Classes/XUPS.pm \
+  Classes/EPPC/Components/EnvironmentalSubsystem.pm \
+  Classes/EPPC/Components/BatterySubsystem.pm \
+  Classes/EPPC.pm \
   Classes/XPPC/Components/EnvironmentalSubsystem.pm \
   Classes/XPPC/Components/BatterySubsystem.pm \
   Classes/XPPC.pm \
