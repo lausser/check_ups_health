@@ -1,15 +1,7 @@
 package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem;
-our @ISA = qw(Classes::APC::Powermib);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use POSIX qw(mktime);
-
-sub new {
-  my $class = shift;
-  my $self = {};
-  bless $self, $class;
-  $self->init();
-  return $self;
-}
 
 sub init {
   my ($self) = @_;
@@ -112,25 +104,12 @@ sub check {
   }
 }
 
-sub xdump {
-  my ($self) = @_;
-  printf "[HARDWARE]\n";
-  foreach (qw(upsBasicIdentModel 
-      upsAdvIdentDateOfManufacture upsAdvIdentSerialNumber
-      upsAdvTestDiagnosticSchedule
-      upsAdvTestDiagnosticsResults upsAdvTestLastDiagnosticsDate)) {
-    printf "%s: %s\n", $_, $self->{$_} if defined $self->{$_};
-    printf "%s: %s\n", $_, scalar localtime $self->{$_} if (defined $self->{$_} && $_ =~ /Date$/);
-  }
-  printf "info: %s\n", $self->{info};
-  printf "\n";
-}
 
 package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Simple;
-our @ISA = qw(Classes::APC::Powermib);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Advanced;
-our @ISA = qw(Classes::APC::Powermib);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

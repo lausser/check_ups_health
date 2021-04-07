@@ -1,14 +1,6 @@
 package Classes::XUPS::Components::EnvironmentalSubsystem;
-our @ISA = qw(Classes::XUPS);
+our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
-
-sub new {
-  my $class = shift;
-  my $self = {};
-  bless $self, $class;
-  $self->init();
-  return $self;
-}
 
 sub init {
   my ($self) = @_;

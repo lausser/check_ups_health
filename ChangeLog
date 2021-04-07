@@ -1,3 +1,5 @@
+* 2021-04-07 3.0
+  fix the class inheritance, lower thresholds for powernet 4 hours after a selftest
 * 2021-03-23 2.10
   add EPPC-MIB
 * 2021-03-10 2.9.2.7
