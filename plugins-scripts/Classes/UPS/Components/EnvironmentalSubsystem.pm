@@ -27,8 +27,9 @@ sub check {
     } elsif ($self->{upsTestResultsSummary} eq "doneError") {
       $self->add_critical($result);
     }
-    my $last_test = $self->uptime() - $self->{upsTestStartTime};
-    my $days_ago = (time - $last_test) / (3600 * 24);
+    my $last_test_ago = $self->ago_sysuptime($self->{upsTestStartTime});
+    $self->{upsAdvTestLastDiagnosticsDate} = time - $last_test_ago;
+    $self->{upsAdvTestLastDiagnosticsAge} = $last_test_ago / (3600 * 24);
     $self->add_info(sprintf 'last selftest was %d days ago (%s)',
         $self->{upsAdvTestLastDiagnosticsAge}, scalar localtime $self->{upsAdvTestLastDiagnosticsDate});
     $self->add_message(
@@ -64,9 +65,15 @@ package Classes::UPS::Components::EnvironmentalSubsystem::Alarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
+sub finish {
+  my ($self) = @_;
+  $self->{upsAlarmEventTime} = time - $self->ago_sysuptime($self->{upsAlarmTime});
+  $self->{upsAlarmEventTimeHuman} = scalar localtime $self->{upsAlarmEventTime};
+}
+
 sub check {
   my ($self) = @_;
-  my $age = $self->uptime() - $self->{upsAlarmTime};
+  my $age = $self->ago_sysuptime($self->{upsAlarmTime});
   if ($age < 3600) {
     if ($self->{upsAlarmDescr} !~ /(upsAlarmTestInProgress|.*AsRequested)/) {
       $self->add_critical(sprintf "alarm: %s (%d min ago)",

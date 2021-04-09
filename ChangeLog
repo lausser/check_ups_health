@@ -1,3 +1,5 @@
+* 2021-04-09 3.0.1
+  bugfixes in UPS and Liebert-GP (avoid undefined errors)
 * 2021-04-07 3.0
   fix the class inheritance, lower thresholds for powernet 4 hours after a selftest
 * 2021-03-23 2.10

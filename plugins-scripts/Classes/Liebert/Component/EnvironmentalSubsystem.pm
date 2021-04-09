@@ -26,6 +26,7 @@ sub check {
   my ($self) = @_;
   if (defined $self->{lgpSysState}) {
     if ($self->{lgpConditionsPresent}) {
+      $self->{lgpSysState} ||= "errors found";
       $self->add_info(sprintf 'system state is %s', $self->{lgpSysState});
       if ($self->{lgpSysState} eq 'startUp' ||
           $self->{lgpSysState} eq 'normalOperation') {
@@ -41,6 +42,9 @@ sub check {
   } else {
     # soll's die UPS-MIB richten
   }
+  foreach (@{$self->{conditions}}) {
+    $_->check();
+  }
   foreach (@{$self->{temperatures}}) {
     $_->check();
   }
@@ -53,12 +57,24 @@ use strict;
 
 sub finish {
   my ($self) = @_;
-  $self->{lpgConditionEventTime} = time - $self->ago_sysuptime($self->{lpgConditionTime});
-  $self->{lpgConditionEventTimeHuman} = scalar localtime time - $self->ago_sysuptime($self->{lpgConditionTime});
+  $self->{lgpConditionEventTime} = time - $self->ago_sysuptime($self->{lgpConditionTime});
+  $self->{lgpConditionEventTimeHuman} = scalar localtime time - $self->ago_sysuptime($self->{lgpConditionTime});
 }
 
 sub check {
   my ($self) = @_;
+  my $age = $self->ago_sysuptime($self->{lgpConditionTime});
+  if ($age < 3600) {
+    if ($self->{lgpConditionAcknowledged} eq "notAcknowledged" and $self->{lgpConditionCurrentState} eq "active") {
+      $self->add_info(sprintf "alarm: %s (%d min ago)",
+          $self->{lgpConditionDescr}, $age / 60);
+      if ($self->{lgpConditionSeverity} eq "minor") {
+        $self->add_warning();
+      } elsif ($self->{lgpConditionSeverity} =~ /(major|critical)/) {
+        $self->add_critical();
+      }
+    }
+  }
 }
 
 package Classes::Liebert::Components::EnvironmentalSubsystem::Temperature;
