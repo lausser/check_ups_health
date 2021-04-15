@@ -97,11 +97,13 @@ sub check {
     }
   }
   my $relaxed_thresholds = 0;
+  # braucht bis zu 6 Stunden, um nach dem Selftest wieder normal zu werden
+  $self->opts->override_opt('lookback', 6) if ! $self->opts->lookback;
   if ($self->{upsBasicOutputStatus} and
       $self->{upsBasicOutputStatus} eq 'onBattery' and
       $self->{upsAdvInputLineFailCause} eq 'selfTest') {
     $relaxed_thresholds = 1;
-  } elsif ($self->{upsAdvTestLastDiagnosticsAgeHours} <= 4) {
+  } elsif ($self->{upsAdvTestLastDiagnosticsAgeHours} <= $self->opts->lookback) {
     # nach dem Selbsttest kann es eine Weile dauern, bis die Batterie wieder
     # volle Kapazitaet hat.
     $relaxed_thresholds = 1;
