@@ -97,8 +97,8 @@ sub check {
     }
   }
   my $relaxed_thresholds = 0;
-  # braucht bis zu 6 Stunden, um nach dem Selftest wieder normal zu werden
-  $self->opts->override_opt('lookback', 6) if ! $self->opts->lookback;
+  # braucht bis zu 6, nein, 7 Stunden, um nach dem Selftest wieder normal zu werden. So a Glump.
+  $self->opts->override_opt('lookback', 7) if ! $self->opts->lookback;
   if ($self->{upsBasicOutputStatus} and
       $self->{upsBasicOutputStatus} eq 'onBattery' and
       $self->{upsAdvInputLineFailCause} eq 'selfTest') {
