@@ -1,3 +1,5 @@
+* 2021-09-28 3.0.1.4
+  add diag dump to check selftest time
 * 2021-08-10 3.0.1.3
   add more tracing information for Powermib, update GLPlugin
 * 2021-04-30 3.0.1.2

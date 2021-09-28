@@ -5,17 +5,31 @@ use POSIX qw(mktime);
 
 sub init {
   my ($self) = @_;
+  $self->{diag} = {};
   $self->get_snmp_objects('PowerNet-MIB', (qw(
-      upsBasicBatteryStatus upsAdvBatteryCapacity 
-      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature 
-      upsAdvBatteryRunTimeRemaining 
-      upsAdvInputLineVoltage upsAdvInputFrequency 
-      upsAdvInputMaxLineVoltage upsAdvInputMinLineVoltage 
-      upsAdvOutputVoltage upsAdvOutputFrequency 
+      upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvBatteryRunTimeRemaining
+      upsAdvInputLineVoltage upsAdvInputFrequency
+      upsAdvInputMaxLineVoltage upsAdvInputMinLineVoltage
+      upsAdvOutputVoltage upsAdvOutputFrequency
       upsBasicOutputStatus upsAdvOutputLoad upsAdvOutputCurrent
-      upsHighPrecOutputLoad  
+      upsHighPrecOutputLoad
       upsAdvTestLastDiagnosticsDate upsAdvTestDiagnosticTime
       upsAdvInputLineFailCause)));
+  foreach my $key (qw(
+      upsBasicBatteryStatus upsAdvBatteryCapacity
+      upsAdvBatteryReplaceIndicator upsAdvBatteryTemperature
+      upsAdvBatteryRunTimeRemaining
+      upsAdvInputLineVoltage upsAdvInputFrequency
+      upsAdvInputMaxLineVoltage upsAdvInputMinLineVoltage
+      upsAdvOutputVoltage upsAdvOutputFrequency
+      upsBasicOutputStatus upsAdvOutputLoad upsAdvOutputCurrent
+      upsHighPrecOutputLoad
+      upsAdvTestLastDiagnosticsDate upsAdvTestDiagnosticTime
+      upsAdvInputLineFailCause)) {
+    $self->{diag}->{$key} = $self->{$key};
+  }
   $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
   # beobachtet bei Smart-Classes RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
@@ -152,6 +166,8 @@ sub check {
         $self->{upsAdvTestLastDiagnosticsAgeHours});
     $self->annotate_info(sprintf "trace %s",
         $self->{upsAdvTestLastDiagnosticsTrace});
+    $self->annotate_info(sprintf "diag %s",
+        Data::Dumper::Dumper($self->{diag}));
   }
   $self->add_message(
       $self->check_thresholds(
