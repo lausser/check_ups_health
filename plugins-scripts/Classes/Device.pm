@@ -29,10 +29,16 @@ sub classify {
         # like XPPC, that's why UPS is now last
         bless $self, 'Classes::MerlinGerin';
         $self->debug('using Classes::MerlinGerin');
+      } elsif ($self->implements_mib('LIEBERT-GP-AGENT-MIB-xxxxxx')) {
+        bless $self, 'Classes::Liebert';
+        $self->debug('using Classes::Liebert');
       } elsif ($self->implements_mib('LIEBERT-GP-POWER-MIB')) {
         bless $self, 'Classes::Liebert';
         $self->debug('using Classes::Liebert');
       } elsif ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
+        bless $self, 'Classes::Liebert';
+        $self->debug('using Classes::Liebert');
+      } elsif ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
         bless $self, 'Classes::Liebert';
         $self->debug('using Classes::Liebert');
       } elsif ($self->implements_mib('ATS-THREEPHASE-MIB')) {

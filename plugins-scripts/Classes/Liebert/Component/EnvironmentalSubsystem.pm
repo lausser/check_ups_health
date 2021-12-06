@@ -20,6 +20,11 @@ sub init {
       ["temperatures", "lgpEnvTemperatureDegCTable", "Classes::Liebert::Components::EnvironmentalSubsystem::Temperature"],
     ]);
   }
+  if ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
+    $self->get_snmp_tables("LIEBERT-GP-FLEXIBLE-MIB", [
+      ["flex", "lgpFlexibleBasicTable", "Monitoring::GLPlugin::SNMP::TableItem"],
+    ]);
+  }
 }
 
 sub check {

@@ -27,6 +27,7 @@ sub init {
       # in der Realitaet eine USV gibt, die irgendwo bei -40 Grad rumsteht,
       # also fliegt alles raus, was drunter liegt.
       ($self->{upsBatteryTemperature} < -40 ||
+      $self->{upsBatteryTemperature} == 999 ||
       $self->{upsBatteryTemperature} == 2147483647);
   # The same generex cs141 had inputs and outputs with only the index oid.
   # So these do not exist in reality.

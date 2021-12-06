@@ -48,7 +48,7 @@ sub init {
     my($tmon, $tday, $tyear) = ($1, $2, $3);
     $self->{upsAdvTestLastDiagnosticsDate} = mktime(0, 0, 0, $tday, $tmon - 1, $tyear - 1900);
     my $seconds = 0;
-    if ($self->{upsAdvTestDiagnosticTime}) {
+    if (defined $self->{upsAdvTestDiagnosticTime}) {
       $self->{upsAdvTestLastDiagnosticsTrace} .=
           sprintf " upsAdvTestDiagnosticTime is %s",
           $self->{upsAdvTestDiagnosticTime};

@@ -1,3 +1,7 @@
+* 2021-12-06 3.0.2
+  bugfix in UPS battery temperature
+  update LIEBERT
+  update GLPlugin
 * 2021-09-28 3.0.1.4
   add diag dump to check selftest time
 * 2021-08-10 3.0.1.3
