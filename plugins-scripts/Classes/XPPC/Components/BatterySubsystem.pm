@@ -14,10 +14,25 @@ sub init {
       upsSmartOutputLoad)));
   $self->{upsSmartBatteryTemperature} /= 10;
   $self->{upsSmartBatteryVoltage} *= 10;
-  $self->{upsSmartInputLineVoltage} /= 10 if defined $self->{upsSmartInputLineVoltage};
   $self->{upsSmartInputFrequency} /= 10 if defined $self->{upsSmartInputFrequency};
   $self->{upsSmartOutputVoltage} /= 10 if defined $self->{upsSmartOutputVoltage};
   $self->{upsSmartOutputFrequency} /= 10 if defined $self->{upsSmartOutputFrequency};
+  if (defined $self->{upsSmartInputLineVoltage} and $self->{upsSmartInputLineVoltage}!~ /^\d+$/) {
+    # muss laut MIB ein INTEGER sein, aber es gibt auch sowas:
+    # XPPC-MIB::upsSmartInputLineVoltage = Normal
+    # gesehen bei XPPC-MIB::upsSmartIdentAgentFirmwareRevision = 3.8.CY504.AB.210318
+    # XPPC-MIB::upsSmartIdentAgentFirmwareRevision = 3.8.CY504.AB.200205 hingegen zeigt korrekterweise upsSmartInputLineVoltage = 2260
+    my $upsSmartBatteryVoltage = $self->get_snmp_object('UPS-MIB', "upsInputVoltage", 1);
+    $upsSmartBatteryVoltage = undef;
+    if (defined $upsSmartBatteryVoltage) {
+      $self->{upsSmartInputLineVoltage} = $upsSmartBatteryVoltage;
+    } else {
+      $self->{upsSmartInputLineVoltageTxt} = $self->{upsSmartInputLineVoltage};
+      $self->{upsSmartInputLineVoltage} = undef;
+    }
+  } else {
+    $self->{upsSmartInputLineVoltage} /= 10 if defined $self->{upsSmartInputLineVoltage};
+  }
 }
 
 sub check {
@@ -106,8 +121,13 @@ sub check {
       value => $self->{upsSmartBatteryRunTimeRemaining},
   );
 
-  if (defined $self->{upsSmartInputLineVoltage} && $self->{upsSmartInputLineVoltage} < 1) {
+  if (defined $self->{upsSmartInputLineVoltage} and
+      $self->{upsSmartInputLineVoltage} =~ /^\d+$/ and
+      $self->{upsSmartInputLineVoltage} < 1) {
     $self->add_critical(sprintf 'input power outage');
+  } elsif (defined $self->{upsSmartInputLineVoltageTxt} and
+      $self->{upsSmartInputLineVoltageTxt} ne "Normal") {
+    $self->add_critical(sprintf 'input voltage is %s', $self->{upsSmartInputLineVoltageTxt});
   }
   $self->add_perfdata(
       label => 'input_voltage',
@@ -134,7 +154,8 @@ sub dump {
       upsSmartBatteryCapacity upsSmartBatteryVoltage upsSmartBatteryTemperature
       upsSmartBatteryRunTimeRemaining upsSmartBatteryReplaceIndicator
       upsSmartBatteryCurrent 
-      upsSmartInputLineVoltage upsSmartInputFrequency upsSmartInputLineFailCause
+      upsSmartInputLineVoltage upsSmartInputLineVoltageTxt 
+      upsSmartInputFrequency upsSmartInputLineFailCause
       upsBaseOutputStatus upsSmartOutputVoltage upsSmartOutputFrequency
       upsSmartOutputLoad)) {
     printf "%s: %s\n", $_, $self->{$_} if defined $self->{$_};
