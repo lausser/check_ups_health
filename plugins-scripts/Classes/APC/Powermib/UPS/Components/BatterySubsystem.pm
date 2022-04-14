@@ -61,7 +61,7 @@ sub init {
           sprintf " upsAdvTestDiagnosticFakeTime is %s", scalar localtime time;
       # war der letzte test heute?
       if ($tyear == $year and $tmon == $mon and $tday == $mday) {
-        $self->{upsAdvTestLastDiagnosticsTrace} += " today";
+        $self->{upsAdvTestLastDiagnosticsTrace} .= " today";
         # falls keine naehere Information vorliegt oder veraltete Information
         # dann wird der jetzige Zeitpunkt als Testzeitpunkt angenommen.
         my $test_info = $self->load_state(name => "test_info");

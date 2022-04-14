@@ -1,3 +1,5 @@
+* 2022-04-14 3.0.4
+  improve initial uptime-handshake
 * 2021-12-23 3.0.3
   bugfix in XPPC, get input voltage from UPS-MIB
 * 2021-12-06 3.0.2
