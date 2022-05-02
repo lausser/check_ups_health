@@ -1,3 +1,5 @@
+* 2022-05-02 3.0.4.1
+  bugfix in liebert selftest start time (only the text output was wrong)
 * 2022-04-14 3.0.4
   improve initial uptime-handshake
 * 2021-12-23 3.0.3

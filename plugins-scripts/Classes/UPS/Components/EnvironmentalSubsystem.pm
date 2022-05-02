@@ -18,16 +18,16 @@ sub check {
     next if ! $_->{upsAlarmDescr}; # irgendwelche Blindgaenger sind auch moeglich, z.b. einer bei upsTestResultsSummary: noTestsInitiated
     $_->check();
   }
+  my $last_test_ago = $self->ago_sysuptime($self->{upsTestStartTime});
   if ($self->{upsTestStartTime}) {
     my $result = sprintf "test result from %s was %s", 
-        scalar localtime time - $self->uptime() + $self->{upsTestStartTime},
+        scalar localtime (time - $last_test_ago),
         $self->{upsTestResultsDetail} ? $self->{upsTestResultsDetail} : $self->{upsTestResultsSummary};
     if ($self->{upsTestResultsSummary} eq "doneWarning") {
       $self->add_warning($result);
     } elsif ($self->{upsTestResultsSummary} eq "doneError") {
       $self->add_critical($result);
     }
-    my $last_test_ago = $self->ago_sysuptime($self->{upsTestStartTime});
     $self->{upsAdvTestLastDiagnosticsDate} = time - $last_test_ago;
     $self->{upsAdvTestLastDiagnosticsAge} = $last_test_ago / (3600 * 24);
     $self->add_info(sprintf 'last selftest was %d days ago (%s)',
