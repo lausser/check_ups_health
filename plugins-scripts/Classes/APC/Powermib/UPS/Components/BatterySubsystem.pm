@@ -120,7 +120,8 @@ sub check {
           $self->{upsBasicOutputStatus});
       $self->add_ok(sprintf 'caused by %s',
           $self->{upsAdvInputLineFailCause});
-    } elsif ($self->{upsBasicOutputStatus} ne 'onLine') {
+    } elsif ($self->{upsBasicOutputStatus} ne 'onLine' &&
+        $self->{upsBasicOutputStatus} ne 'eConversion') {
       $self->add_warning(sprintf 'output status is %s',
           $self->{upsBasicOutputStatus});
       $self->add_warning(sprintf 'caused by %s',
