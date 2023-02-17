@@ -21,8 +21,11 @@ sub init {
     ]);
   }
   if ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
+    # am 17.2.23 liefen ploetzlich hunderte UPS in Timeouts wegen dieser
+    # Table hier. Da sie eh nur wegen TODO abgefragt wurde, fliegt die erstmal
+    # raus
     $self->get_snmp_tables("LIEBERT-GP-FLEXIBLE-MIB", [
-      ["flex", "lgpFlexibleBasicTable", "Monitoring::GLPlugin::SNMP::TableItem"],
+      #["flex", "lgpFlexibleBasicTable", "Monitoring::GLPlugin::SNMP::TableItem"],
     ]);
   }
 }
