@@ -1,4 +1,4 @@
-package Classes::MerlinGerin::Components::EnvironmentalSubsystem;
+package Classes::MerlinGerin::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -22,13 +22,13 @@ sub init {
    upsmgTestBatteryResult 
   ));
   $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
-      ["environsensors", "upsmgEnvironSensorTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor"],
+      ["environsensors", "upsmgEnvironSensorTable", "Classes::MerlinGerin::Component::EnvironmentalSubsystem::EnvironSensor"],
   ]);
   $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
-      ["environmentsensors", "upsmgEnvironmentSensorTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironmentSensor"],
+      ["environmentsensors", "upsmgEnvironmentSensorTable", "Classes::MerlinGerin::Component::EnvironmentalSubsystem::EnvironmentSensor"],
   ]);
   $self->get_snmp_tables("MG-SNMP-UPS-MIB", [
-      ["sensorconfigs", "upsmgConfigEnvironmentTable", "Classes::MerlinGerin::Components::EnvironmentalSubsystem::SensorConfig"],
+      ["sensorconfigs", "upsmgConfigEnvironmentTable", "Classes::MerlinGerin::Component::EnvironmentalSubsystem::SensorConfig"],
   ]);
   foreach my $es (@{$self->{environmentsensors}}) {
     foreach my $sc (@{$self->{sensorconfigs}}) {
@@ -80,7 +80,7 @@ sub dump {
 }
 
 
-package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironSensor;
+package Classes::MerlinGerin::Component::EnvironmentalSubsystem::EnvironSensor;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -90,12 +90,12 @@ sub check {
 }
 
 
-package Classes::MerlinGerin::Components::EnvironmentalSubsystem::SensorConfig;
+package Classes::MerlinGerin::Component::EnvironmentalSubsystem::SensorConfig;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
 
-package Classes::MerlinGerin::Components::EnvironmentalSubsystem::EnvironmentSensor;
+package Classes::MerlinGerin::Component::EnvironmentalSubsystem::EnvironmentSensor;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

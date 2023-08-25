@@ -1,4 +1,4 @@
-package Classes::Socomec::Netvision::Components::EnvironmentalSubsystem;
+package Classes::Socomec::Netvision::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -11,7 +11,7 @@ sub init {
       upsIdentModel upsIdentClassesFirmwareVersion upsIdentUpsSerialNumber
       upsAlarmsPresent)));
   $self->get_snmp_tables("Netvision-v6-MIB", [
-      ["alarms", "upsAlarmTable", "Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm"],
+      ["alarms", "upsAlarmTable", "Classes::Socomec::Netvision::Component::EnvironmentalSubsystem::Alarm"],
   ]);
 }
 
@@ -41,7 +41,7 @@ sub dump {
 }
 
 
-package Classes::Socomec::Netvision::Components::EnvironmentalSubsystem::Alarm;
+package Classes::Socomec::Netvision::Component::EnvironmentalSubsystem::Alarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

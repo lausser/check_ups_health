@@ -1,4 +1,4 @@
-package Classes::V4::Components::EnvironmentalSubsystem;
+package Classes::V4::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 

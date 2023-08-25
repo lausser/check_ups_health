@@ -8,9 +8,9 @@ sub init {
   # so ueberfordert, daß sysDescr leer ist.
   $Monitoring::GLPlugin::SNMP::session->retries(3) if $Monitoring::GLPlugin::SNMP::session;
   if ($self->mode =~ /device::battery/) {
-    $self->analyze_and_check_battery_subsystem(ref($self).'::Components::BatterySubsystem');
+    $self->analyze_and_check_battery_subsystem(ref($self).'::Component::BatterySubsystem');
   } elsif ($self->mode =~ /device::hardware/) {
-    $self->analyze_and_check_environmental_subsystem(ref($self).'::Components::EnvironmentalSubsystem');
+    $self->analyze_and_check_environmental_subsystem(ref($self).'::Component::EnvironmentalSubsystem');
   } else {
     $self->no_such_mode();
   }

@@ -1,4 +1,4 @@
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -12,24 +12,24 @@ sub init {
   ));
 
   $self->get_snmp_tables("ATS-THREEPHASE-MIB", [
-      ["temperatures", "upsTemperatureGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Temperature"],
-      ["controls", "upsControlGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Control"],
-      ["wkstatus", "upsWellKnownStatusTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::WKStatus"],
-      ["wkalarms", "upsWellKnownAlarmTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::WKAlarm"],
-      ["sysalarms", "sysUpsAlarmTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::SysAlarm"],
-      ["syswkalarms", "sysUpsAlarmTable", "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::SysWKAlarm"],
+      ["temperatures", "upsTemperatureGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Temperature"],
+      ["controls", "upsControlGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Control"],
+      ["wkstatus", "upsWellKnownStatusTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::WKStatus"],
+      ["wkalarms", "upsWellKnownAlarmTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::WKAlarm"],
+      ["sysalarms", "sysUpsAlarmTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::SysAlarm"],
+      ["syswkalarms", "sysUpsAlarmTable", "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::SysWKAlarm"],
   ]);
   foreach my $alarmno (1..6) {
     if ($self->{'upsUnit'.$alarmno.'AlarmsPresent'}) {
       $self->get_snmp_tables("ATS-THREEPHASE-MIB", [
-          ["alarms".$alarmno, 'upsUnit'.$alarmno.'AlarmsPresent', "Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Alarm"],
+          ["alarms".$alarmno, 'upsUnit'.$alarmno.'AlarmsPresent', "Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Alarm"],
       ]);
     }
   }
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Alarm;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Alarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -45,7 +45,7 @@ sub check {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Temperature;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Temperature;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -73,11 +73,11 @@ sub check {
   }
 }
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::Control;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::Control;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::WKAlarm;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::WKAlarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -92,15 +92,15 @@ sub check {
   }
 }
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::WKStatus;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::WKStatus;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::SysAlarm;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::SysAlarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
-package Classes::ATS::ATSTHREEPHASE::Components::EnvironmentalSubsystem::SysWKAlarm;
+package Classes::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem::SysWKAlarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

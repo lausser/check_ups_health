@@ -1,12 +1,12 @@
-package Classes::XUPS::Components::EnvironmentalSubsystem;
+package Classes::XUPS::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
 sub init {
   my ($self) = @_;
   $self->init_subsystems([
-      ["temphum_subsystem", "Classes::XUPS::Components::TempHumSubsystem"],
-      ["alarm_subsystem", "Classes::XUPS::Components::AlarmSubsystem"],
+      ["temphum_subsystem", "Classes::XUPS::Component::TempHumSubsystem"],
+      ["alarm_subsystem", "Classes::XUPS::Component::AlarmSubsystem"],
   ]);
 }
 

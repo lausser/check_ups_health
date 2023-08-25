@@ -1,4 +1,4 @@
-package Classes::EPPC::Components::BatterySubsystem;
+package Classes::EPPC::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
@@ -21,9 +21,9 @@ sub init {
     $self->{$_} /= 10;
   }
   $self->get_snmp_tables('EPPC-MIB', [
-    ["inputs", "upsESystemInputTable", "Classes::EPPC::Components::BatterySubsystem::Input"],
-    ["outputs", "upsESystemOutputTable", "Classes::EPPC::Components::BatterySubsystem::Output"],
-    ["byps", "upsESystemBypassTable", "Classes::EPPC::Components::BatterySubsystem::Bypass"],
+    ["inputs", "upsESystemInputTable", "Classes::EPPC::Component::BatterySubsystem::Input"],
+    ["outputs", "upsESystemOutputTable", "Classes::EPPC::Component::BatterySubsystem::Output"],
+    ["byps", "upsESystemBypassTable", "Classes::EPPC::Component::BatterySubsystem::Bypass"],
   ]);
 }
 
@@ -121,7 +121,7 @@ sub xdump {
 }
 
 
-package Classes::EPPC::Components::BatterySubsystem::Input;
+package Classes::EPPC::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -145,7 +145,7 @@ sub check {
 }
 
 
-package Classes::EPPC::Components::BatterySubsystem::Output;
+package Classes::EPPC::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -185,7 +185,7 @@ sub check {
 }
 
 
-package Classes::EPPC::Components::BatterySubsystem::Bypass;
+package Classes::EPPC::Component::BatterySubsystem::Bypass;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

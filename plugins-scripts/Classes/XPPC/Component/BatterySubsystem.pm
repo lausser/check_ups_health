@@ -1,4 +1,4 @@
-package Classes::XPPC::Components::BatterySubsystem;
+package Classes::XPPC::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };

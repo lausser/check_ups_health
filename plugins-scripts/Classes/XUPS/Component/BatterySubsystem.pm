@@ -1,4 +1,4 @@
-package Classes::XUPS::Components::BatterySubsystem;
+package Classes::XUPS::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -6,8 +6,8 @@ sub init {
   my ($self) = @_;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsBatTimeRemaining xupsBatVoltage xupsBatCurrent xupsBatCapacity xupsInputFrequency xupsOutputFrequency xupsOutputLoad xupsTestBatteryStatus));
   $self->get_snmp_tables("XUPS-MIB", [
-      ["inputs", "xupsInputTable", "Classes::XUPS::Components::BatterySubsystem::Input"],
-      ["outputs", "xupsOutputTable", "Classes::XUPS::Components::BatterySubsystem::Output"],
+      ["inputs", "xupsInputTable", "Classes::XUPS::Component::BatterySubsystem::Input"],
+      ["outputs", "xupsOutputTable", "Classes::XUPS::Component::BatterySubsystem::Output"],
   ]);
   $self->{xupsBatTimeRemaining} /= 60;
   $self->{xupsInputFrequency} /= 10;
@@ -91,7 +91,7 @@ sub dump {
 }
 
 
-package Classes::XUPS::Components::BatterySubsystem::Input;
+package Classes::XUPS::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -110,7 +110,7 @@ sub check {
   );
 }
 
-package Classes::XUPS::Components::BatterySubsystem::Output;
+package Classes::XUPS::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

@@ -1,4 +1,4 @@
-package Classes::UPS::Components::BatterySubsystem;
+package Classes::UPS::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -8,8 +8,8 @@ sub init {
       upsEstimatedMinutesRemaining upsBatteryVoltage upsBatteryCurrent
       upsBatteryTemperature upsOutputFrequency upsEstimatedChargeRemaining));
   $self->get_snmp_tables("UPS-MIB", [
-      ["inputs", "upsInputTable", "Classes::UPS::Components::BatterySubsystem::Input"],
-      ["outputs", "upsOutputTable", "Classes::UPS::Components::BatterySubsystem::Output"],
+      ["inputs", "upsInputTable", "Classes::UPS::Component::BatterySubsystem::Input"],
+      ["outputs", "upsOutputTable", "Classes::UPS::Component::BatterySubsystem::Output"],
   ]);
   # Une generex cs141 situé en france n'avait pas de upsBatteryCurrent
   # C'était en juin 2016. La grève dans les centrales nucléaires était
@@ -134,7 +134,7 @@ sub dump {
 }
 
 
-package Classes::UPS::Components::BatterySubsystem::Input;
+package Classes::UPS::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -159,7 +159,7 @@ sub check {
   ) if defined $self->{upsInputCurrent};
 }
 
-package Classes::UPS::Components::BatterySubsystem::Output;
+package Classes::UPS::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

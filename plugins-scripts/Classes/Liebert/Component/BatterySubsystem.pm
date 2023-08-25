@@ -1,4 +1,4 @@
-package Classes::Liebert::Components::BatterySubsystem;
+package Classes::Liebert::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -12,7 +12,7 @@ sub init {
       lgpPwrStateMaintBypassBrkrState lgpPwrStateUpsOutputSource
   ));
   $self->get_snmp_tables("LIEBERT-GP-POWER-MIB", [
-    ["conditions", "lgpPwrMeasurementPointTable", "Classes::Liebert::Components::BatterySubsystem::Condition"],
+    ["conditions", "lgpPwrMeasurementPointTable", "Classes::Liebert::Component::BatterySubsystem::Condition"],
   ]);
 }
 
@@ -56,7 +56,7 @@ sub check {
 }
 
 
-package Classes::Liebert::Components::BatterySubsystem::Condition;
+package Classes::Liebert::Component::BatterySubsystem::Condition;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

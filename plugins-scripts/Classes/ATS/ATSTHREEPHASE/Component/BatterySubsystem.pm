@@ -1,4 +1,4 @@
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -17,13 +17,13 @@ sub init {
 
   ));
   $self->get_snmp_tables("ATS-THREEPHASE-MIB", [
-      ["batteries", "upsBatteryGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Battery"],
+      ["batteries", "upsBatteryGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Battery"],
       ["sysbatteries", "", "Monitoring::GLPlugin::SNMP::TableItem"],
-      ["load", "upsLoadGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Load"],
-      ["inputs", "upsInputGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Input"],
-      ["outputs", "upsOutputGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Output"],
-      ["bypass", "upsBypassGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Bypass"],
-      ["wkstatus", "upsStatusGroupTable", "Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::WKStatus"], #upsWellKnownStatusTable
+      ["load", "upsLoadGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Load"],
+      ["inputs", "upsInputGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Input"],
+      ["outputs", "upsOutputGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Output"],
+      ["bypass", "upsBypassGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Bypass"],
+      ["wkstatus", "upsStatusGroupTable", "Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::WKStatus"], #upsWellKnownStatusTable
 
   ]);
   @{$self->{batteries}} = grep { $_->{valid} } @{$self->{batteries}};
@@ -129,7 +129,7 @@ sub xdump {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Battery;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Battery;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -193,7 +193,7 @@ sub check {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Input;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -247,7 +247,7 @@ sub check {
   );
 }
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Output;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -310,7 +310,7 @@ sub check {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Bypass;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Bypass;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -361,7 +361,7 @@ sub check {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::Load;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::Load;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -423,7 +423,7 @@ sub check {
 }
 
 
-package Classes::ATS::ATSTHREEPHASE::Components::BatterySubsystem::WKStatus;
+package Classes::ATS::ATSTHREEPHASE::Component::BatterySubsystem::WKStatus;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

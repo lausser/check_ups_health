@@ -1,4 +1,4 @@
-package Classes::APC::Powermib::UPS::Components::BatterySubsystem;
+package Classes::APC::Powermib::UPS::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use POSIX qw(mktime);

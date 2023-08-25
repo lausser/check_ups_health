@@ -1,4 +1,4 @@
-package Classes::MerlinGerin::Components::BatterySubsystem;
+package Classes::MerlinGerin::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -17,8 +17,8 @@ sub init {
       upsmgInputPhaseNum upsmgOutputPhaseNum
       upsmgInputLineFailCause)));
   $self->get_snmp_tables('MG-SNMP-UPS-MIB', [
-      ['inputs', 'upsmgInputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Input'],
-      ['outputs', 'upsmgOutputPhaseTable', 'Classes::MerlinGerin::Components::BatterySubsystem::Output'],
+      ['inputs', 'upsmgInputPhaseTable', 'Classes::MerlinGerin::Component::BatterySubsystem::Input'],
+      ['outputs', 'upsmgOutputPhaseTable', 'Classes::MerlinGerin::Component::BatterySubsystem::Output'],
   ]);
   @{$self->{inputs}} = grep {
       defined $_->{mginputFrequency} && defined $_->{mginputVoltage}
@@ -128,7 +128,7 @@ sub dump {
   printf "\n";
 }
 
-package Classes::MerlinGerin::Components::BatterySubsystem::Input;
+package Classes::MerlinGerin::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -159,7 +159,7 @@ sub check {
   );
 }
 
-package Classes::MerlinGerin::Components::BatterySubsystem::Output;
+package Classes::MerlinGerin::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

@@ -1,4 +1,4 @@
-package Classes::XUPS::Components::AlarmSubsystem;
+package Classes::XUPS::Component::AlarmSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -6,7 +6,7 @@ sub init {
   my ($self) = @_;
   $self->get_snmp_objects("XUPS-MIB", qw(xupsAlarms));
   $self->get_snmp_tables("XUPS-MIB", [
-      ["alarms", "xupsAlarmTable", "Classes::XUPS::Components::AlarmSubsystem::Alarm"],
+      ["alarms", "xupsAlarmTable", "Classes::XUPS::Component::AlarmSubsystem::Alarm"],
   ]);
 }
 
@@ -22,7 +22,7 @@ sub check {
 }
 
 
-package Classes::XUPS::Components::AlarmSubsystem::Alarm;
+package Classes::XUPS::Component::AlarmSubsystem::Alarm;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };

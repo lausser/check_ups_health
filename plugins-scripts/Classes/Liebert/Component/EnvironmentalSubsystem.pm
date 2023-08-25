@@ -1,4 +1,4 @@
-package Classes::Liebert::Components::EnvironmentalSubsystem;
+package Classes::Liebert::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -12,12 +12,12 @@ sub init {
   ));
   if ($self->{lgpConditionsPresent}) {
     $self->get_snmp_tables("LIEBERT-GP-CONDITIONS-MIB", [
-      ["conditions", "lgpConditionsTable", "Classes::Liebert::Components::EnvironmentalSubsystem::Condition"],
+      ["conditions", "lgpConditionsTable", "Classes::Liebert::Component::EnvironmentalSubsystem::Condition"],
     ]);
   }
   if ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
     $self->get_snmp_tables("LIEBERT-GP-ENVIRONMENTAL-MIB", [
-      ["temperatures", "lgpEnvTemperatureDegCTable", "Classes::Liebert::Components::EnvironmentalSubsystem::Temperature"],
+      ["temperatures", "lgpEnvTemperatureDegCTable", "Classes::Liebert::Component::EnvironmentalSubsystem::Temperature"],
     ]);
   }
   if ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
@@ -59,7 +59,7 @@ sub check {
 }
 
 
-package Classes::Liebert::Components::EnvironmentalSubsystem::Condition;
+package Classes::Liebert::Component::EnvironmentalSubsystem::Condition;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -87,7 +87,7 @@ sub check {
   }
 }
 
-package Classes::Liebert::Components::EnvironmentalSubsystem::Temperature;
+package Classes::Liebert::Component::EnvironmentalSubsystem::Temperature;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

@@ -1,4 +1,4 @@
-package Classes::V4::Components::BatterySubsystem;
+package Classes::V4::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 

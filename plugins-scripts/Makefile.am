@@ -34,40 +34,40 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EPPCMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/HOSTRESOURCESMIB.pm
 EXTRA_MODULES=\
-  Classes/APC/Powermib/UPS/Components/EnvironmentalSubsystem.pm \
-  Classes/APC/Powermib/UPS/Components/BatterySubsystem.pm \
+  Classes/APC/Powermib/UPS/Component/EnvironmentalSubsystem.pm \
+  Classes/APC/Powermib/UPS/Component/BatterySubsystem.pm \
   Classes/APC/Powermib/UPS.pm \
   Classes/APC/Powermib.pm \
   Classes/APC.pm \
-  Classes/Socomec/Netvision/Components/EnvironmentalSubsystem.pm \
-  Classes/Socomec/Netvision/Components/BatterySubsystem.pm \
+  Classes/Socomec/Netvision/Component/EnvironmentalSubsystem.pm \
+  Classes/Socomec/Netvision/Component/BatterySubsystem.pm \
   Classes/Socomec/Netvision.pm \
   Classes/Socomec.pm \
-  Classes/UPS/Components/EnvironmentalSubsystem.pm \
-  Classes/UPS/Components/BatterySubsystem.pm \
+  Classes/UPS/Component/EnvironmentalSubsystem.pm \
+  Classes/UPS/Component/BatterySubsystem.pm \
   Classes/UPS.pm \
-  Classes/XUPS/Components/AlarmSubsystem.pm \
-  Classes/XUPS/Components/TempHumSubsystem.pm \
-  Classes/XUPS/Components/EnvironmentalSubsystem.pm \
-  Classes/XUPS/Components/BatterySubsystem.pm \
+  Classes/XUPS/Component/AlarmSubsystem.pm \
+  Classes/XUPS/Component/TempHumSubsystem.pm \
+  Classes/XUPS/Component/EnvironmentalSubsystem.pm \
+  Classes/XUPS/Component/BatterySubsystem.pm \
   Classes/XUPS.pm \
-  Classes/EPPC/Components/EnvironmentalSubsystem.pm \
-  Classes/EPPC/Components/BatterySubsystem.pm \
+  Classes/EPPC/Component/EnvironmentalSubsystem.pm \
+  Classes/EPPC/Component/BatterySubsystem.pm \
   Classes/EPPC.pm \
-  Classes/XPPC/Components/EnvironmentalSubsystem.pm \
-  Classes/XPPC/Components/BatterySubsystem.pm \
+  Classes/XPPC/Component/EnvironmentalSubsystem.pm \
+  Classes/XPPC/Component/BatterySubsystem.pm \
   Classes/XPPC.pm \
-  Classes/V4/Components/EnvironmentalSubsystem.pm \
-  Classes/V4/Components/BatterySubsystem.pm \
+  Classes/V4/Component/EnvironmentalSubsystem.pm \
+  Classes/V4/Component/BatterySubsystem.pm \
   Classes/V4.pm \
-  Classes/MerlinGerin/Components/EnvironmentalSubsystem.pm \
-  Classes/MerlinGerin/Components/BatterySubsystem.pm \
+  Classes/MerlinGerin/Component/EnvironmentalSubsystem.pm \
+  Classes/MerlinGerin/Component/BatterySubsystem.pm \
   Classes/MerlinGerin.pm \
   Classes/Liebert/Component/EnvironmentalSubsystem.pm \
   Classes/Liebert/Component/BatterySubsystem.pm \
   Classes/Liebert.pm \
-  Classes/ATS/ATSTHREEPHASE/Components/EnvironmentalSubsystem.pm \
-  Classes/ATS/ATSTHREEPHASE/Components/BatterySubsystem.pm \
+  Classes/ATS/ATSTHREEPHASE/Component/EnvironmentalSubsystem.pm \
+  Classes/ATS/ATSTHREEPHASE/Component/BatterySubsystem.pm \
   Classes/ATS.pm \
   Classes/Device.pm
 

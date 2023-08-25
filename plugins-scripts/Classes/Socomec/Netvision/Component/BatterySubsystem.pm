@@ -1,4 +1,4 @@
-package Classes::Socomec::Netvision::Components::BatterySubsystem;
+package Classes::Socomec::Netvision::Component::BatterySubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 
@@ -18,9 +18,9 @@ sub init {
   $self->{upsInputFrequency} /= 10;
   $self->{upsOutputFrequency} /= 10;
   $self->get_snmp_tables('Netvision-v6-MIB', [
-      ['inputs', 'upsInputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Input'],
-      ['outputs', 'upsOutputTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Output'],
-      ['bypasses', 'upsBypassTable', 'Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass'],
+      ['inputs', 'upsInputTable', 'Classes::Socomec::Netvision::Component::BatterySubsystem::Input'],
+      ['outputs', 'upsOutputTable', 'Classes::Socomec::Netvision::Component::BatterySubsystem::Output'],
+      ['bypasses', 'upsBypassTable', 'Classes::Socomec::Netvision::Component::BatterySubsystem::Bypass'],
   ]);
   foreach ($self->get_snmp_table_objects('Netvision-v6-MIB', 'upsAlarmTable')) {
 #printf "%s\n", Data::Dumper::Dumper($_);
@@ -122,7 +122,7 @@ sub dump {
 }
 
 
-package Classes::Socomec::Netvision::Components::BatterySubsystem::Input;
+package Classes::Socomec::Netvision::Component::BatterySubsystem::Input;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -154,7 +154,7 @@ sub dump {
 }
 
 
-package Classes::Socomec::Netvision::Components::BatterySubsystem::Output;
+package Classes::Socomec::Netvision::Component::BatterySubsystem::Output;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
@@ -194,7 +194,7 @@ sub dump {
 }
 
 
-package Classes::Socomec::Netvision::Components::BatterySubsystem::Bypass;
+package Classes::Socomec::Netvision::Component::BatterySubsystem::Bypass;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 

@@ -1,4 +1,4 @@
-package Classes::XUPS::Components::TempHumSubsystem;
+package Classes::XUPS::Component::TempHumSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 

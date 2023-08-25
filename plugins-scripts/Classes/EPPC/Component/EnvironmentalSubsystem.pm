@@ -1,4 +1,4 @@
-package Classes::EPPC::Components::EnvironmentalSubsystem;
+package Classes::EPPC::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use POSIX qw(mktime);

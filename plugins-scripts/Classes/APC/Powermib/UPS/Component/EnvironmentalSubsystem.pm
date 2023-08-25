@@ -1,4 +1,4 @@
-package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem;
+package Classes::APC::Powermib::UPS::Component::EnvironmentalSubsystem;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::Item);
 use strict;
 use POSIX qw(mktime);
@@ -105,11 +105,11 @@ sub check {
 }
 
 
-package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Simple;
+package Classes::APC::Powermib::UPS::Component::EnvironmentalSubsystem::Simple;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
-package Classes::APC::Powermib::UPS::Components::EnvironmentalSubsystem::Advanced;
+package Classes::APC::Powermib::UPS::Component::EnvironmentalSubsystem::Advanced;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
 
