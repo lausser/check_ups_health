@@ -34,42 +34,42 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EPPCMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/HOSTRESOURCESMIB.pm
 EXTRA_MODULES=\
-  Classes/APC/Powermib/UPS/Component/EnvironmentalSubsystem.pm \
-  Classes/APC/Powermib/UPS/Component/BatterySubsystem.pm \
-  Classes/APC/Powermib/UPS.pm \
-  Classes/APC/Powermib.pm \
-  Classes/APC.pm \
-  Classes/Socomec/Netvision/Component/EnvironmentalSubsystem.pm \
-  Classes/Socomec/Netvision/Component/BatterySubsystem.pm \
-  Classes/Socomec/Netvision.pm \
-  Classes/Socomec.pm \
-  Classes/UPS/Component/EnvironmentalSubsystem.pm \
-  Classes/UPS/Component/BatterySubsystem.pm \
-  Classes/UPS.pm \
-  Classes/XUPS/Component/AlarmSubsystem.pm \
-  Classes/XUPS/Component/TempHumSubsystem.pm \
-  Classes/XUPS/Component/EnvironmentalSubsystem.pm \
-  Classes/XUPS/Component/BatterySubsystem.pm \
-  Classes/XUPS.pm \
-  Classes/EPPC/Component/EnvironmentalSubsystem.pm \
-  Classes/EPPC/Component/BatterySubsystem.pm \
-  Classes/EPPC.pm \
-  Classes/XPPC/Component/EnvironmentalSubsystem.pm \
-  Classes/XPPC/Component/BatterySubsystem.pm \
-  Classes/XPPC.pm \
-  Classes/V4/Component/EnvironmentalSubsystem.pm \
-  Classes/V4/Component/BatterySubsystem.pm \
-  Classes/V4.pm \
-  Classes/MerlinGerin/Component/EnvironmentalSubsystem.pm \
-  Classes/MerlinGerin/Component/BatterySubsystem.pm \
-  Classes/MerlinGerin.pm \
-  Classes/Liebert/Component/EnvironmentalSubsystem.pm \
-  Classes/Liebert/Component/BatterySubsystem.pm \
-  Classes/Liebert.pm \
-  Classes/ATS/ATSTHREEPHASE/Component/EnvironmentalSubsystem.pm \
-  Classes/ATS/ATSTHREEPHASE/Component/BatterySubsystem.pm \
-  Classes/ATS.pm \
-  Classes/Device.pm
+  CheckUpsHealth/APC/Powermib/UPS/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/APC/Powermib/UPS/Component/BatterySubsystem.pm \
+  CheckUpsHealth/APC/Powermib/UPS.pm \
+  CheckUpsHealth/APC/Powermib.pm \
+  CheckUpsHealth/APC.pm \
+  CheckUpsHealth/Socomec/Netvision/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/Socomec/Netvision/Component/BatterySubsystem.pm \
+  CheckUpsHealth/Socomec/Netvision.pm \
+  CheckUpsHealth/Socomec.pm \
+  CheckUpsHealth/UPS/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/UPS/Component/BatterySubsystem.pm \
+  CheckUpsHealth/UPS.pm \
+  CheckUpsHealth/XUPS/Component/AlarmSubsystem.pm \
+  CheckUpsHealth/XUPS/Component/TempHumSubsystem.pm \
+  CheckUpsHealth/XUPS/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/XUPS/Component/BatterySubsystem.pm \
+  CheckUpsHealth/XUPS.pm \
+  CheckUpsHealth/EPPC/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/EPPC/Component/BatterySubsystem.pm \
+  CheckUpsHealth/EPPC.pm \
+  CheckUpsHealth/XPPC/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/XPPC/Component/BatterySubsystem.pm \
+  CheckUpsHealth/XPPC.pm \
+  CheckUpsHealth/V4/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/V4/Component/BatterySubsystem.pm \
+  CheckUpsHealth/V4.pm \
+  CheckUpsHealth/MerlinGerin/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/MerlinGerin/Component/BatterySubsystem.pm \
+  CheckUpsHealth/MerlinGerin.pm \
+  CheckUpsHealth/Liebert/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/Liebert/Component/BatterySubsystem.pm \
+  CheckUpsHealth/Liebert.pm \
+  CheckUpsHealth/ATS/ATSTHREEPHASE/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/ATS/ATSTHREEPHASE/Component/BatterySubsystem.pm \
+  CheckUpsHealth/ATS.pm \
+  CheckUpsHealth/Device.pm
 
 SED=/bin/sed
 GREP=/bin/grep
@@ -105,7 +105,7 @@ AM_INSTALL_PROGRAM_FLAGS=@INSTALL_OPTS@
 
 $(libexec_SCRIPTS) : $(EXTRA_DIST)
 	$(ECHO) "#! #PERL# -w" | $(AWK) -f ./subst > $@
-	$(ECHO) "# nagios: -epn" >> $@
+	$(ECHO) "# nagios: +epn" >> $@
 	$(ECHO) >> $@
 	if [ "${STANDALONE}" == "yes" ]; then \
 		$(ECHO) i am standalone; \
@@ -116,7 +116,7 @@ $(libexec_SCRIPTS) : $(EXTRA_DIST)
 	for m in ${EXTRA_MODULES}; do \
 		$(SED) -e 's/^1;//g' < $$m | $(SED) -e '/^__END__/,$$d' | $(AWK) -f ./subst >> $@; \
 	done
-	$(ECHO) "package main;" >> $@
+	$(ECHO) >> $@
 	$(CAT) $(libexec_SCRIPTS).pl | $(AWK) -f ./subst >> $@
 	chmod +x $@
 
