@@ -18,8 +18,8 @@ sub check {
     next if ! $_->{upsAlarmDescr}; # irgendwelche Blindgaenger sind auch moeglich, z.b. einer bei upsTestResultsSummary: noTestsInitiated
     $_->check();
   }
-  my $last_test_ago = $self->ago_sysuptime($self->{upsTestStartTime});
   if ($self->{upsTestStartTime}) {
+    my $last_test_ago = $self->ago_sysuptime($self->{upsTestStartTime});
     my $result = sprintf "test result from %s was %s", 
         scalar localtime (time - $last_test_ago),
         $self->{upsTestResultsDetail} ? $self->{upsTestResultsDetail} : $self->{upsTestResultsSummary};
