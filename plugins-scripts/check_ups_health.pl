@@ -42,6 +42,14 @@ $plugin->add_snmp_modes();
 $plugin->add_snmp_args();
 $plugin->add_default_args();
 
+$plugin->add_arg(
+    spec => 'subsystem=s',
+    help => "--subsystem
+ Select a specific hardware subsystem",
+    required => 0,
+    default => undef,
+);
+
 $plugin->getopts();
 $plugin->classify();
 $plugin->validate_args();

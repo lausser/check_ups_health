@@ -46,6 +46,8 @@ EXTRA_MODULES=\
   Classes/UPS/Components/EnvironmentalSubsystem.pm \
   Classes/UPS/Components/BatterySubsystem.pm \
   Classes/UPS.pm \
+  Classes/XUPS/Components/AlarmSubsystem.pm \
+  Classes/XUPS/Components/TempHumSubsystem.pm \
   Classes/XUPS/Components/EnvironmentalSubsystem.pm \
   Classes/XUPS/Components/BatterySubsystem.pm \
   Classes/XUPS.pm \
