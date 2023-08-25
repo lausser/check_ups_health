@@ -9,3 +9,4 @@ plugins-scripts/Makefile
 plugins-scripts/Makefile.in
 plugins-scripts/check_ups_health
 plugins-scripts/subst
+check_*_health-*.tar.gz
