@@ -72,7 +72,9 @@ sub finish {
 sub check {
   my ($self) = @_;
   my $age = $self->ago_sysuptime($self->{lgpConditionTime});
-  if ($age < 3600) {
+  if ($age < 3600*5) {
+    # give the service the chance to notify (with a check_interval of 1h)
+    # later, ignore these conditions in order not to hide new failures
     if ($self->{lgpConditionAcknowledged} eq "notAcknowledged" and $self->{lgpConditionCurrentState} eq "active") {
       $self->add_info(sprintf "alarm: %s (%d min ago)",
           $self->{lgpConditionDescr}, $age / 60);
