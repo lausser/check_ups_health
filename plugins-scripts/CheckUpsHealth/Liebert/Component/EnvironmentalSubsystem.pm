@@ -22,11 +22,35 @@ sub init {
   }
   if ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
     # am 17.2.23 liefen ploetzlich hunderte UPS in Timeouts wegen dieser
-    # Table hier. Da sie eh nur wegen TODO abgefragt wurde, fliegt die erstmal
-    # raus
+    # Table lgpFlexibleBasicTable hier.
+    # Da sie eh nur wegen TODO abgefragt wurde, fliegt die erstmal
+    # raus. (lgpFlexibleExtendedTable ist ebenfalls so eine Bremse)
+    # am 19.2.24 wurden Temperaturwerte gewuenscht. UPS-MIB:1.3.6.1.2.1.33.1.2.7 gibts nicht, also muss diese Dreckstable doch noch ran.
+    # Erstmal mit Fingerspitzen die Label holen, und indices der
+    # temperature-relevanten Zeilen weiterbenutzen.
+    # Durch Zufall entdeckt am 19.2.24: wenn man max_msg_size
+    # aufdreht, dann werden aus >100s ploetzlich < 10s
+    $self->reset_snmp_max_msg_size();
+    # Messungen mit 1..100 haben gezeigt, daß es bei 11 drastisch
+    # runtergeht, 105s->5s, ab 20 dann wieder ansteigt.
+    $self->mult_snmp_max_msg_size(11);
     $self->get_snmp_tables("LIEBERT-GP-FLEXIBLE-MIB", [
-      #["flex", "lgpFlexibleBasicTable", "Monitoring::GLPlugin::SNMP::TableItem"],
+      ["flexentrylabels", "lgpFlexibleExtendedTable", "Monitoring::GLPlugin::SNMP::TableItem", sub {my $o = shift; $o->{lgpFlexibleEntryDataDescription} =~ /battery.*temperature/i;}, ["lgpFlexibleEntryDataDescription"]],
     ]);
+    if (@{$self->{flexentrylabels}}) {
+      my @indices = map {
+          $_->{indices};
+      } @{$self->{flexentrylabels}};
+      if (@indices) {
+        foreach ($self->get_snmp_table_objects("LIEBERT-GP-FLEXIBLE-MIB", "lgpFlexibleExtendedTable", \@indices)) {
+          push(@{$self->{flexlabels}},
+              CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature->new(%{$_})) if
+            $_->{lgpFlexibleEntryDataDescription} !~ /highest/i and
+            $_->{lgpFlexibleEntryUnitsOfMeasureEnum} and
+            $_->{lgpFlexibleEntryUnitsOfMeasureEnum} eq "degC";
+        }
+      }
+    }
   }
 }
 
@@ -54,6 +78,9 @@ sub check {
     $_->check();
   }
   foreach (@{$self->{temperatures}}) {
+    $_->check();
+  }
+  foreach (@{$self->{flexlabels}}) {
     $_->check();
   }
 }
@@ -121,6 +148,39 @@ sub check {
   $self->add_perfdata(
       label => $self->{name},
       value => $self->{lgpEnvTemperatureMeasurementDegC},
+  );
+}
+
+package CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature;
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
+use strict;
+
+sub finish {
+  my ($self) = @_;
+  $self->{lgpFlexibleEntryValue} = $self->{lgpFlexibleEntryIntegerValue} / 10 ** $self->{lgpFlexibleEntryDecimalPosition};
+  # lgpFlexibleEntryDataDescription: The battery temperature for a cabinet
+  # kein Ahnung, ob da noch weitere dazukommen koennen, irgendwelche
+  # The battery temperature for a splitrolldyx
+  # Vorsichtshalber index dahinter
+  $self->{name} ||= 'battery_temp_';
+  $self->{name} .= $self->{flat_indices};
+}
+
+sub check {
+  my ($self) = @_;
+  if ($self->{lgpFlexibleEntryIntegerValue} &&
+      $self->{lgpFlexibleEntryIntegerValue} ==  2147483647) {
+    # Maxint, duerfte ein nicht-existierender Wert sein.
+    # Weiss nicht, ob das hier vorkommt, in der obigen MIB schon
+#    return;
+  }
+  $self->add_info(sprintf '%s is %.2fC', $self->{name},
+      $self->{lgpFlexibleEntryValue}
+  );
+  $self->add_ok();
+  $self->add_perfdata(
+      label => $self->{name},
+      value => $self->{lgpFlexibleEntryValue},
   );
 }
 
