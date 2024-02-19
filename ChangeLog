@@ -1,3 +1,7 @@
+* 2024-02-19 4.1
+  reorg UPS components
+* 2023-08-29 4.0.0.1
+  XUPS alarms are critical up to half a year now
 * 2023-08-25 4.0
   bugfix in XUPS-MIB alarms
   rewrite the plugin to make it epn-ready

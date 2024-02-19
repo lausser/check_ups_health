@@ -43,6 +43,8 @@ EXTRA_MODULES=\
   CheckUpsHealth/Socomec/Netvision/Component/BatterySubsystem.pm \
   CheckUpsHealth/Socomec/Netvision.pm \
   CheckUpsHealth/Socomec.pm \
+  CheckUpsHealth/UPS/Component/AlarmSubsystem.pm \
+  CheckUpsHealth/UPS/Component/SelftestSubsystem.pm \
   CheckUpsHealth/UPS/Component/EnvironmentalSubsystem.pm \
   CheckUpsHealth/UPS/Component/BatterySubsystem.pm \
   CheckUpsHealth/UPS.pm \

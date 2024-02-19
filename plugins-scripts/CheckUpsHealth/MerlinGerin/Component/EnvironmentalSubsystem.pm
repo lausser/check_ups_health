@@ -50,7 +50,7 @@ sub check {
     $self->add_critical("automatic test diagnostic failed");
   }
   if (! $self->check_messages()) {
-    $self->add_ok("hardware working fine");
+    $self->add_ok("sensor hardware working fine");
   }
 }
 
