@@ -17,7 +17,7 @@ sub init {
   }
   if ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
     $self->get_snmp_tables("LIEBERT-GP-ENVIRONMENTAL-MIB", [
-      ["temperatures", "lgpEnvTemperatureDegCTable", "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::Temperature"],
+      ["temperatures", "lgpEnvTemperatureDegCTable", "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::Temperature", sub { my $o = shift; return $o->{valid}}],
     ]);
   }
   if ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
@@ -120,6 +120,12 @@ use strict;
 
 sub finish {
   my ($self) = @_;
+  $self->{valid} = 1;
+  if (! defined $self->{lgpEnvTemperatureMeasurementDegC} and
+      ! defined $self->{lgpEnvTemperatureMeasurementTenthsDegC}) {
+    $self->{valid} = 0;
+    return;
+  }
   if ($self->{lgpEnvTemperatureDescrDegC} =~ /^[\.\d]+$/) {
     $self->{name} = $self->get_symbol(
         "LIEBERT-GP-ENVIRONMENTAL-MIB",

@@ -44,11 +44,13 @@ sub check {
           value => $self->{lgpPwrBatteryTimeRemaining},
       );
     }
-    $self->add_info(sprintf 'battery capacity status is %s', $self->{lgpPwrBatteryCapacityStatus});
-    if ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryLow') {
-      $self->add_warning();
-    } elsif ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryDepleted') {
-      $self->add_critical();
+    if (defined $self->{lgpPwrBatteryCapacityStatus}) {
+      $self->add_info(sprintf 'battery capacity status is %s', $self->{lgpPwrBatteryCapacityStatus});
+      if ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryLow') {
+        $self->add_warning();
+      } elsif ($self->{lgpPwrBatteryCapacityStatus} eq 'batteryDepleted') {
+        $self->add_critical();
+      }
     }
   } elsif (! $self->implements_mib('UPS-MIB') && ! $self->implements_mib('LIEBERT-GP-POWER-MIB')) {
     $self->add_ok("there is neither UPS-MIB nor LIEBERT-GP-POWER-MIB, there is no information about battery and current");

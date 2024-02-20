@@ -1,3 +1,5 @@
+* 2024-02-20 4.1.1.1
+  fix uninitialized-warnings because some liebert devices don't return all oids
 * 2024-02-19 4.1.1
   add temperatures for Liebert (or Vertiv or irgendein umgelabelter Schrott, ueber den schon fuenf Hersteller gerutscht sind)
 * 2024-02-19 4.1
