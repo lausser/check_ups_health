@@ -12,6 +12,7 @@ sub init {
       upsSmartInputLineVoltage upsSmartInputFrequency upsSmartInputLineFailCause
       upsBaseOutputStatus upsSmartOutputVoltage upsSmartOutputFrequency
       upsSmartOutputLoad)));
+  $self->{upsSmartBatteryRunTimeRemaining} /= 60 if $self->{upsSmartBatteryRunTimeRemaining};
   $self->{upsSmartBatteryTemperature} /= 10;
   $self->{upsSmartBatteryVoltage} *= 10;
   $self->{upsSmartInputFrequency} /= 10 if defined $self->{upsSmartInputFrequency};
