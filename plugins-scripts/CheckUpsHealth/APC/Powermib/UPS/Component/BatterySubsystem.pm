@@ -30,7 +30,10 @@ sub init {
       upsAdvInputLineFailCause)) {
     $self->{diag}->{$key} = $self->{$key};
   }
-  $self->{upsAdvBatteryRunTimeRemaining} = $self->{upsAdvBatteryRunTimeRemaining} / 6000;
+  if (defined $self->{upsAdvBatteryRunTimeRemaining}) {
+    $self->{upsAdvBatteryRunTimeRemaining} =
+        $self->{upsAdvBatteryRunTimeRemaining} / 6000;
+  }
   # beobachtet bei Smart-Classes RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
   $self->{upsAdvOutputLoad} = 
@@ -211,17 +214,19 @@ sub check {
     );
   }
 
-  $self->set_thresholds(
-      metric => 'remaining_time', warning => '10:', critical => '8:');
-  $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsAdvBatteryRunTimeRemaining});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsAdvBatteryRunTimeRemaining},
-          metric => 'remaining_time'));
-  $self->add_perfdata(
-      label => 'remaining_time',
-      value => $self->{upsAdvBatteryRunTimeRemaining},
-  );
+  if (defined $self->{upsAdvBatteryRunTimeRemaining}) {
+    $self->set_thresholds(
+        metric => 'remaining_time', warning => '10:', critical => '8:');
+    $self->add_info(sprintf 'remaining battery run time is %.2fmin', $self->{upsAdvBatteryRunTimeRemaining});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsAdvBatteryRunTimeRemaining},
+            metric => 'remaining_time'));
+    $self->add_perfdata(
+        label => 'remaining_time',
+        value => $self->{upsAdvBatteryRunTimeRemaining},
+    );
+  }
 
   if (defined $self->{upsAdvInputLineVoltage} && $self->{upsAdvInputLineVoltage} < 1 && $self->{upsAdvBatteryCapacity} < 90) {
     # upsAdvInputLineVoltage can be noTransfer after spikes or selftests.

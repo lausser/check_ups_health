@@ -15,6 +15,8 @@ sub init {
   # C'était en juin 2016. La grève dans les centrales nucléaires était
   # annoncé à ce temps là, peut-être il y avait une coupure de courant.
   $self->{upsBatteryCurrent} = 0 if ! $self->{upsBatteryCurrent};
+  # feb. 2024, gleiches in gruen mit voltage
+  $self->{upsBatteryVoltage} = 0 if ! $self->{upsBatteryVoltage};
   $self->{upsBatteryVoltage} /= 10;
   $self->{upsBatteryCurrent} /= 10;
   $self->{upsOutputFrequency} = 0 if ! $self->{upsOutputFrequency};
@@ -75,7 +77,7 @@ sub check {
   $self->add_perfdata(
       label => 'remaining_time',
       value => $self->{upsEstimatedMinutesRemaining},
-  );
+  ) if (defined $self->{upsEstimatedMinutesRemaining});
 
   if (defined $self->{upsEstimatedChargeRemaining}) {
     $self->set_thresholds(

@@ -58,6 +58,13 @@ sub check {
     }
   }
   if ($self->{upsAdvTestLastDiagnosticsDate}) {
+    # 28.2.24 nr.2
+    # Litauische USV hat zwar upsAdvTestLastDiagnosticsDate, aber ein
+    # undefined upsAdvTestDiagnosticsResults. Lieber Archaeologe, da siehst du mal,
+    # mit welcher Scheisse sich die Menschen anno 24 herumschlagen mussten, speziell ich.
+    if (! defined $self->{upsAdvTestDiagnosticsResults}) {
+      $self->{upsAdvTestDiagnosticsResults} = "....i forgot it";
+    }
     $self->add_info(sprintf 'selftest result was %s',
         $self->{upsAdvTestDiagnosticsResults});
     if ($self->{upsAdvTestDiagnosticsResults} ne 'ok') {
@@ -66,6 +73,16 @@ sub check {
       $self->add_ok();
     } 
     my $maxage = undef;
+    if (! defined $self->{upsAdvTestDiagnosticSchedule}) {
+      # 28.2.24
+      # sollte nicht vorkommen, aber dennoch kommt es vor. Zypriotische USV hat hier
+      # keinen Wert und schmeisst demzufolge in den naechsten Zeilen lauter undefined-Zeugs.
+      # Und um mich zu aergern zeigt das Ding beim Debuggen dann doch was an:
+      # upsAdvTestDiagnosticSchedule: biweekly
+      # Keine Ahnung, warum das verloren geht, zumal die Kommunikation in einer Sekunde
+      # ueber die Buehne geht.
+      $self->{upsAdvTestDiagnosticSchedule} = "glump varreckts";
+    }
     if ($self->{upsAdvTestDiagnosticSchedule} eq 'never') {
       $maxage = 365;
     } elsif ($self->{upsAdvTestDiagnosticSchedule} eq 'biweekly') {

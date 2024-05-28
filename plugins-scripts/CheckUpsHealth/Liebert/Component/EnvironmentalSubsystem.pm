@@ -14,6 +14,13 @@ sub init {
     $self->get_snmp_tables("LIEBERT-GP-CONDITIONS-MIB", [
       ["conditions", "lgpConditionsTable", "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::Condition"],
     ]);
+    # sowas gibt's. kein lgpSysState, aber laut lgpConditionsTable irgendwie
+    # falsch verkabelt. an sich wurde das im Liebert.pm an die UPS-MIB
+    # weitergereicht, aber besser ist es, hier einen arschtritt auszuteilen.
+    $self->{lgpSysState} = "normalWithWarning"
+        if ! defined $self->{lgpSysState} and
+              grep { not $_->{expired}; } @{$self->{conditions}};
+my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
   }
   if ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
     $self->get_snmp_tables("LIEBERT-GP-ENVIRONMENTAL-MIB", [
@@ -33,7 +40,13 @@ sub init {
     $self->reset_snmp_max_msg_size();
     # Messungen mit 1..100 haben gezeigt, daß es bei 11 drastisch
     # runtergeht, 105s->5s, ab 20 dann wieder ansteigt.
-    $self->mult_snmp_max_msg_size(11);
+    #$self->mult_snmp_max_msg_size(11);
+    # neue Erkenntnis: im Massentest kommt es zu massenhaften Timeouts
+    # von 11 auf 15 und schon geht wieder was. Und das ganze Drama,
+    # weil sich einer Temperaturen wuenscht. Ein Thermometer haette
+    # nicht mal ein Tausendstel von dem gekostet, was ich hierfuer in
+    # Rechnung stelle.
+    $self->mult_snmp_max_msg_size(16);
     $self->get_snmp_tables("LIEBERT-GP-FLEXIBLE-MIB", [
       ["flexentrylabels", "lgpFlexibleExtendedTable", "Monitoring::GLPlugin::SNMP::TableItem", sub {my $o = shift; $o->{lgpFlexibleEntryDataDescription} =~ /battery.*temperature/i;}, ["lgpFlexibleEntryDataDescription"]],
     ]);
@@ -43,11 +56,12 @@ sub init {
       } @{$self->{flexentrylabels}};
       if (@indices) {
         foreach ($self->get_snmp_table_objects("LIEBERT-GP-FLEXIBLE-MIB", "lgpFlexibleExtendedTable", \@indices)) {
-          push(@{$self->{flexlabels}},
-              CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature->new(%{$_})) if
-            $_->{lgpFlexibleEntryDataDescription} !~ /highest/i and
-            $_->{lgpFlexibleEntryUnitsOfMeasureEnum} and
-            $_->{lgpFlexibleEntryUnitsOfMeasureEnum} eq "degC";
+          my $flexlabel = CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature->new(%{$_});
+          push(@{$self->{flexlabels}}, $flexlabel) if
+              $flexlabel->{valid} and
+              $_->{lgpFlexibleEntryDataDescription} !~ /highest/i and
+              $_->{lgpFlexibleEntryUnitsOfMeasureEnum} and
+              $_->{lgpFlexibleEntryUnitsOfMeasureEnum} eq "degC";
         }
       }
     }
@@ -94,17 +108,54 @@ sub finish {
   my ($self) = @_;
   $self->{lgpConditionEventTime} = time - $self->ago_sysuptime($self->{lgpConditionTime});
   $self->{lgpConditionEventTimeHuman} = scalar localtime time - $self->ago_sysuptime($self->{lgpConditionTime});
+  if ($self->{lgpConditionDescr} =~ /^unknown_[\.]*(.*)/) {
+    # seufz.... lgpConditionDescr beinhaltet eine oid, welche sowohl aus
+    # der eigenen LIEBERT-GP-CONDITIONS-MIB als auch aus der
+    # LIEBERT-GP-FLEXIBLE-CONDITIONS-MIB stammen kann. Erstere kann ueber den
+    # OID::-Mechanismus aufgeloest werden, Zweitere muss dreckig durchsucht
+    # werden.
+    $self->require_mib('LIEBERT-GP-FLEXIBLE-CONDITIONS-MIB');
+    my $value_which_is_a_oid = $1;
+    my @result = grep {
+        $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{'LIEBERT-GP-FLEXIBLE-CONDITIONS-MIB'}->{$_} eq $value_which_is_a_oid
+    } keys %{$Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{'LIEBERT-GP-FLEXIBLE-CONDITIONS-MIB'}};
+    if (scalar(@result)) {
+      $self->{lgpConditionDescr} = $result[0];
+    }
+    # Das Ding hat sogar noch eine lgpConditionTableRef, die verweist auf
+    # variable Tabellen und deren Zeilen und dann kann man sich da Severity
+    # und sonstwas holen. Ihr koennt mich aber mal. Ihr kriegt Bescheid,
+    # dass eine Condition vorliegt und dann schaut gefaelligst selber nach,
+    # was ihr verbockt habt.
+  }
+  $self->{expired} = 1;
+  $self->{age} = $self->ago_sysuptime($self->{lgpConditionTime});
+  if ($self->{age} < 3600*5) {
+    # give the service the chance to notify (with a check_interval of 1h)
+    # later, ignore these conditions in order not to hide new failures
+    # 24.4.24 vorsichtshalber auf Existenz pruefen, da es schon wieder so
+    # ein Drecksteil gibt, welches weder lgpConditionCurrentState noch
+    # lgpConditionAcknowledged hat. Trotzdem werden lgpConditionOutputToLoadOff
+    # und lgpCondId6453InputWiringFault angezeigt. Da ich mehrere UPS mit
+    # genau diesen beiden Fehlern sehe, gehe ich davon aus, dass das
+    # systematischer Murks ist und es eh wieder heisst:
+    # kann man das clientseitig abfangen?
+    # Ja, kann man und euer Schrott wird als OK angezeigt, genau so wie ihr
+    # es wollt.
+    if (exists $self->{lgpConditionCurrentState}) {
+      $self->{expired} = 0;
+    }
+  }
 }
 
 sub check {
   my ($self) = @_;
-  my $age = $self->ago_sysuptime($self->{lgpConditionTime});
-  if ($age < 3600*5) {
-    # give the service the chance to notify (with a check_interval of 1h)
-    # later, ignore these conditions in order not to hide new failures
-    if ($self->{lgpConditionAcknowledged} eq "notAcknowledged" and $self->{lgpConditionCurrentState} eq "active") {
+  if (not $self->{expired}) {
+    if (exists $self->{lgpConditionCurrentState} and
+        $self->{lgpConditionAcknowledged} eq "notAcknowledged" and
+        $self->{lgpConditionCurrentState} eq "active") {
       $self->add_info(sprintf "alarm: %s (%d min ago)",
-          $self->{lgpConditionDescr}, $age / 60);
+          $self->{lgpConditionDescr}, $self->{age} / 60);
       if ($self->{lgpConditionSeverity} eq "minor") {
         $self->add_warning();
       } elsif ($self->{lgpConditionSeverity} =~ /(major|critical)/) {
@@ -163,13 +214,18 @@ use strict;
 
 sub finish {
   my ($self) = @_;
+  $self->{valid} = 1;
+  if (! defined $self->{lgpFlexibleEntryIntegerValue}) {
+    $self->{valid} = 0;
+    return;
+  }
   $self->{lgpFlexibleEntryValue} = $self->{lgpFlexibleEntryIntegerValue} / 10 ** $self->{lgpFlexibleEntryDecimalPosition};
   # lgpFlexibleEntryDataDescription: The battery temperature for a cabinet
-  # kein Ahnung, ob da noch weitere dazukommen koennen, irgendwelche
-  # The battery temperature for a splitrolldyx
-  # Vorsichtshalber index dahinter
-  $self->{name} ||= 'battery_temp_';
-  $self->{name} .= $self->{flat_indices};
+  # kein Ahnung, ob da noch weitere dazukommen koennen
+  # gehen wir mal zunaechst davon aus, dass es nur eine Batterie gibt.
+  $self->{name} ||= 'Battery temperature';
+  #$self->{name} ||= 'battery_temp_';
+  #$self->{name} .= $self->{flat_indices};
 }
 
 sub check {

@@ -75,4 +75,6 @@ sub run_plugin {
 
 1;
 
-join('', map { ucfirst } split(/_/, (split(/\//, (split ' ', $0 // '')[0]))[-1]))->run_plugin();
+join('', map { ucfirst } split(/_/, (split(/\//, (split ' ', "check_ups_health" // '')[0]))[-1]))->run_plugin();
+# eigentlich steht hier $0 statt check_ups_health, aber manche Obersuperprofis
+# nennen ihr Plugin mon_check_ups_health.

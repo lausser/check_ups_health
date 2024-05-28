@@ -12,10 +12,15 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/SysDescPrettify.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EATONATS2MIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EATONEMPMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EATONEPDUMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EATONSENSORMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPAGENTMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPCONDITIONSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPENVIRONMENTALMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPFLEXIBLEMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPFLEXIBLECONDITIONSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPPOWERMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPREGISTRATIONMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/LIEBERTGPSYSTEMMIB.pm \
@@ -71,6 +76,9 @@ EXTRA_MODULES=\
   CheckUpsHealth/ATS/ATSTHREEPHASE/Component/EnvironmentalSubsystem.pm \
   CheckUpsHealth/ATS/ATSTHREEPHASE/Component/BatterySubsystem.pm \
   CheckUpsHealth/ATS.pm \
+  CheckUpsHealth/Eaton/ATS2/Component/BatterySubsystem.pm \
+  CheckUpsHealth/Eaton/ATS2/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/Eaton.pm \
   CheckUpsHealth/Device.pm
 
 SED=/bin/sed

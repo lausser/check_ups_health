@@ -48,6 +48,8 @@ sub classify {
         $self->debug('using CheckUpsHealth::V4');
       } elsif ($self->implements_mib('EPPC-MIB')) {
         $self->rebless('CheckUpsHealth::EPPC');
+      } elsif ($self->implements_mib('EATON-ATS2-MIB')) {
+        $self->rebless('CheckUpsHealth::Eaton');
       } elsif ($self->implements_mib('XPPC-MIB')) {
         # before UPS-MIB because i found a Intelligent MSII6000 which implemented
         # both XPPC and UPS, but the latter only partial

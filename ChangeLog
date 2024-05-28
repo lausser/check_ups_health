@@ -1,3 +1,8 @@
+* 2024-05-28 4.2
+  fix apc missing battery remaining time
+  fix apc missing last diagnostics time
+  add EATON ATS2
+  add temperatures for Liebert
 * 2024-02-20 4.1.1.1
   fix uninitialized-warnings because some liebert devices don't return all oids
 * 2024-02-19 4.1.1
