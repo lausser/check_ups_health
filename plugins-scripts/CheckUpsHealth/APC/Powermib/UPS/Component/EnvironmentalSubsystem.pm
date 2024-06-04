@@ -31,6 +31,20 @@ sub init {
   if ($@) {
     $self->{upsAdvTestLastDiagnosticsDate} = 0;
   }
+  $self->get_snmp_tables('PowerNet-MIB', [
+    ["sensors", "uioSensorStatusTable", "CheckUpsHealth::APC::Powermib::UPS::Component::EnvironmentalSubsystem::Sensor"],
+    ["sensorconfigs", "uioSensorConfigTable", "Monitoring::GLPlugin::SNMP::TableItem"],
+  ]);
+  foreach my $sensor (@{$self->{sensors}}) {
+    foreach my $config (@{$self->{sensorconfigs}}) {
+      if ($config->{flat_indices} eq $sensor->{flat_indices}) {
+        foreach my $key (keys %{$config}) {
+          $sensor->{$key} = $config->{$key} if $key =~ /^uio/;
+        }
+      }
+    }
+  }
+  delete $self->{sensorconfigs};
 }
 
 sub check {
@@ -119,6 +133,9 @@ sub check {
     $self->add_ok("hardware working fine, at least i hope so, because self-tests were never run") if ! $self->check_messages();
     $self->add_ok("self-tests were never run") if $self->check_messages();
   }
+  foreach my $sensor (@{$self->{sensors}}) {
+    $sensor->check();
+  }
 }
 
 
@@ -129,4 +146,73 @@ use strict;
 package CheckUpsHealth::APC::Powermib::UPS::Component::EnvironmentalSubsystem::Advanced;
 our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
 use strict;
+
+package CheckUpsHealth::APC::Powermib::UPS::Component::EnvironmentalSubsystem::Sensor;
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
+use strict;
+
+sub finish {
+  my ($self) = @_;
+  # Port 2 Temp 2, Port 1 Temp 1 sind uioSensorStatusSensorName
+  $self->{label_temp} = lc($self->{uioSensorStatusSensorName} =~ s/ /_/gr);
+  $self->{label_hum} = $self->{label_temp} =~ s/temp/hum/gr;
+}
+
+sub check {
+  my ($self) = @_;
+  $self->add_info(sprintf "sensor %s has status %s",
+      $self->{uioSensorConfigSensorName},
+      lc(substr($self->{uioSensorStatusAlarmStatus}, 3)));
+  if ($self->{uioSensorStatusAlarmStatus} eq "uioWarning") {
+    $self->add_warning();
+  } elsif ($self->{uioSensorStatusAlarmStatus} eq "uioCritical") {
+    $self->add_critical();
+  } elsif ($self->{uioSensorStatusAlarmStatus} eq "sensorStatusNotApplicable") {
+  } else {
+    $self->add_ok();
+  }
+  if ($self->{uioSensorStatusHumidity} != -1) {
+    my $warn =
+        ($self->{uioSensorConfigLowHumidityThreshold} and $self->{uioSensorConfigLowHumidityThreshold} != -1 ?
+        $self->{uioSensorConfigLowHumidityThreshold} : '').':'.
+        ($self->{uioSensorConfigHighHumidityThreshold} and $self->{uioSensorConfigHighHumidityThreshold} != -1 ?
+        $self->{uioSensorConfigHighHumidityThreshold} : '');
+    my $crit =
+        ($self->{uioSensorConfigMinHumidityThreshold} and $self->{uioSensorConfigMinHumidityThreshold} != -1 ?
+        $self->{uioSensorConfigMinHumidityThreshold} : '').':'.
+        ($self->{uioSensorConfigMaxHumidityThreshold} and $self->{uioSensorConfigMaxHumidityThreshold} != -1 ?
+        $self->{uioSensorConfigMaxHumidityThreshold} : '');
+    $warn = undef if $warn eq ':';
+    $crit = undef if $crit eq ':';
+    $self->add_thresholds(metric => $self->{label_hum},
+        warning => $warn, critical => $crit);
+    $self->add_perfdata(
+      label => $self->{label_hum},
+      value => $self->{uioSensorStatusHumidity},
+      uom => "%",
+      warning => $warn, critical => $crit,
+    );
+  }
+  if ($self->{uioSensorStatusTemperatureDegC} != -1) {
+    my $warn =
+        ($self->{uioSensorConfigLowTemperatureThreshold} and $self->{uioSensorConfigLowTemperatureThreshold} != -1 ?
+        $self->{uioSensorConfigLowTemperatureThreshold} : '').':'.
+        ($self->{uioSensorConfigHighTemperatureThreshold} and $self->{uioSensorConfigHighTemperatureThreshold} != -1 ?
+        $self->{uioSensorConfigHighTemperatureThreshold} : '');
+    my $crit =
+        ($self->{uioSensorConfigMinTemperatureThreshold} and $self->{uioSensorConfigMinTemperatureThreshold} != -1 ?
+        $self->{uioSensorConfigMinTemperatureThreshold} : '').':'.
+        ($self->{uioSensorConfigMaxTemperatureThreshold} and $self->{uioSensorConfigMaxTemperatureThreshold} != -1 ?
+        $self->{uioSensorConfigMaxTemperatureThreshold} : '');
+    $warn = undef if $warn eq ':';
+    $crit = undef if $crit eq ':';
+    $self->add_thresholds(metric => $self->{label_temp},
+        warning => $warn, critical => $crit);
+    $self->add_perfdata(
+      label => $self->{label_temp},
+      value => $self->{uioSensorStatusTemperatureDegC},
+      warning => $warn, critical => $crit,
+    );
+  }
+}
 
