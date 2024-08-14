@@ -161,7 +161,7 @@ sub finish {
 sub check {
   my ($self) = @_;
   $self->add_info(sprintf "sensor %s has status %s",
-      $self->{uioSensorConfigSensorName},
+      $self->{uioSensorStatusSensorName},
       lc(substr($self->{uioSensorStatusAlarmStatus}, 3)));
   if ($self->{uioSensorStatusAlarmStatus} eq "uioWarning") {
     $self->add_warning();
@@ -172,6 +172,13 @@ sub check {
     $self->add_ok();
   }
   if ($self->{uioSensorStatusHumidity} != -1) {
+    # uioSensorConfigTable may be empty ot not reachable, avoid undef warnings
+    foreach (qw(uioSensorConfigLowHumidityThreshold
+        uioSensorConfigHighHumidityThreshold
+        uioSensorConfigMinHumidityThreshold
+        uioSensorConfigMaxHumidityThreshold)) {
+      $self->{$_} = -1 if not defined $self->{$_};
+    }
     my $warn =
         ($self->{uioSensorConfigLowHumidityThreshold} and $self->{uioSensorConfigLowHumidityThreshold} != -1 ?
         $self->{uioSensorConfigLowHumidityThreshold} : '').':'.
@@ -194,6 +201,13 @@ sub check {
     );
   }
   if ($self->{uioSensorStatusTemperatureDegC} != -1) {
+    # uioSensorConfigTable may be empty ot not reachable, avoid undef warnings
+    foreach (qw(uioSensorConfigLowTemperatureThreshold
+        uioSensorConfigHighTemperatureThreshold
+        uioSensorConfigMinTemperatureThreshold
+        uioSensorConfigMaxTemperatureThreshold)) {
+      $self->{$_} = -1 if not defined $self->{$_};
+    }
     my $warn =
         ($self->{uioSensorConfigLowTemperatureThreshold} and $self->{uioSensorConfigLowTemperatureThreshold} != -1 ?
         $self->{uioSensorConfigLowTemperatureThreshold} : '').':'.
