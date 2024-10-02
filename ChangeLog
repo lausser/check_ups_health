@@ -1,3 +1,5 @@
+* 2024-10-02 4.3.0.2
+  fix external thresholds for Liebert Flex temperatures
 * 2024-10-01 4.3.0.1
   handle external thresholds for Liebert Flex temperatures, which have no builtn thresholds.
 * 2024-08-08 4.3

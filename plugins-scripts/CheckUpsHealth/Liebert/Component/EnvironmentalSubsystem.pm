@@ -384,6 +384,7 @@ sub check {
   $self->add_info(sprintf '%s is %.2fC', $self->{name},
       $self->{lgpEnvTemperatureMeasurementDegC}
   );
+  $self->set_thresholds(metric => $self->{name});
   # if there are external thresholds, use them
   # --warningx temperature_1=15 --criticalx temperature_1=15
   $self->add_message($self->check_thresholds(
