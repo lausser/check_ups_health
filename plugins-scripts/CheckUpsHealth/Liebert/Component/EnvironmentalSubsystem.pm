@@ -90,6 +90,7 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
     if (@{$self->{flexentrylabels}}) {
       my $regex = qr/
           Temperature\ measured\ at\ the\ temperature\ sensor
+          | The\ battery\ temperature\ for\ a\ cabinet
           | Over\ temperature\ warning\ threshold
           | Over\ temperature\ alarm\ threshold
           | Under\ temperature\ warning\ threshold
@@ -111,9 +112,9 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
               $_->{lgpFlexibleEntryUnitsOfMeasureEnum} ne "degC");
           my $obj = CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexEntry->new(%{$_});
           $measurement = $obj
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /measured/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet)/;
           bless $measurement, "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature"
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /measured/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet)/;
           $warning_from = $obj->{lgpFlexibleEntryValue}
               if $obj->{lgpFlexibleEntryDataDescription} =~ /Under.*warning/;
           $critical_from = $obj->{lgpFlexibleEntryValue}
@@ -123,12 +124,14 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
           $critical_to = $obj->{lgpFlexibleEntryValue}
               if $obj->{lgpFlexibleEntryDataDescription} =~ /Over.*alarm/;
         }
-        $measurement->{warning_from} = $warning_from if defined $warning_from;
-        $measurement->{warning_to} = $warning_to if defined $warning_to;
-        $measurement->{critical_from} = $critical_from if defined $critical_from;
-        $measurement->{critical_to} = $critical_to if defined $critical_to;
-        push(@{$self->{temperatures}}, $measurement)
-            if not $measurement->{drecksglump};
+        if ($measurement) {
+          $measurement->{warning_from} = $warning_from if defined $warning_from;
+          $measurement->{warning_to} = $warning_to if defined $warning_to;
+          $measurement->{critical_from} = $critical_from if defined $critical_from;
+          $measurement->{critical_to} = $critical_to if defined $critical_to;
+          push(@{$self->{temperatures}}, $measurement)
+              if not $measurement->{drecksglump};
+        }
       }
       $regex = qr/
           Relative\ Humidity\ measured\ at\ the\ humidity\ sensor
@@ -163,12 +166,14 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
           $critical_to = $obj->{lgpFlexibleEntryValue}
               if $obj->{lgpFlexibleEntryDataDescription} =~ /Over.*alarm/;
         }
-        $measurement->{warning_from} = $warning_from if defined $warning_from;
-        $measurement->{warning_to} = $warning_to if defined $warning_to;
-        $measurement->{critical_from} = $critical_from if defined $critical_from;
-        $measurement->{critical_to} = $critical_to if defined $critical_to;
-        push(@{$self->{humidities}}, $measurement)
-            if not $measurement->{drecksglump};
+        if ($measurement) {
+          $measurement->{warning_from} = $warning_from if defined $warning_from;
+          $measurement->{warning_to} = $warning_to if defined $warning_to;
+          $measurement->{critical_from} = $critical_from if defined $critical_from;
+          $measurement->{critical_to} = $critical_to if defined $critical_to;
+          push(@{$self->{humidities}}, $measurement)
+              if not $measurement->{drecksglump};
+        }
       }
     }
     ##
@@ -439,12 +444,17 @@ sub check {
 #    return;
   }
   $self->{name} = $self->{lgpFlexibleEntryDataDescription};
-  $self->{name} =~ s/Temperature measured at( the)* //g;
-  $self->{name} =~ s/ /_/g;
-  $self->add_info(sprintf '%s is %.2fC', $self->{name},
-      $self->{lgpFlexibleEntryValue}
-  );
-  $self->add_ok(); # conditions set the status
+  if ($self->{name} eq "The battery temperature for a cabinet") {
+    $self->{name} = "Cabinet Temperature";
+    $self->{label} = "temp_cabinet";
+  } elsif ($self->{name} eq "Temperature measured at the temperature sensor") {
+    $self->{name} = "Temperature Sensor";
+    $self->{label} = "temp_sensor";
+  } else {
+    $self->{name} =~ s/Temperature measured at( the)* //g;
+    $self->{label} = lc "temp_".$self->{name};
+    $self->{label} =~ s/ /_/g;
+  }
   my $warning = "";
   my $critical = "";
   if (defined $self->{warning_from}) {
@@ -459,11 +469,25 @@ sub check {
   if (defined $self->{critical_to}) {
     $critical .= $self->{critical_to};
   }
-  $self->add_perfdata(
-      label => $self->{name},
-      value => $self->{lgpFlexibleEntryValue},
+  $self->set_thresholds(
+      metric => $self->{label},
       warning => $warning,
       critical => $critical,
+  );
+  $self->add_info(sprintf '%s is %.2fC', $self->{name},
+      $self->{lgpFlexibleEntryValue}
+  );
+  $self->add_message(
+      $self->check_thresholds(
+          metric => $self->{label},
+          value => $self->{lgpFlexibleEntryValue},
+      )
+  ); # conditions set the status
+  $self->add_perfdata(
+      label => $self->{label},
+      value => $self->{lgpFlexibleEntryValue},
+#      warning => $warning,
+#      critical => $critical,
   );
 }
 
