@@ -1,3 +1,5 @@
+* 2024-10-08 4.3.1
+  fix thresholds for XUPS without internal upper/lower oids
 * 2024-10-02 4.3.0.2
   fix external thresholds for Liebert Flex temperatures
 * 2024-10-01 4.3.0.1

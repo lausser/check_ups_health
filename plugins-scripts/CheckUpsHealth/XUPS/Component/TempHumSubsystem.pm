@@ -23,12 +23,11 @@ sub check {
   my ($self) = @_;
   if ($self->{xupsEnvAmbientTemp}) {
     $self->add_info(sprintf "ambient temperature is %.2fC", $self->{xupsEnvAmbientTemp});
-    if (my $range = $self->upper_lower_limit($self->{xupsEnvAmbientLowerLimit}, $self->{xupsEnvAmbientUpperLimit})) {
-      $self->set_thresholds(metric => 'ambient_temperature',
-          warning => "",
-          critical => $range,
-      );
-    }
+    my $range = $self->upper_lower_limit($self->{xupsEnvAmbientLowerLimit}, $self->{xupsEnvAmbientUpperLimit});
+    $self->set_thresholds(metric => 'ambient_temperature',
+        warning => undef,
+        critical => $range,
+    );
     $self->add_message($self->check_thresholds(
         metric => 'ambient_temperature',
         value => $self->{xupsEnvAmbientTemp},
