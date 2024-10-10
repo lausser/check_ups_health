@@ -1,3 +1,5 @@
+* 2024-10-10 4.3.1.1
+  update liebert flexible, discover another temperature
 * 2024-10-08 4.3.1
   fix thresholds for XUPS without internal upper/lower oids
   fix liebert flexible temperatures, add cabinet temperature, respect warnings/criticalx

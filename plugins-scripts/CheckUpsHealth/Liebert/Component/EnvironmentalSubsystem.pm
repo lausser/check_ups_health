@@ -91,6 +91,7 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
       my $regex = qr/
           Temperature\ measured\ at\ the\ temperature\ sensor
           | The\ battery\ temperature\ for\ a\ cabinet
+          | The\ temperature\ of\ the\ inlet\ air
           | Over\ temperature\ warning\ threshold
           | Over\ temperature\ alarm\ threshold
           | Under\ temperature\ warning\ threshold
@@ -112,9 +113,9 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
               $_->{lgpFlexibleEntryUnitsOfMeasureEnum} ne "degC");
           my $obj = CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexEntry->new(%{$_});
           $measurement = $obj
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet)/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/;
           bless $measurement, "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature"
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet)/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/;
           $warning_from = $obj->{lgpFlexibleEntryValue}
               if $obj->{lgpFlexibleEntryDataDescription} =~ /Under.*warning/;
           $critical_from = $obj->{lgpFlexibleEntryValue}
@@ -249,6 +250,21 @@ sub finish {
     # und sonstwas holen. Ihr koennt mich aber mal. Ihr kriegt Bescheid,
     # dass eine Condition vorliegt und dann schaut gefaelligst selber nach,
     # was ihr verbockt habt.
+    # 10.10.24 ihr kriegt das jetzt doch, weil ihr Conditions nicht einsehen
+    # wollt.
+    if ($self->{lgpConditionTableRowRef}) {
+      $self->{lgpConditionTableRowRef} =~ s/^\.//g;
+      my $result = $self->get_request(
+          '-varbindlist' => [$self->{lgpConditionTableRowRef}]
+      );
+      if (defined $result->{$self->{lgpConditionTableRowRef}}) {
+        if ($result->{$self->{lgpConditionTableRowRef}} ne "noSuchInstance" and
+            $result->{$self->{lgpConditionTableRowRef}} ne "noSuchObject" and
+            $result->{$self->{lgpConditionTableRowRef}}) {
+          $self->{lgpConditionDescr} .= " (".$result->{$self->{lgpConditionTableRowRef}}.")";
+        }
+      }
+    }
   }
   $self->{expired} = 1;
   $self->{age} = $self->ago_sysuptime($self->{lgpConditionTime});
@@ -286,7 +302,15 @@ sub check {
         $self->add_warning();
       } elsif ($self->{lgpConditionType} =~ /(alarm|fault)/) {
         $self->add_critical();
+        # even if lgpConditionSeverity == not-applicable
+      } elsif ($self->{lgpConditionType} eq "message") {
+        $self->add_ok();
       }
+# was ist damit?
+#https://community.se.com/t5/What-s-new-in-EcoStruxure-IT/EcoStruxure-IT-Gateway-device-library-release-notes/ta-p/447033
+#Vertiv/Liebert, Various, SNMP
+#
+#    When lgpConditionType OID returns "alarm" or "fault" and lgpConditionSeverity OID returns "not-applicable", we will report the alarm severity as a critical instead of informational
     }
   }
 }
@@ -450,6 +474,10 @@ sub check {
   } elsif ($self->{name} eq "Temperature measured at the temperature sensor") {
     $self->{name} = "Temperature Sensor";
     $self->{label} = "temp_sensor";
+  } elsif ($self->{name} =~ /The temperature of the (.*)/) {
+    $self->{name} = lc $1;
+    $self->{name} =~ s/\s+/_/g;
+    $self->{label} = "temp_".$self->{name};
   } else {
     $self->{name} =~ s/Temperature measured at( the)* //g;
     $self->{label} = lc "temp_".$self->{name};
