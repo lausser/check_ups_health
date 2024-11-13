@@ -20,7 +20,22 @@ sub init {
     $self->{lgpSysState} = "normalWithWarning"
         if ! defined $self->{lgpSysState} and
               grep { not $_->{expired}; } @{$self->{conditions}};
-my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
+    my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
+    my $lgpCondId4297UPSOutputonInverter_found = 0;
+    # irgendwie falscher Alarm. Liebert Spanien meint dazu:
+    # Delete the OID "1.3.6.1.4.1.476.1.42.3.2.7.1.4297" from the BMS mapping, which is that of UPS output On Inverter, so that it would no longer bother you in monitoring the equipment.
+    # Insert the alternative OID "1.3.6.1.4.476.1.42.3.9.20.1.20.1.2.2.1.4872" which is that of the UPS Output Source, which is a state of the equipment 
+    @{$self->{conditions}} = grep {
+      if (rindex($_->{lgpConditionDescr}, "lgpCondId4297UPSOutputonInverter ") == 0) {
+        $lgpCondId4297UPSOutputonInverter_found = 1;
+        0;
+      } else {
+        1;
+      }
+    } @{$self->{conditions}};
+    if ($lgpCondId4297UPSOutputonInverter_found) {
+      $self->{lgpConditionsPresent}--;
+    }
   }
   if ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
     $self->get_snmp_tables("LIEBERT-GP-ENVIRONMENTAL-MIB", [
@@ -176,6 +191,24 @@ my @schars = grep { not $_->{expired}; } @{$self->{conditions}};
               if not $measurement->{drecksglump};
         }
       }
+      $regex = qr/
+          UPS\ output\ source
+      /x;
+      @indices = map {
+          $_->{indices};
+      } grep {
+        $_->{lgpFlexibleEntryDataDescription} =~ $regex;
+      } @{$self->{flexentrylabels}};
+      if (@indices) {
+        my $measurement = undef;
+        foreach ($self->get_snmp_table_objects("LIEBERT-GP-FLEXIBLE-MIB", "lgpFlexibleExtendedTable", \@indices)) {
+          $measurement = CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexOutputSource->new(%{$_});
+        }
+        if ($measurement) {
+          push(@{$self->{outputsources}}, $measurement)
+              if not $measurement->{drecksglump};
+        }
+      }
     }
     ##
     # lgpFlexibleEntryDataLabel.1.2.1.4291 = Inlet Air Temperatur
@@ -215,6 +248,12 @@ sub check {
     $_->check();
   }
   foreach (@{$self->{humidities}}) {
+    $_->check();
+  }
+  foreach (@{$self->{oknasrsch}}) {
+    $_->check();
+  }
+  foreach (@{$self->{outputsources}}) {
     $_->check();
   }
   foreach (@{$self->{flexlabels}}) {
@@ -560,5 +599,32 @@ sub check {
       warning => $warning,
       critical => $critical,
   );
+}
+
+package CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexOutputSource;
+our @ISA = qw(Monitoring::GLPlugin::SNMP::TableItem);
+use strict;
+
+sub finish {
+  my ($self) = @_;
+  $self->{lgpFlexibleEntryValue} = {
+      1 => "Other",
+      2 => "Off",
+      3 => "Normal",
+      4 => "Bypass",
+      5 => "Battery",
+      6 => "Booster",
+      7 => "Reduce",
+  }->{$self->{lgpFlexibleEntryUnsignedIntegerValue}};
+}
+
+sub check {
+  my ($self) = @_;
+  $self->add_info(sprintf "UPS output source is %s", $self->{lgpFlexibleEntryValue});
+  if ($self->{lgpFlexibleEntryValue} eq "Normal") {
+    $self->add_ok();
+  } else {
+    $self->add_critical();
+  }
 }
 

@@ -1,3 +1,5 @@
+* 2024-10-13 4.3.2
+  add active check for liebert output source instead of condition
 * 2024-10-10 4.3.1.1
   update liebert flexible, discover another temperature
 * 2024-10-08 4.3.1
