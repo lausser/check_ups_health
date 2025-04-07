@@ -36,9 +36,15 @@ sub init {
   }
   # beobachtet bei Smart-Classes RT 1000 RM XL, da gab's nur
   # upsAdvOutputVoltage und upsAdvOutputFrequency
-  $self->{upsAdvOutputLoad} = 
-      ! defined $self->{upsAdvOutputLoad} || $self->{upsAdvOutputLoad} eq '' ?
-      $self->{upsHighPrecOutputLoad} / 10 : $self->{upsAdvOutputLoad};
+  # ergaenzt 4.4.24, APC Web/SNMP Management/Embedded PowerNet SNMP Agent SW v2.2 compatible hat gar nichts in der Art
+  if (defined $self->{upsAdvOutputLoad} and $self->{upsAdvOutputLoad} ne '') {
+    # passt
+  } elsif (defined $self->{upsHighPrecOutputLoad}) {
+    $self->{upsAdvOutputLoad} = $self->{upsHighPrecOutputLoad} / 10;
+  } else {
+    # gabs nicht oder war leer
+    $self->{upsAdvOutputLoad} = undef;
+  }
   # wer keine Angaben macht, gilt als gesund.
   $self->{upsBasicBatteryStatus} ||= 'batteryNormal';
   $self->{upsAdvTestLastDiagnosticsTrace} = "";
@@ -144,61 +150,66 @@ sub check {
     $relaxed_thresholds = 1;
   }
 
-  $self->set_thresholds(
-      metric => 'capacity', warning => '25:', critical => '10:');
-  my ($warn, $crit) = $self->get_thresholds(metric => 'capacity');
-  if ($relaxed_thresholds && $self->check_thresholds(
-          value => $self->{upsAdvBatteryCapacity},
-          metric => 'capacity')) {
-    # Schwellwerte halbieren, da beim Selbsttest durchaus ein paar Prozent
-    # verloren gehen.
-    $self->add_ok("lowered thresholds");
-    (my $nwarn = $warn) =~ s/:$//g;
-    (my $ncrit = $crit) =~ s/:$//g;
-    $nwarn /= 2;
-    $ncrit /= 2;
-    $warn = $nwarn.':';
-    $crit = $ncrit.':';
+  if (defined $self->{upsAdvBatteryCapacity}) {
+    # hat nicht jeder
+    $self->set_thresholds(
+        metric => 'capacity', warning => '25:', critical => '10:');
+    my ($warn, $crit) = $self->get_thresholds(metric => 'capacity');
+    if ($relaxed_thresholds && $self->check_thresholds(
+            value => $self->{upsAdvBatteryCapacity},
+            metric => 'capacity')) {
+      # Schwellwerte halbieren, da beim Selbsttest durchaus ein paar Prozent
+      # verloren gehen.
+      $self->add_ok("lowered thresholds");
+      (my $nwarn = $warn) =~ s/:$//g;
+      (my $ncrit = $crit) =~ s/:$//g;
+      $nwarn /= 2;
+      $ncrit /= 2;
+      $warn = $nwarn.':';
+      $crit = $ncrit.':';
+    }
+    $self->add_info(sprintf 'capacity is %.2f%%', $self->{upsAdvBatteryCapacity});
+    if ($self->check_thresholds(
+        value => $self->{upsAdvBatteryCapacity},
+        metric => 'capacity',
+        warning => $warn,
+        critical => $crit)) {
+      $self->annotate_info(sprintf "last selftest was %.2fh ago",
+          $self->{upsAdvTestLastDiagnosticsAgeHours});
+      $self->annotate_info(sprintf "trace %s",
+          $self->{upsAdvTestLastDiagnosticsTrace});
+      $self->annotate_info(sprintf "diag %s",
+          Data::Dumper::Dumper($self->{diag}));
+    }
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsAdvBatteryCapacity},
+            metric => 'capacity',
+            warning => $warn,
+            critical => $crit));
+    $self->add_perfdata(
+        label => 'capacity',
+        value => $self->{upsAdvBatteryCapacity},
+        uom => '%',
+        warning => $warn,
+        critical => $crit,
+    );
   }
-  $self->add_info(sprintf 'capacity is %.2f%%', $self->{upsAdvBatteryCapacity});
-  if ($self->check_thresholds(
-      value => $self->{upsAdvBatteryCapacity},
-      metric => 'capacity',
-      warning => $warn,
-      critical => $crit)) {
-    $self->annotate_info(sprintf "last selftest was %.2fh ago",
-        $self->{upsAdvTestLastDiagnosticsAgeHours});
-    $self->annotate_info(sprintf "trace %s",
-        $self->{upsAdvTestLastDiagnosticsTrace});
-    $self->annotate_info(sprintf "diag %s",
-        Data::Dumper::Dumper($self->{diag}));
-  }
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsAdvBatteryCapacity},
-          metric => 'capacity',
-          warning => $warn,
-          critical => $crit));
-  $self->add_perfdata(
-      label => 'capacity',
-      value => $self->{upsAdvBatteryCapacity},
-      uom => '%',
-      warning => $warn,
-      critical => $crit,
-  );
 
-  $self->set_thresholds(
-      metric => 'output_load', warning => '75', critical => '85');
-  $self->add_info(sprintf 'output load %.2f%%', $self->{upsAdvOutputLoad});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsAdvOutputLoad},
-          metric => 'output_load'));
-  $self->add_perfdata(
-      label => 'output_load',
-      value => $self->{upsAdvOutputLoad},
-      uom => '%',
-  );
+  if (defined $self->{upsAdvOutputLoad}) {
+    $self->set_thresholds(
+        metric => 'output_load', warning => '75', critical => '85');
+    $self->add_info(sprintf 'output load %.2f%%', $self->{upsAdvOutputLoad});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsAdvOutputLoad},
+            metric => 'output_load'));
+    $self->add_perfdata(
+        label => 'output_load',
+        value => $self->{upsAdvOutputLoad},
+        uom => '%',
+    );
+  }
 
   if (defined $self->{upsAdvBatteryTemperature}) {
     $self->set_thresholds(
@@ -279,3 +290,34 @@ sub dump {
   printf "info: %s\n", $self->{info};
   printf "\n";
 }
+
+__END__
+Gibt so Billigteile? wie den hier
+I am a APC Web/SNMP Management Card (MB:v4.2.9 PF:v2.5.0.8 PN:apc_hw21_aos_2.5.0.8.bin AF1:v2.5.0.1 AN1:apc_hw21_eu3p_2.5.0.1.bin MN:AP9547 HR:3 SN: QA2429170925 MD:07/20/2024) (Embedded PowerNet SNMP Agent SW v2.2 compatible)
+mit eingeschraenkten OIDs
+diag $VAR1 = {
+  'upsAdvInputMaxLineVoltage' => undef,
+  'upsAdvOutputVoltage' => undef,
+  'upsHighPrecOutputLoad' => undef,
+  'upsAdvOutputLoad' => undef,
+  'upsAdvInputLineFailCause' => 'noTransfer',
+  'upsAdvBatteryTemperature' => undef,
+  'upsAdvInputMinLineVoltage' => undef,
+  'upsAdvInputFrequency' => undef,
+  'upsAdvOutputFrequency' => undef,
+  'upsBasicBatteryStatus' => 'batteryNormal',
+  'upsAdvOutputCurrent' => undef,
+  'upsAdvTestLastDiagnosticsDate' => undef,
+  'upsAdvTestDiagnosticTime' => undef,
+  'upsAdvBatteryCapacity' => undef,
+  'upsAdvBatteryRunTimeRemaining' => '19656000',
+  'upsAdvBatteryReplaceIndicator' => undef,
+  'upsBasicOutputStatus' => 'onLine',
+  'upsAdvInputLineVoltage' => undef
+};
+Es gibt nur diese:
+  'upsAdvInputLineFailCause' => 'noTransfer',
+  'upsBasicBatteryStatus' => 'batteryNormal',
+  'upsAdvBatteryRunTimeRemaining' => '19656000',
+  'upsBasicOutputStatus' => 'onLine',
+

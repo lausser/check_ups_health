@@ -1,3 +1,5 @@
+* 2025-04-04 4.3.2.1
+  fix undef messages because a "PowerNet SNMP Agent SW v2.2 compatible" is missing some OIDs
 * 2024-10-13 4.3.2
   add active check for liebert output source instead of condition
 * 2024-10-10 4.3.1.1
