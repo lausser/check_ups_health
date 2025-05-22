@@ -20,32 +20,24 @@ sub classify {
           $self->get_snmp_object('PowerNet-MIB', 'upsBasicIdentName')) {
         # upsBasicIdentModel kann auch "" sein, upsBasicIdentName
         # theoretisch auch (da r/w), aber hoffentlich nicht beide zusammen
-        bless $self, 'CheckUpsHealth::APC::Powermib::UPS';
-        $self->debug('using CheckUpsHealth::APC::Powermib::UPS');
+        $self->rebless('CheckUpsHealth::APC::Powermib::UPS');
       } elsif ($self->{productname} =~ /APC /) {
-        bless $self, 'CheckUpsHealth::APC';
-        $self->debug('using CheckUpsHealth::APC');
+        $self->rebless('using CheckUpsHealth::APC');
       } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
         # like XPPC, that's why UPS is now last
-        bless $self, 'CheckUpsHealth::MerlinGerin';
-        $self->debug('using CheckUpsHealth::MerlinGerin');
+        $self->rebless('CheckUpsHealth::MerlinGerin');
       } elsif ($self->implements_mib('LIEBERT-GP-AGENT-MIB-xxxxxx')) {
-        bless $self, 'CheckUpsHealth::Liebert';
-        $self->debug('using CheckUpsHealth::Liebert');
+        $self->rebless('CheckUpsHealth::Liebert');
       } elsif ($self->implements_mib('LIEBERT-GP-POWER-MIB')) {
-        bless $self, 'CheckUpsHealth::Liebert';
-        $self->debug('using CheckUpsHealth::Liebert');
+        $self->rebless('CheckUpsHealth::Liebert');
       } elsif ($self->implements_mib('LIEBERT-GP-ENVIRONMENTAL-MIB')) {
-        bless $self, 'CheckUpsHealth::Liebert';
-        $self->debug('using CheckUpsHealth::Liebert');
+        $self->rebless('CheckUpsHealth::Liebert');
       } elsif ($self->implements_mib('LIEBERT-GP-FLEXIBLE-MIB')) {
-        bless $self, 'CheckUpsHealth::Liebert';
-        $self->debug('using CheckUpsHealth::Liebert');
+        $self->rebless('CheckUpsHealth::Liebert');
       } elsif ($self->implements_mib('ATS-THREEPHASE-MIB')) {
         $self->rebless('CheckUpsHealth::ATS');
       } elsif ($self->implements_mib('UPSV4-MIB')) {
-        bless $self, 'CheckUpsHealth::V4';
-        $self->debug('using CheckUpsHealth::V4');
+        $self->rebless('CheckUpsHealth::V4');
       } elsif ($self->implements_mib('EPPC-MIB')) {
         $self->rebless('CheckUpsHealth::EPPC');
       } elsif ($self->implements_mib('EATON-ATS2-MIB')) {
@@ -53,17 +45,13 @@ sub classify {
       } elsif ($self->implements_mib('XPPC-MIB')) {
         # before UPS-MIB because i found a Intelligent MSII6000 which implemented
         # both XPPC and UPS, but the latter only partial
-        bless $self, 'CheckUpsHealth::XPPC';
-        $self->debug('using CheckUpsHealth::XPPC');
+        $self->rebless('CheckUpsHealth::XPPC');
       } elsif ($self->implements_mib('XUPS-MIB')) {
-        bless $self, 'CheckUpsHealth::XUPS';
-        $self->debug('using CheckUpsHealth::XUPS');
+        $self->rebless('CheckUpsHealth::XUPS');
       } elsif ($self->{productname} =~ /Net Vision v6/) {
-        bless $self, 'CheckUpsHealth::Socomec';
-        $self->debug('using CheckUpsHealth::Socomec');
+        $self->rebless('CheckUpsHealth::Socomec');
       } elsif ($self->implements_mib('UPS-MIB')) {
-        bless $self, 'CheckUpsHealth::UPS';
-        $self->debug('using CheckUpsHealth::UPS');
+        $self->rebless('CheckUpsHealth::UPS');
       } else {
         $self->map_oid_to_class('1.3.6.1.4.1.318.1.3.17.1',
             'CheckUpsHealth::APC::Powermib');
@@ -73,8 +61,7 @@ sub classify {
           bless $self, $class;
           $self->debug('using '.$class);
         } else {
-          bless $self, 'CheckUpsHealth::Generic';
-          $self->debug('using CheckUpsHealth::Generic');
+          $self->rebless('CheckUpsHealth::Generic');
         }
       }
     }
