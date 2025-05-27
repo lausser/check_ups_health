@@ -8,6 +8,10 @@ sub init {
     $self->analyze_and_check_battery_subsystem(ref($self).'::Component::BatterySubsystem');
   } elsif ($self->mode =~ /device::hardware/) {
     $self->analyze_and_check_environmental_subsystem(ref($self).'::Component::EnvironmentalSubsystem');
+    if (! $self->{components}->{environmental_subsystem}->{oids_found}){
+      $self->clear_messages(0);
+      $self->analyze_and_check_ups_environmental_subsystem('CheckUpsHealth::UPS::Component::EnvironmentalSubsystem');
+    }
   } else {
     $self->no_such_mode();
   }

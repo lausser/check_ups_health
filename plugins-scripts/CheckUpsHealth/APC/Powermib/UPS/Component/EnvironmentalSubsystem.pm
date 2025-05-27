@@ -5,6 +5,7 @@ use POSIX qw(mktime);
 
 sub init {
   my ($self) = @_;
+  $self->{oids_found} = 0; # some devices dont have these oids at all
   # aufteilen in eigene packages: basic, advanced und smart
   # wenn adv keine tests hatte, dann upsBasicStateOutputState fragen
   $self->get_snmp_objects('PowerNet-MIB', (qw(
@@ -24,6 +25,7 @@ sub init {
   )));
   eval {
     die if ! $self->{upsAdvTestLastDiagnosticsDate};
+    $self->{oids_found}++;
     $self->{upsAdvTestLastDiagnosticsDate} =~ /(\d+)\/(\d+)\/(\d+)/ || die;
     $self->{upsAdvTestLastDiagnosticsDate} = mktime(0, 0, 0, $2, $1 - 1, $3 - 1900);
     $self->{upsAdvTestLastDiagnosticsAge} = (time - $self->{upsAdvTestLastDiagnosticsDate}) / (3600 * 24);
@@ -36,6 +38,7 @@ sub init {
     ["sensorconfigs", "uioSensorConfigTable", "Monitoring::GLPlugin::SNMP::TableItem"],
   ]);
   foreach my $sensor (@{$self->{sensors}}) {
+    $self->{oids_found}++;
     foreach my $config (@{$self->{sensorconfigs}}) {
       if ($config->{flat_indices} eq $sensor->{flat_indices}) {
         foreach my $key (keys %{$config}) {

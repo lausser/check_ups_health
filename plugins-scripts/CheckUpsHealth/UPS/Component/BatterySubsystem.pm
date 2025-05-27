@@ -168,19 +168,29 @@ use strict;
 sub check {
   my ($self) = @_;
   $self->{upsOutputCurrent} /= 10 if defined $self->{upsOutputCurrent};
-  my $metric = 'output_load'.$self->{flat_indices};
-  $self->set_thresholds(
-      metric => $metric, warning => '75', critical => '85');
-  $self->add_info(sprintf 'output load%d %.2f%%', $self->{flat_indices}, $self->{upsOutputPercentLoad});
-  $self->add_message(
-      $self->check_thresholds(
-          value => $self->{upsOutputPercentLoad},
-          metric => $metric));
-  $self->add_perfdata(
-      label => $metric,
-      value => $self->{upsOutputPercentLoad},
-      uom => '%',
-  );
+  if (defined $self->{upsOutputPercentLoad}) {
+    # Selten, kommt aber vor. Sogar bei Leuten, die sich nun wirklich
+    # eine USV mit Messung der upsOutputPercentLoad leisten koennten.
+    # Das hier muesste mir onehin mal ein Elektriker erklaeren
+    # 'upsOutputVoltage' => 0,
+    # 'upsOutputPower' => 1799,
+    # 'upsOutputCurrent' => 0,
+    # Vielleicht ist diese Buchse aber auch inaktiv.
+    my $metric = 'output_load'.$self->{flat_indices};
+    $self->set_thresholds(
+        metric => $metric, warning => '75', critical => '85');
+    $self->add_info(sprintf 'output load%d %.2f%%',
+        $self->{flat_indices}, $self->{upsOutputPercentLoad});
+    $self->add_message(
+        $self->check_thresholds(
+            value => $self->{upsOutputPercentLoad},
+            metric => $metric));
+    $self->add_perfdata(
+        label => $metric,
+        value => $self->{upsOutputPercentLoad},
+        uom => '%',
+    );
+  }
   $self->add_perfdata(
       label => 'output_voltage'.$self->{flat_indices},
       value => $self->{upsOutputVoltage},

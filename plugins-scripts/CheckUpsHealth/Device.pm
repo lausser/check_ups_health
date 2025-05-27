@@ -22,7 +22,20 @@ sub classify {
         # theoretisch auch (da r/w), aber hoffentlich nicht beide zusammen
         $self->rebless('CheckUpsHealth::APC::Powermib::UPS');
       } elsif ($self->{productname} =~ /APC /) {
-        $self->rebless('using CheckUpsHealth::APC');
+        # PowerNet-MIB wurde im 1. if geladen
+        $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{'PowerNet-MIB'}->{'atsExperimentalFirmware1'} = '1.3.6.1.4.1.318.1.4.2.4.1.3.1';
+        $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{'PowerNet-MIB'}->{'atsExperimentalFirmware2'} = '1.3.6.1.4.1.318.1.4.2.4.1.3.2';
+        $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{'PowerNet-MIB'}->{'atsExperimentalFirmware3'} = '1.3.6.1.4.1.318.1.4.2.4.1.3.3';
+        $self->get_snmp_objects('PowerNet-MIB', (qw(atsExperimentalFirmware1
+            atsExperimentalFirmware2 atsExperimentalFirmware3)));
+        if ($self->{atsExperimentalFirmware1} =~ /apc_/ or
+            $self->{atsExperimentalFirmware2} =~ /apc_/ or
+            $self->{atsExperimentalFirmware3} =~ /apc_/) {
+          $self->rebless('CheckUpsHealth::APC::Powermib::UPS');
+        } else {
+          # das nimmt jetzt ein trauriges Ende
+          $self->rebless('CheckUpsHealth::APC');
+        }
       } elsif ($self->implements_mib('MG-SNMP-UPS-MIB')) {
         # like XPPC, that's why UPS is now last
         $self->rebless('CheckUpsHealth::MerlinGerin');
@@ -58,8 +71,7 @@ sub classify {
         $self->map_oid_to_class('1.3.6.1.4.1.4555.1.1.1',
             'CheckUpsHealth::Socomec::Netvision');
         if (my $class = $self->discover_suitable_class()) {
-          bless $self, $class;
-          $self->debug('using '.$class);
+          $self->rebless($class);
         } else {
           $self->rebless('CheckUpsHealth::Generic');
         }
@@ -83,8 +95,7 @@ sub check_snmp_and_model {
     if ($self->implements_mib('UPS-MIB') &&
         $self->get_snmp_object('UPS-MIB', 'upsIdentModel') =~ /TRIMOD/) {
       $self->clear_messages(3);
-      bless $self, 'CheckUpsHealth::UPS';
-      $self->debug('using CheckUpsHealth::UPS');
+      $self->rebless('CheckUpsHealth::UPS');
       $self->debug("check for UPSMIB");
       $self->{uptime} = 3600;
       $self->{productname} = "TRIMOD-with-broken-firmware";
