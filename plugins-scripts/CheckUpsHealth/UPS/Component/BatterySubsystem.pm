@@ -21,6 +21,21 @@ sub init {
   $self->{upsBatteryCurrent} /= 10;
   $self->{upsOutputFrequency} = 0 if ! $self->{upsOutputFrequency};
   $self->{upsOutputFrequency} /= 10;
+  if (defined $self->{upsEstimatedMinutesRemaining}) {
+    $self->protect_value('battery', 'upsEstimatedMinutesRemaining', 'positive');
+  }
+  if (defined $self->{upsEstimatedChargeRemaining}) {
+    $self->protect_value('battery', 'upsEstimatedChargeRemaining', 'percent');
+  }
+  if (defined $self->{upsBatteryStatus}) {
+    $self->protect_value('battery', 'upsBatteryStatus', sub {
+        my $value = shift;
+        return 0 if ! defined $value;
+        return 0 if $value =~ /^unknown_\d+$/;
+        return 0 if $value =~ /^\d+$/;
+        return 1;
+    });
+  }
   # bad firmware, no sensor? who knows...
   $self->{upsBatteryTemperature} = undef if
       defined $self->{upsBatteryTemperature} &&
@@ -169,6 +184,7 @@ sub check {
   my ($self) = @_;
   $self->{upsOutputCurrent} /= 10 if defined $self->{upsOutputCurrent};
   if (defined $self->{upsOutputPercentLoad}) {
+    $self->protect_value('output'.$self->{flat_indices}, 'upsOutputPercentLoad', 'percent');
     # Selten, kommt aber vor. Sogar bei Leuten, die sich nun wirklich
     # eine USV mit Messung der upsOutputPercentLoad leisten koennten.
     # Das hier muesste mir onehin mal ein Elektriker erklaeren
@@ -204,4 +220,3 @@ sub check {
       value => $self->{upsOutputPower} || 0,
   );
 }
-
