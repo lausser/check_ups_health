@@ -37,6 +37,7 @@ GL_MODULES=\
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/ATSTHREEPHASEMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EPPCMIB.pm \
+  ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/EATONPXGMIB.pm \
   ../GLPlugin/lib/Monitoring/GLPlugin/SNMP/MibsAndOids/HOSTRESOURCESMIB.pm
 EXTRA_MODULES=\
   CheckUpsHealth/APC/Powermib/UPS/Component/EnvironmentalSubsystem.pm \
@@ -78,6 +79,9 @@ EXTRA_MODULES=\
   CheckUpsHealth/ATS.pm \
   CheckUpsHealth/Eaton/ATS2/Component/BatterySubsystem.pm \
   CheckUpsHealth/Eaton/ATS2/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/Eaton/PX/Component/BatterySubsystem.pm \
+  CheckUpsHealth/Eaton/PX/Component/EnvironmentalSubsystem.pm \
+  CheckUpsHealth/Eaton/PX/Component/AlarmSubsystem.pm \
   CheckUpsHealth/Eaton.pm \
   CheckUpsHealth/Device.pm
 

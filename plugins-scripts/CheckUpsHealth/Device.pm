@@ -53,6 +53,8 @@ sub classify {
         $self->rebless('CheckUpsHealth::V4');
       } elsif ($self->implements_mib('EPPC-MIB')) {
         $self->rebless('CheckUpsHealth::EPPC');
+      } elsif ($self->implements_mib('EATON-PXG-MIB')) {
+        $self->rebless('CheckUpsHealth::Eaton');
       } elsif ($self->implements_mib('EATON-ATS2-MIB')) {
         $self->rebless('CheckUpsHealth::Eaton');
       } elsif ($self->implements_mib('XPPC-MIB')) {
