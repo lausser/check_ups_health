@@ -17,7 +17,7 @@ sub check {
 #    # unfortunately this is >0 even if there are only outdated or bullshit alarms
 #    $self->add_critical();
 #  }
-  $self->add_ok();
+  $self->add_info("no active alarms"); $self->add_ok();
   foreach (@{$self->{alarms}}) {
     $_->check();
   }

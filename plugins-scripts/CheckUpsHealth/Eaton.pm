@@ -5,15 +5,24 @@ use strict;
 sub init {
   my ($self) = @_;
   if ($self->mode =~ /device::hardware::health/) {
-    if ($self->implements_mib('EATON-ATS2-MIB')) {
-      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::Eaton::ATS2::Component::EnvironmentalSubsystem');
-      if (defined $self->{components}->{environmental_subsystem}->{upsAlarmsPresent} and $self->{components}->{environmental_subsystem}->{upsAlarmsPresent}) {
+    if ($self->implements_mib('EATON-PXG-MIB')) {
+      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::Eaton::PX::Component::EnvironmentalSubsystem');
+      #if (defined $self->{components}->{environmental_subsystem}->{upsAlarmsPresent} and $self->{components}->{environmental_subsystem}->{upsAlarmsPresent}) {
         if ($self->implements_mib('XUPS-MIB')) {
           $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::XUPS::Component::EnvironmentalSubsystem');
-        } elsif ($self->implements_mib('XUPS-MIB')) {
+        } elsif ($self->implements_mib('UPS-MIB')) {
           $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::UPS::Component::EnvironmentalSubsystem');
         }
-      }
+	#}
+    } elsif ($self->implements_mib('EATON-ATS2-MIB')) {
+      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::Eaton::ATS2::Component::EnvironmentalSubsystem');
+      #if (defined $self->{components}->{environmental_subsystem}->{upsAlarmsPresent} and $self->{components}->{environmental_subsystem}->{upsAlarmsPresent}) {
+        if ($self->implements_mib('XUPS-MIB')) {
+          $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::XUPS::Component::EnvironmentalSubsystem');
+        } elsif ($self->implements_mib('UPS-MIB')) {
+          $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::UPS::Component::EnvironmentalSubsystem');
+        }
+	#}
     } elsif ($self->implements_mib('ATS-THREEPHASE-MIB')) {
       $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::ATS::ATSTHREEPHASE::Component::EnvironmentalSubsystem');
     } elsif ($self->implements_mib('XUPS-MIB')) {
@@ -29,12 +38,15 @@ sub init {
   } elsif ($self->mode =~ /device::battery/) {
     if ($self->implements_mib('EATON-ATS2-MIB')) {
       $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::Eaton::ATS2::Component::BatterySubsystem');
+      if ($self->implements_mib('XUPS-MIB')) {
+        $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::XUPS::Component::BatterySubsystem');
+      }
     } elsif ($self->implements_mib('ATS-THREEPHASE-MIB')) {
       $self->analyze_and_check_battery_subsystem('CheckUpsHealth::ATS::ATSTHREEPHASE::Component::BatterySubsystem');
     } elsif ($self->implements_mib('XUPS-MIB')) {
-      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::XUPS::Component::EnvironmentalSubsystem');
+      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::XUPS::Component::BatterySubsystem');
     } elsif ($self->implements_mib('UPS-MIB')) {
-      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::UPS::Component::EnvironmentalSubsystem');
+      $self->analyze_and_check_environmental_subsystem('CheckUpsHealth::UPS::Component::BatterySubsystem');
     }
   } else {
     $self->no_such_mode();
