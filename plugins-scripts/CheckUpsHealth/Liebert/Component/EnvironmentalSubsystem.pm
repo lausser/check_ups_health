@@ -128,7 +128,7 @@ sub init {
               $_->{lgpFlexibleEntryUnitsOfMeasureEnum} ne "degC");
           my $obj = CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexEntry->new(%{$_});
           $measurement = $obj
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/ and not $obj->{drecksglump};
           bless $measurement, "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature"
               if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/;
           $warning_from = $obj->{lgpFlexibleEntryValue}
@@ -145,8 +145,7 @@ sub init {
           $measurement->{warning_to} = $warning_to if defined $warning_to;
           $measurement->{critical_from} = $critical_from if defined $critical_from;
           $measurement->{critical_to} = $critical_to if defined $critical_to;
-          push(@{$self->{temperatures}}, $measurement)
-              if not $measurement->{drecksglump};
+          push(@{$self->{temperatures}}, $measurement);
         }
       }
       $regex = qr/
