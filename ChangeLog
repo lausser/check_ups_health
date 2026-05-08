@@ -1,3 +1,5 @@
+* 2026-05-08 4.4.0.2
+  bugfix for the Liebert bugfix
 * 2026-05-06 4.4.0.1
   bugfix in Liebert FlexEntry (temperature was skipped)
 * 2026-03-04 4.4

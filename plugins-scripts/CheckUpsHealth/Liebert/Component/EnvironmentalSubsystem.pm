@@ -130,7 +130,7 @@ sub init {
           $measurement = $obj
               if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/ and not $obj->{drecksglump};
           bless $measurement, "CheckUpsHealth::Liebert::Component::EnvironmentalSubsystem::FlexTemperature"
-              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/;
+              if $obj->{lgpFlexibleEntryDataDescription} =~ /(measured|for a cabinet|The temperature of)/ and $measurement;
           $warning_from = $obj->{lgpFlexibleEntryValue}
               if $obj->{lgpFlexibleEntryDataDescription} =~ /Under.*warning/;
           $critical_from = $obj->{lgpFlexibleEntryValue}
