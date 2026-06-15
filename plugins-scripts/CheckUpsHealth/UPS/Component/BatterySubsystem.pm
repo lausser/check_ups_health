@@ -5,6 +5,7 @@ use strict;
 sub init {
   my ($self) = @_;
   $self->get_snmp_objects("UPS-MIB", qw(upsBatteryStatus upsSecondsOnBattery 
+      upsOutputSource
       upsEstimatedMinutesRemaining upsBatteryVoltage upsBatteryCurrent
       upsBatteryTemperature upsOutputFrequency upsEstimatedChargeRemaining));
   $self->get_snmp_tables("UPS-MIB", [
@@ -29,6 +30,15 @@ sub init {
   }
   if (defined $self->{upsBatteryStatus}) {
     $self->protect_value('battery', 'upsBatteryStatus', sub {
+        my $value = shift;
+        return 0 if ! defined $value;
+        return 0 if $value =~ /^unknown_\d+$/;
+        return 0 if $value =~ /^\d+$/;
+        return 1;
+    });
+  }
+  if (defined $self->{upsOutputSource}) {
+    $self->protect_value('outputsource', 'upsOutputSource', sub {
         my $value = shift;
         return 0 if ! defined $value;
         return 0 if $value =~ /^unknown_\d+$/;
@@ -131,6 +141,17 @@ sub check {
 
   if ($self->{upsBatteryStatus} && $self->{upsBatteryStatus} ne "batteryNormal") {
     $self->add_critical("battery has status: ".$self->{upsBatteryStatus});
+  }
+  # good: normal, battery (battery runtime is covered by remaining_time above)
+  # also good: booster/reducer. These mean the AVR (automatic voltage
+  # regulation) is boosting a too-low or reducing a too-high input mains
+  # voltage back to nominal. The load stays powered from utility and the
+  # battery is NOT discharged - this is the UPS doing exactly its job, not a
+  # fault, so no alert.
+  # bad: none, bypass, other (no protected output / load on raw mains)
+  if ($self->{upsOutputSource} &&
+      grep { $self->{upsOutputSource} eq $_ } qw(none bypass other)) {
+    $self->add_critical("output source is: ".$self->{upsOutputSource});
   }
 }
 
